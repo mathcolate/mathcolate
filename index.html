@@ -1035,28 +1035,20 @@
 
             populateManageFilters() {
 
-                const schools = [...new Set(this.allUsers.map(u => u.school).filter(Boolean))].sort();
-                const schoolSelect = document.getElementById('filter-school');
-                if (schoolSelect) {
-                    schoolSelect.innerHTML = '<option value="">所有學校</option>' + 
+                const users = Object.values(this.usersRegistry);
+                const schools = [...new Set(users.map(u => u.school).filter(Boolean))].sort();
+                const classes = [...new Set(users.map(u => u.class_name).filter(Boolean))].sort();
+
+                const schoolFilter = document.getElementById('manageFilterSchool');
+                const classFilter = document.getElementById('manageFilterClass');
+
+                if (schoolFilter) {
+                    schoolFilter.innerHTML = '<option value="">All Schools</option>' + 
                         schools.map(s => `<option value="${s}">${s}</option>`).join('');
                 }
-
-                const classSet = new Set();
-                this.allUsers.forEach(u => {
-                    if (u.class) {
-                        u.class.split(',')
-                            .map(c => c.trim())
-                            .filter(Boolean)
-                            .forEach(c => classSet.add(c));
-                    }
-                });
-    
-                const uniqueClasses = Array.from(classSet).sort();
-                const classSelect = document.getElementById('filter-class');
-                if (classSelect) {
-                    classSelect.innerHTML = '<option value="">所有班別</option>' + 
-                        uniqueClasses.map(c => `<option value="${c}">${c}</option>`).join('');
+                if (classFilter) {
+                    classFilter.innerHTML = '<option value="">All Classes</option>' + 
+                        classes.map(c => `<option value="${c}">${c}</option>`).join('');
                 }
                 
             },
@@ -1244,34 +1236,45 @@
                 this.showModal('delete-confirm');
             },
 
-            async processProfileDelete(userId) {
-                const username = typeof targetUser === 'string' ? targetUser : this.deleteTargetUsername;
-                if (!username) return;
-
-                if (this.currentUser && this.currentUser.username === username) {
-                    this.hideModal('delete-confirm');
-                    this.showOutputMessage(this.t('errCannotDeleteSelf'), true);
+            async processProfileDelete(targetUser) {
+    
+                if (!targetUser) {
+                    this.showOutputMessage('無效的用戶資料，無法執行刪除。', 'error');
                     return;
                 }
 
-                delete this.usersRegistry[username];
+                const userId = typeof targetUser === 'string' ? targetUser : targetUser.id;
 
-                if (dbClient) {
-                    try {
-                        const { error } = await dbClient.from('profiles').delete().eq('username', username);
-                        if (error) console.error("Supabase delete error:", error);
-                    } catch (e) {
-                        console.error("Delete user fail:", e);
-                    }
+                if (!userId) {
+                    this.showOutputMessage('無法取得用戶 ID。', 'error');
+                    return;
                 }
 
-                this.deleteTargetUsername = null;
-                this.hideModal('delete-confirm');
-                
-                this.populateManageFilters();
-                this.renderManageTable();
-                this.showOutputMessage(this.t('alertUserDeleted'));
+                if (!confirm(`確定要刪除用戶（ID: ${userId}）嗎？此操作無法復原。`)) {
+                    return;
+                }
+
+                try {
+                    this.showOutputMessage('正在刪除用戶...', 'info');
+                    const { error } = await supabaseClient
+                        .from('profiles')
+                        .delete()
+                        .eq('id', userId);
+
+                    if (error) throw error;
+
+                    delete this.usersRegistry[userId];
+        
+                    this.showOutputMessage('用戶已成功刪除！', 'success');
+                    if (typeof this.renderManageUsersTable === 'function') this.renderManageUsersTable();
+                    if (typeof this.populateManageFilters === 'function') this.populateManageFilters();
+                    if (typeof this.closeModal === 'function') this.closeModal('delete-confirm-modal');
+                } catch (err) {
+                    console.error('刪除用戶失敗:', err);
+                    this.showOutputMessage(`刪除失敗：${err.message || err}`, 'error');
+                }
             }
+            
         };
 
         document.addEventListener('DOMContentLoaded', () => {
