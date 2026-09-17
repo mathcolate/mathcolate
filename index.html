@@ -1034,17 +1034,31 @@
             },
 
             populateManageFilters() {
-                const users = Object.values(this.usersRegistry);
-                const schools = [...new Set(users.map(u => u.school).filter(Boolean))];
-                const classes = [...new Set(users.map(u => u.class).filter(Boolean))];
 
-                const schoolSel = document.getElementById('filter-school');
-                const roleSel = document.getElementById('filter-role');
-                const classSel = document.getElementById('filter-class');
+                const schools = [...new Set(this.allUsers.map(u => u.school).filter(Boolean))].sort();
+                const schoolSelect = document.getElementById('filter-school');
+                if (schoolSelect) {
+                    schoolSelect.innerHTML = '<option value="">所有學校</option>' + 
+                        schools.map(s => `<option value="${s}">${s}</option>`).join('');
+                }
 
-                if (schoolSel) schoolSel.innerHTML = `<option value="">${this.t('filterAllSchools')}</option>` + schools.map(s => `<option value="${s}">${s}</option>`).join('');
-                if (roleSel) roleSel.innerHTML = `<option value="">${this.t('filterAllRoles')}</option><option value="Student">${this.t('roleStudent')}</option><option value="Teacher">${this.t('roleTeacher')}</option>`;
-                if (classSel) classSel.innerHTML = `<option value="">${this.t('filterAllClasses')}</option>` + classes.map(c => `<option value="${c}">${c}</option>`).join('');
+                const classSet = new Set();
+                this.allUsers.forEach(u => {
+                    if (u.class) {
+                        u.class.split(',')
+                            .map(c => c.trim())
+                            .filter(Boolean)
+                            .forEach(c => classSet.add(c));
+                    }
+                });
+    
+                const uniqueClasses = Array.from(classSet).sort();
+                const classSelect = document.getElementById('filter-class');
+                if (classSelect) {
+                    classSelect.innerHTML = '<option value="">所有班別</option>' + 
+                        uniqueClasses.map(c => `<option value="${c}">${c}</option>`).join('');
+                }
+                
             },
 
             handleManageFilter() {
@@ -1063,38 +1077,78 @@
             },
 
             handleManageSort(col) {
-                this.manageState.sortAsc = (this.manageState.sortCol === col) ? !this.manageState.sortAsc : true;
-                this.manageState.sortCol = col;
+                if (this.manageState.sortCol === col) {
+                    this.manageState.sortAsc = !this.manageState.sortAsc;
+                } else {
+                    this.manageState.sortCol = col;
+                    this.manageState.sortAsc = true;
+                }
                 this.renderManageTable();
             },
 
             renderManageTable() {
-                let users = Object.values(this.usersRegistry);
+                let users = [...this.allUsers];
 
-                if (this.manageState.filters.school) users = users.filter(u => u.school === this.manageState.filters.school);
-                if (this.manageState.filters.role) users = users.filter(u => u.role === this.manageState.filters.role);
-                if (this.manageState.filters.class) users = users.filter(u => u.class === this.manageState.filters.class);
+                if (this.manageState.filters.class) {
+                    const selectedClass = this.manageState.filters.class;
+                    users = users.filter(u => {
+                        if (!u.class) return false;
+                        return u.class.split(',').map(c => c.trim()).includes(selectedClass);
+                    });
+                }
+
+                if (this.manageState.filters.role) {
+                    users = users.filter(u => u.role === this.manageState.filters.role);
+                }
+
+                if (this.manageState.searchTerm) {
+                    const term = this.manageState.searchTerm.toLowerCase();
+                    users = users.filter(u => 
+                        (u.accountName && u.accountName.toLowerCase().includes(term)) ||
+                        (u.username && u.username.toLowerCase().includes(term))
+                    );
+                }
+                
+                const { sortCol, sortAsc } = this.manageState;
+                if (sortCol) {
+                    users.sort((a, b) => {
+                        const valA = (a[sortCol] || '').toString().trim();
+                        const valB = (b[sortCol] || '').toString().trim();
+                        return sortAsc 
+                            ? valA.localeCompare(valB, 'zh-Hant', { numeric: true })
+                            : valB.localeCompare(valA, 'zh-Hant', { numeric: true });
+                    });
+                }
+
+                ['school', 'accountName', 'username', 'role', 'class'].forEach(col => {
+                    const icon = document.getElementById(`sort-icon-${col}`);
+                    if (icon) {
+                        icon.textContent = (sortCol === col) ? (sortAsc ? ' ▲' : ' ▼') : '';
+                    }
+                });
 
                 const tbody = document.getElementById('manage-table-body');
                 if (!tbody) return;
 
+                if (users.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4">沒有找到相關用戶資料</td></tr>`;
+                    return;
+                }
+
                 tbody.innerHTML = users.map(u => `
-                    <tr class="border-b border-gray-100 hover:bg-gray-50 text-sm">
-                        <td class="px-4 py-3">${u.school}</td>
-                        <td class="px-4 py-3">${u.accountName}</td>
-                        <td class="px-4 py-3">${u.username}</td>
-                        <td class="px-4 py-3">${this.t('role' + u.role) || u.role}</td>
-                        <td class="px-4 py-3">${u.class || '-'}</td>
-                        <td class="px-4 py-3 flex space-x-2">
-                            <button onclick="app.openAdminUserModal('${u.username}')" class="text-blue-600 font-semibold text-xs border border-blue-200 px-2 py-1 rounded hover:bg-blue-50">
-                                ${this.t('btnEdit')}
-                            </button>
-                            <button onclick="app.confirmProfileDelete('${u.username}')" class="text-red-600 font-semibold text-xs border border-red-200 px-2 py-1 rounded hover:bg-red-50">
-                                ${this.t('btnDelete')}
-                            </button>
+                    <tr>
+                        <td>${u.school || '-'}</td>
+                        <td>${u.accountName || '-'}</td>
+                        <td>${u.username || '-'}</td>
+                        <td>${u.role || '-'}</td>
+                        <td>${u.class || '-'}</td>
+                        <td>
+                            <button onclick="app.editProfile('${u.id}')" class="btn btn-sm btn-outline-primary">編輯</button>
+                            <button onclick="app.deleteProfile('${u.id}')" class="btn btn-sm btn-outline-danger">刪除</button>
                         </td>
                     </tr>
                 `).join('');
+                
             },
 
             openAdminUserModal(username) {
@@ -1189,7 +1243,7 @@
                 this.showModal('delete-confirm');
             },
 
-            async processProfileDelete() {
+            async processProfileDelete(userId) {
                 const username = this.deleteTargetUsername;
                 if (!username) return;
 
