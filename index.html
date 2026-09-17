@@ -1087,7 +1087,7 @@
             },
 
             renderManageTable() {
-                let users = [...this.allUsers];
+                let users = Object.values(this.usersRegistry);
 
                 if (this.manageState.filters.class) {
                     const selectedClass = this.manageState.filters.class;
@@ -1101,16 +1101,13 @@
                     users = users.filter(u => u.role === this.manageState.filters.role);
                 }
 
-                if (this.manageState.searchTerm) {
-                    const term = this.manageState.searchTerm.toLowerCase();
-                    users = users.filter(u => 
-                        (u.accountName && u.accountName.toLowerCase().includes(term)) ||
-                        (u.username && u.username.toLowerCase().includes(term))
-                    );
+                if (this.manageState.filters.school) {
+                    users = users.filter(u => u.school === this.manageState.filters.school);
                 }
                 
                 const { sortCol, sortAsc } = this.manageState;
                 if (sortCol) {
+                    const locale = this.lang === 'en' ? 'en' : 'zh-Hant';
                     users.sort((a, b) => {
                         const valA = (a[sortCol] || '').toString().trim();
                         const valB = (b[sortCol] || '').toString().trim();
@@ -1136,15 +1133,19 @@
                 }
 
                 tbody.innerHTML = users.map(u => `
-                    <tr>
-                        <td>${u.school || '-'}</td>
-                        <td>${u.accountName || '-'}</td>
-                        <td>${u.username || '-'}</td>
-                        <td>${u.role || '-'}</td>
-                        <td>${u.class || '-'}</td>
-                        <td>
-                            <button onclick="app.editProfile('${u.id}')" class="btn btn-sm btn-outline-primary">編輯</button>
-                            <button onclick="app.deleteProfile('${u.id}')" class="btn btn-sm btn-outline-danger">刪除</button>
+                    <tr class="hover:bg-gray-50 border-b border-gray-100 transition-colors">
+                        <td class="px-4 py-3 text-sm text-gray-700">${u.school || '-'}</td>
+                        <td class="px-4 py-3 text-sm font-medium text-gray-900">${u.accountName || '-'}</td>
+                        <td class="px-4 py-3 text-sm text-gray-500">${u.username || '-'}</td>
+                        <td class="px-4 py-3 text-sm text-gray-700">${u.role || '-'}</td>
+                        <td class="px-4 py-3 text-sm text-gray-700">${u.class || '-'}</td>
+                        <td class="px-4 py-3 text-sm space-x-2">
+                            <button onclick="app.openAdminUserModal('${u.username}')" class="px-2.5 py-1 text-xs font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors">
+                                ${this.t('btnEdit')}
+                            </button>
+                            <button onclick="app.confirmProfileDelete('${u.username}')" class="px-2.5 py-1 text-xs font-semibold text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 rounded-md transition-colors">
+                                ${this.t('btnDelete')}
+                            </button>
                         </td>
                     </tr>
                 `).join('');
@@ -1244,7 +1245,7 @@
             },
 
             async processProfileDelete(userId) {
-                const username = this.deleteTargetUsername;
+                const username = typeof targetUser === 'string' ? targetUser : this.deleteTargetUsername;
                 if (!username) return;
 
                 if (this.currentUser && this.currentUser.username === username) {
@@ -1257,13 +1258,17 @@
 
                 if (dbClient) {
                     try {
-                        await dbClient.from('profiles').delete().eq('username', username);
+                        const { error } = await dbClient.from('profiles').delete().eq('username', username);
+                        if (error) console.error("Supabase delete error:", error);
                     } catch (e) {
                         console.error("Delete user fail:", e);
                     }
                 }
 
+                this.deleteTargetUsername = null;
                 this.hideModal('delete-confirm');
+                
+                this.populateManageFilters();
                 this.renderManageTable();
                 this.showOutputMessage(this.t('alertUserDeleted'));
             }
