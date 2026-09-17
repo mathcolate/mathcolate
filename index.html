@@ -680,7 +680,7 @@
         };
 
         const app = {
-            lang: 'zh', // Default to Chinese
+            lang: 'en',
             view: 'main',
             currentUser: null,
             userMenuOpen: false,
@@ -721,7 +721,7 @@
 
             async loadUsersFromSupabase() {
                 try {
-                    const { data, error } = await dbClient.from('profiles').select('*');
+                    const { data, error } = await dbClient.from('users_acc_info').select('*');
                     if (data && !error) {
                         data.forEach(user => {
                             this.usersRegistry[user.username] = {
@@ -885,7 +885,7 @@
 
                 if (!userObj && dbClient) {
                     try {
-                        const { data } = await dbClient.from('profiles').select('*').eq('username', user).single();
+                        const { data } = await dbClient.from('users_acc_info').select('*').eq('username', user).single();
                         if (data) {
                             userObj = {
                                 username: data.username,
@@ -972,7 +972,7 @@
 
                 if (dbClient) {
                     try {
-                        await dbClient.from('profiles').update({
+                        await dbClient.from('users_acc_info').update({
                             password, engName, chiName, role, school, class: userClass
                         }).eq('username', username);
                     } catch (err) {
@@ -1044,7 +1044,7 @@
 
                 if (dbClient) {
                     try {
-                        await dbClient.from('profiles').insert([{
+                        await dbClient.from('users_acc_info').insert([{
                             username, password, engName, chiName, role, school, class: userClass
                         }]);
                     } catch (e) {
@@ -1289,11 +1289,11 @@
                 if (dbClient) {
                     try {
                         if (mode === 'add') {
-                            await dbClient.from('profiles').insert([{
+                            await dbClient.from('users_acc_info').insert([{
                                 username, password, engName, chiName, role, school, class: userClass
                             }]);
                         } else {
-                            await dbClient.from('profiles').update({
+                            await dbClient.from('users_acc_info').update({
                                 password, engName, chiName, role, school, class: userClass
                             }).eq('username', username);
                         }
@@ -1359,7 +1359,7 @@
 
                 if (dbClient) {
                     try {
-                        await dbClient.from('profiles').delete().eq('username', username);
+                        await dbClient.from('users_acc_info').delete().eq('username', username);
                     } catch (err) {
                         console.error("Delete user error:", err);
                     }
