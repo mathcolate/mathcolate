@@ -702,9 +702,9 @@
                             this.usersRegistry[user.username] = {
                                 username: user.username,
                                 password: user.password,
-                                accountName: user.account_name || user.eng_name,
-                                engName: user.eng_name,
-                                chiName: user.chi_name,
+                                accountName: user.accountName || user.engName,
+                                engName: user.engName,
+                                chiName: user.chiName,
                                 role: user.role,
                                 school: user.school,
                                 class: user.class
@@ -857,9 +857,9 @@
                             userObj = {
                                 username: data.username,
                                 password: data.password,
-                                accountName: data.account_name || data.eng_name,
-                                engName: data.eng_name,
-                                chiName: data.chi_name,
+                                accountName: data.accountName || data.engName,
+                                engName: data.engName,
+                                chiName: data.chiName,
                                 role: data.role,
                                 school: data.school,
                                 class: data.class
@@ -942,7 +942,7 @@
                 if (dbClient) {
                     try {
                         await dbClient.from('profiles').update({
-                            password, eng_name: engName, chi_name: chiName, account_name: dName, role, school, class: userClass
+                            password, engName: engName, chiName: chiName, accountName: dName, role, school, class: userClass
                         }).eq('username', username);
                     } catch (err) {
                         console.error("Update profile error:", err);
@@ -1015,7 +1015,7 @@
                 if (dbClient) {
                     try {
                         await dbClient.from('profiles').insert([{
-                            username, password, eng_name: engName, chi_name: chiName, account_name: dName, role, school, class: userClass
+                            username, password, engName: engName, chiName: chiName, accountName: dName, role, school, class: userClass
                         }]);
                     } catch (e) {
                         console.error("Supabase Save Error:", e);
@@ -1167,11 +1167,11 @@
                     try {
                         if (mode === 'add') {
                             await dbClient.from('profiles').insert([{
-                                username, password, eng_name: engName, chi_name: chiName, account_name: dName, role, school, class: userClass
+                                username, password, engName: engName, chiName: chiName, accountName: dName, role, school, class: userClass
                             }]);
                         } else {
                             await dbClient.from('profiles').update({
-                                password, eng_name: engName, chi_name: chiName, account_name: dName, role, school, class: userClass
+                                password, engName: engName, chiName: chiName, accountName: dName, role, school, class: userClass
                             }).eq('username', username);
                         }
                     } catch (err) {
