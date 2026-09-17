@@ -925,7 +925,7 @@
 
             async handleLogin(e) {
                 e.preventDefault();
-                const user = document.getElementById('loginUser').value.trim();
+                const user = document.getElementById('loginUser').value.trim().toLowerCase();
                 const pass = document.getElementById('loginPass').value;
 
                 let userObj = this.usersRegistry[user];
