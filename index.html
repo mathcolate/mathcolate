@@ -742,9 +742,9 @@
 
             initIdleTimer() {
                 let timeout;
+                
                 const resetTimer = () => {
                     clearTimeout(timeout);
-                    // 1800000 毫秒 = 30 分鐘
                     timeout = setTimeout(() => {
                         if (this.currentUser) {
                             this.handleLogout();
@@ -753,10 +753,12 @@
                     }, 1800000); 
                 };
 
-                window.onload = resetTimer;
-                document.onmousemove = resetTimer;
-                document.onkeydown = resetTimer;
-                document.onclick = resetTimer;
+                resetTimer();
+
+                window.addEventListener('mousemove', resetTimer);
+                window.addEventListener('keydown', resetTimer);
+                window.addEventListener('click', resetTimer);
+                window.addEventListener('scroll', resetTimer);
             },
             
             async loadUsersFromSupabase() {
@@ -815,7 +817,7 @@
                 }
             },
 
-            setView(viewName) {
+            setView(viewName, pushHistory = true) {
                 this.view = viewName;
                 document.querySelectorAll('.app-view').forEach(el => el.classList.add('hidden'));
                 const targetView = document.getElementById(`view-${viewName}`);
