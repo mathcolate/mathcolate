@@ -664,7 +664,6 @@
             deleteTargetUsername: null,
             outputTimeout: null,
             
-            // Local fallback registry if Supabase is offline
             usersRegistry: {
                 'administrator': { username: 'administrator', password: 'Admin123', accountName: 'Administrator', engName: 'Administrator', chiName: '系統管理員', role: 'Teacher', school: 'Mathcolate College', class: '3A, 4C, 5D' }
             },
@@ -688,7 +687,6 @@
                     }
                 });
 
-                // Fetch initial user profiles from Supabase if configured
                 if (dbClient) {
                     await this.loadUsersFromSupabase();
                 }
@@ -849,7 +847,6 @@
 
                 let userObj = this.usersRegistry[user];
 
-                // Check Supabase DB if not found in local registry
                 if (!userObj && dbClient) {
                     try {
                         const { data } = await dbClient.from('profiles').select('*').eq('username', user).single();
@@ -1027,30 +1024,41 @@
                 this.showOutputMessage(`<span class="text-green-600">${this.t('alertRegisterSuccess')}</span>`);
             },
 
-            // Profiles Table Filters & Sort
             initManageView() {
                 this.populateManageFilters();
                 this.renderManageTable();
             },
 
             populateManageFilters() {
-
                 const users = Object.values(this.usersRegistry);
                 const schools = [...new Set(users.map(u => u.school).filter(Boolean))].sort();
-                const classes = [...new Set(users.map(u => u.class_name).filter(Boolean))].sort();
+                const classes = [...new Set(users.map(u => u.class).filter(Boolean))].sort();
 
-                const schoolFilter = document.getElementById('manageFilterSchool');
-                const classFilter = document.getElementById('manageFilterClass');
+                const schoolFilter = document.getElementById('filter-school');
+                const roleFilter = document.getElementById('filter-role');
+                const classFilter = document.getElementById('filter-class');
 
                 if (schoolFilter) {
-                    schoolFilter.innerHTML = '<option value="">All Schools</option>' + 
+                    const prevVal = schoolFilter.value;
+                    schoolFilter.innerHTML = `<option value="">${this.t('filterAllSchools')}</option>` + 
                         schools.map(s => `<option value="${s}">${s}</option>`).join('');
+                    schoolFilter.value = prevVal;
+                }
+                if (roleFilter) {
+                    const prevVal = roleFilter.value;
+                    roleFilter.innerHTML = `
+                        <option value="">${this.t('filterAllRoles')}</option>
+                        <option value="Student">${this.t('roleStudent')}</option>
+                        <option value="Teacher">${this.t('roleTeacher')}</option>
+                    `;
+                    roleFilter.value = prevVal;
                 }
                 if (classFilter) {
-                    classFilter.innerHTML = '<option value="">All Classes</option>' + 
+                    const prevVal = classFilter.value;
+                    classFilter.innerHTML = `<option value="">${this.t('filterAllClasses')}</option>` + 
                         classes.map(c => `<option value="${c}">${c}</option>`).join('');
+                    classFilter.value = prevVal;
                 }
-                
             },
 
             handleManageFilter() {
@@ -1099,7 +1107,6 @@
                 
                 const { sortCol, sortAsc } = this.manageState;
                 if (sortCol) {
-                    const locale = this.lang === 'en' ? 'en' : 'zh-Hant';
                     users.sort((a, b) => {
                         const valA = (a[sortCol] || '').toString().trim();
                         const valB = (b[sortCol] || '').toString().trim();
@@ -1120,7 +1127,7 @@
                 if (!tbody) return;
 
                 if (users.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4">沒有找到相關用戶資料</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-gray-500">${this.lang === 'zh' ? '沒有找到相關用戶資料' : 'No user profiles found'}</td></tr>`;
                     return;
                 }
 
@@ -1129,7 +1136,7 @@
                         <td class="px-4 py-3 text-sm text-gray-700">${u.school || '-'}</td>
                         <td class="px-4 py-3 text-sm font-medium text-gray-900">${u.accountName || '-'}</td>
                         <td class="px-4 py-3 text-sm text-gray-500">${u.username || '-'}</td>
-                        <td class="px-4 py-3 text-sm text-gray-700">${u.role || '-'}</td>
+                        <td class="px-4 py-3 text-sm text-gray-700">${this.t('role' + u.role) || u.role || '-'}</td>
                         <td class="px-4 py-3 text-sm text-gray-700">${u.class || '-'}</td>
                         <td class="px-4 py-3 text-sm space-x-2">
                             <button onclick="app.openAdminUserModal('${u.username}')" class="px-2.5 py-1 text-xs font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors">
@@ -1141,7 +1148,6 @@
                         </td>
                     </tr>
                 `).join('');
-                
             },
 
             openAdminUserModal(username) {
@@ -1150,24 +1156,22 @@
                 const modeEl = document.getElementById('adminUserMode');
                 
                 if (username) {
-                    // Edit 模式
                     const user = this.usersRegistry[username];
                     if (!user) return;
                     
-                    titleEl.innerText = this.t('modalAdminEditTitle') || 'Edit User Profile';
+                    titleEl.innerText = this.t('modalAdminEditTitle');
                     modeEl.value = 'edit';
                     
                     document.getElementById('adminEngName').value = user.engName || '';
                     document.getElementById('adminChiName').value = user.chiName || '';
                     document.getElementById('adminUsername').value = user.username;
-                    document.getElementById('adminUsername').disabled = true; // 唔准改 username
+                    document.getElementById('adminUsername').disabled = true;
                     document.getElementById('adminPassword').value = user.password || '';
                     document.getElementById('adminSchool').value = user.school || '';
                     document.getElementById('adminRole').value = user.role || 'Student';
                     document.getElementById('adminClass').value = user.class || '';
                 } else {
-                    // Add 模式
-                    titleEl.innerText = this.t('modalAdminAddTitle') || 'Add User Profile';
+                    titleEl.innerText = this.t('modalAdminAddTitle');
                     modeEl.value = 'add';
                     
                     document.getElementById('form-admin-user').reset();
@@ -1227,6 +1231,7 @@
                 }
 
                 this.hideModal('admin-user');
+                this.populateManageFilters();
                 this.renderManageTable();
                 this.showOutputMessage(`<span class="text-green-600">${this.t(mode === 'add' ? 'alertUserAdded' : 'alertProfileUpdated')}</span>`);
             },
@@ -1236,45 +1241,33 @@
                 this.showModal('delete-confirm');
             },
 
-            async processProfileDelete(targetUser) {
-    
-                if (!targetUser) {
-                    this.showOutputMessage('無效的用戶資料，無法執行刪除。', 'error');
-                    return;
-                }
+            async processProfileDelete() {
+                const username = this.deleteTargetUsername;
+                if (!username) return;
 
-                const userId = typeof targetUser === 'string' ? targetUser : targetUser.id;
-
-                if (!userId) {
-                    this.showOutputMessage('無法取得用戶 ID。', 'error');
-                    return;
-                }
-
-                if (!confirm(`確定要刪除用戶（ID: ${userId}）嗎？此操作無法復原。`)) {
+                if (this.currentUser && this.currentUser.username === username) {
+                    this.showOutputMessage(this.t('errCannotDeleteSelf'), true);
+                    this.hideModal('delete-confirm');
                     return;
                 }
 
                 try {
-                    this.showOutputMessage('正在刪除用戶...', 'info');
-                    const { error } = await supabaseClient
-                        .from('profiles')
-                        .delete()
-                        .eq('id', userId);
-
-                    if (error) throw error;
-
-                    delete this.usersRegistry[userId];
-        
-                    this.showOutputMessage('用戶已成功刪除！', 'success');
-                    if (typeof this.renderManageUsersTable === 'function') this.renderManageUsersTable();
-                    if (typeof this.populateManageFilters === 'function') this.populateManageFilters();
-                    if (typeof this.closeModal === 'function') this.closeModal('delete-confirm-modal');
+                    if (dbClient) {
+                        const { error } = await dbClient.from('profiles').delete().eq('username', username);
+                        if (error) throw error;
+                    }
+                    delete this.usersRegistry[username];
+                    this.hideModal('delete-confirm');
+                    this.populateManageFilters();
+                    this.renderManageTable();
+                    this.showOutputMessage(`<span class="text-green-600">${this.t('alertUserDeleted')}</span>`);
                 } catch (err) {
-                    console.error('刪除用戶失敗:', err);
-                    this.showOutputMessage(`刪除失敗：${err.message || err}`, 'error');
+                    console.error('刪除失敗:', err);
+                    this.showOutputMessage('刪除失敗：' + (err.message || err), true);
+                } finally {
+                    this.deleteTargetUsername = null;
                 }
             }
-            
         };
 
         document.addEventListener('DOMContentLoaded', () => {
