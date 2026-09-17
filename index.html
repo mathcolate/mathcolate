@@ -704,7 +704,26 @@
             },
 
             async init() {
+                const savedUser = sessionStorage.getItem('mathcolate_user');
+                if (savedUser) {
+                    try {
+                        this.currentUser = JSON.parse(savedUser);
+                    } catch (e) {
+                        sessionStorage.removeItem('mathcolate_user');
+                    }
+                }
+                
                 this.applyTranslations();
+
+                window.addEventListener('hashchange', () => {
+                    const hashView = window.location.hash.replace('#', '') || 'main';
+                    if (this.view !== hashView) {
+                        this.setView(hashView, false);
+                    }
+                });
+
+                const initialView = window.location.hash.replace('#', '') || 'main';
+                this.setView(initialView, false);
                 
                 document.addEventListener('click', (e) => {
                     if (!e.target.closest('#user-menu-container')) {
@@ -717,8 +736,29 @@
                 if (dbClient) {
                     await this.loadUsersFromSupabase();
                 }
+
+                this.initIdleTimer();
             },
 
+            initIdleTimer() {
+                let timeout;
+                const resetTimer = () => {
+                    clearTimeout(timeout);
+                    // 1800000 毫秒 = 30 分鐘
+                    timeout = setTimeout(() => {
+                        if (this.currentUser) {
+                            this.handleLogout();
+                            this.showOutputMessage('由於長時間未操作，系統已自動登出。', true);
+                        }
+                    }, 1800000); 
+                };
+
+                window.onload = resetTimer;
+                document.onmousemove = resetTimer;
+                document.onkeydown = resetTimer;
+                document.onclick = resetTimer;
+            },
+            
             async loadUsersFromSupabase() {
                 try {
                     const { data, error } = await dbClient.from('users_acc_info').select('*');
@@ -786,6 +826,11 @@
                 if (viewName === 'manage') {
                     this.initManageView();
                 }
+
+                if (pushHistory && window.location.hash !== '#' + viewName) {
+                    window.location.hash = viewName;
+                }
+                
             },
 
             showModal(modalName) {
@@ -905,6 +950,8 @@
 
                 if (userObj && userObj.password === pass) {
                     this.currentUser = userObj;
+                    sessionStorage.setItem('mathcolate_user', JSON.stringify(userObj));
+                    
                     this.hideModal('login');
                     document.getElementById('loginUser').value = '';
                     document.getElementById('loginPass').value = '';
@@ -919,6 +966,8 @@
 
             handleLogout() {
                 this.currentUser = null;
+                sessionStorage.removeItem('mathcolate_user');
+                
                 this.userMenuOpen = false;
                 document.getElementById('user-dropdown').classList.add('hidden');
                 this.updateHeaderDisplay();
@@ -969,6 +1018,8 @@
 
                 this.usersRegistry[username] = updatedUser;
                 this.currentUser = updatedUser;
+
+                sessionStorage.setItem('mathcolate_user', JSON.stringify(updatedUser));
 
                 if (dbClient) {
                     try {
