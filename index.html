@@ -1168,6 +1168,7 @@
             async initManageView() {
                 if (!this.isAdmin()) {
                     this.setView('main', false);
+                    this.showOutputMessage(this.t('errNotAdmin'), true);
                     return;
                 }
                 await this.loadAllProfiles();
