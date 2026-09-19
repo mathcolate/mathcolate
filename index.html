@@ -1380,8 +1380,6 @@
                 let role = (document.getElementById('adminRole').value || 'student').toLowerCase();
                 const userClass = document.getElementById('adminClass').value.trim();
 
-                if (username === 'administrator') role = 'admin';
-
                 if (mode === 'add') {
                     if (!this.usernameRegex.test(username)) {
                         this.showError('admin-user-error', this.t('errInvalidUsername'));
@@ -1396,68 +1394,53 @@
                         return;
                     }
 
-                    const { data: { session: savedSession } } = await dbClient.auth.getSession();
-                    const { error: signErr } = await dbClient.auth.signUp({
-                        email: toAuthEmail(username),
-                        password,
-                        options: {
-                            data: { username, engName, chiName, school, classCodes: userClass }
-                        }
-                    });
-
-                    if (savedSession) {
-                        await dbClient.auth.setSession({
-                            access_token: savedSession.access_token,
-                            refresh_token: savedSession.refresh_token
+                    try {
+                        const tempClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+                            auth: { persistSession: false }
                         });
+
+                        const email = `${username}@mathcolate.invalid`;
+
+                        const { data, error } = await tempClient.auth.signUp({
+                            email: email,
+                            password: password,
+                            options: {
+                                data: {
+                                    username: username,
+                                    engName: engName,
+                                    chiName: chiName,
+                                    role: role, // 這會傳給剛才建好的 SQL Trigger 並轉型為 user_role
+                                    school: school,
+                                    classCodes: userClass
+                                }
+                            }
+                        });
+
+                        if (error) {
+                            this.showError('admin-user-error', error.message);
+                            return;
+                        }
+
+                        this.hideModal('admin-user');
+                        await this.initManageView();
+                        this.showOutputMessage(`<span class="text-green-600">${this.t('alertUserAdded')}</span>`);
+                    } catch (err) {
+                        this.showError('admin-user-error', err.message || this.t('errGeneric'));
                     }
-
-                    if (signErr) {
-                        const msg = /already|registered|exists/i.test(signErr.message)
-                            ? this.t('alertUserExists')
-                            : signErr.message;
-                        this.showError('admin-user-error', msg);
-                        return;
-                    }
-
-                    const { error: updErr } = await dbClient.from('profiles').update({
-                        eng_name: engName,
-                        chi_name: chiName,
-                        role,
-                        school,
-                        class_codes: userClass
-                    }).eq('username', username);
-
-                    if (updErr) {
-                        this.showError('admin-user-error', updErr.message);
-                        return;
-                    }
-
-                    this.hideModal('admin-user');
-                    await this.initManageView();
-                    this.showOutputMessage(`<span class="text-green-600">${this.t('alertUserAdded')}</span>`);
                     return;
                 }
 
                 const { error } = await dbClient.from('profiles').update({
                     eng_name: engName,
                     chi_name: chiName,
-                    role,
-                    school,
+                    role: role,
+                    school: school,
                     class_codes: userClass
                 }).eq('username', username);
 
                 if (error) {
                     this.showError('admin-user-error', error.message);
                     return;
-                }
-
-                if (this.currentUser?.username === username) {
-                    this.currentUser = {
-                        ...this.currentUser,
-                        engName, chiName, role, school, class: userClass
-                    };
-                    this.updateHeaderDisplay();
                 }
 
                 this.hideModal('admin-user');
@@ -1485,13 +1468,15 @@
                 const errBox = document.getElementById('delete-confirm-error');
                 const errText = document.getElementById('delete-confirm-error-text');
 
-                if (username === 'administrator') {
+                const targetUser = this.usersRegistry[username];
+                if (targetUser && targetUser.role === 'admin') {
                     if (errText && errBox) {
                         errText.innerText = this.t('errAdminDeleteProtected');
                         errBox.classList.remove('hidden');
                     }
                     return;
                 }
+                
                 if (this.currentUser && username === this.currentUser.username) {
                     if (errText && errBox) {
                         errText.innerText = this.t('errCannotDeleteSelf');
