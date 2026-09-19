@@ -182,10 +182,10 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 font-semibold" data-i18n="modalRole">Role</label>
-                        <select id="regRole" onchange="app.updateClassLabels()" class="w-full px-4 py-2 border border-gray-300 bg-white rounded-lg focus:ring-2 focus:ring-[#8b5a2b] outline-none">
-                            <option value="Student" data-i18n="roleStudent">Student</option>
-                            <option value="Teacher" data-i18n="roleTeacher">Teacher</option>
+                        <select id="regRole" disabled class="w-full px-4 py-2 border border-gray-300 bg-gray-100 text-gray-500 rounded-lg outline-none">
+                            <option value="student" data-i18n="roleStudent">Student</option>
                         </select>
+                        <p class="mt-1 text-xs text-gray-500" data-i18n="regRoleHint">Teacher accounts are created by the administrator.</p>
                     </div>
                     <div>
                         <label id="lbl-reg-class" class="block text-sm font-medium text-gray-700 mb-1 font-semibold" data-i18n="lblClassStudent">Class (Belongs to)</label>
@@ -276,11 +276,11 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 font-semibold" data-i18n="modalEngName">English Name</label>
-                        <input type="text" id="profEngName" disabled required class="prof-input w-full px-4 py-2 border border-gray-300 rounded-lg outline-none disabled:bg-gray-100 disabled:text-gray-500" />
+                        <input type="text" id="profEngName" disabled required class="prof-editable w-full px-4 py-2 border border-gray-300 rounded-lg outline-none disabled:bg-gray-100 disabled:text-gray-500" />
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 font-semibold" data-i18n="modalChiName">Chinese Name</label>
-                        <input type="text" id="profChiName" disabled class="prof-input w-full px-4 py-2 border border-gray-300 rounded-lg outline-none disabled:bg-gray-100 disabled:text-gray-500" />
+                        <input type="text" id="profChiName" disabled class="prof-editable w-full px-4 py-2 border border-gray-300 rounded-lg outline-none disabled:bg-gray-100 disabled:text-gray-500" />
                     </div>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -289,25 +289,26 @@
                         <input type="text" id="profUsername" disabled class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-500 outline-none" />
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 font-semibold" data-i18n="modalPass">Password</label>
-                        <input type="password" id="profPassword" disabled required class="prof-input w-full px-4 py-2 border border-gray-300 rounded-lg outline-none disabled:bg-gray-100 disabled:text-gray-500" />
+                        <label class="block text-sm font-medium text-gray-700 mb-1 font-semibold" data-i18n="modalPassNew">New password (optional)</label>
+                        <input type="password" id="profPassword" disabled autocomplete="new-password" data-i18n-placeholder="modalPassNewPlace" class="prof-editable w-full px-4 py-2 border border-gray-300 rounded-lg outline-none disabled:bg-gray-100 disabled:text-gray-500" />
                     </div>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1 font-semibold" data-i18n="modalSchool">School Name (in English)</label>
-                    <input type="text" id="profSchool" disabled required class="prof-input w-full px-4 py-2 border border-gray-300 rounded-lg outline-none disabled:bg-gray-100 disabled:text-gray-500" />
+                    <input type="text" id="profSchool" disabled class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-500 outline-none" />
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 font-semibold" data-i18n="modalRole">Role</label>
-                        <select id="profRole" disabled onchange="app.updateClassLabels()" class="prof-input w-full px-4 py-2 border border-gray-300 rounded-lg outline-none disabled:bg-gray-100 disabled:text-gray-500">
-                            <option value="Student" data-i18n="roleStudent">Student</option>
-                            <option value="Teacher" data-i18n="roleTeacher">Teacher</option>
+                        <select id="profRole" disabled class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-500 outline-none">
+                            <option value="student" data-i18n="roleStudent">Student</option>
+                            <option value="teacher" data-i18n="roleTeacher">Teacher</option>
+                            <option value="admin" data-i18n="roleAdmin">Administrator</option>
                         </select>
                     </div>
                     <div>
                         <label id="lbl-prof-class" class="block text-sm font-medium text-gray-700 mb-1 font-semibold" data-i18n="lblClassStudent">Class</label>
-                        <input type="text" id="profClass" disabled required data-i18n-placeholder="modalClassPlace" class="prof-input w-full px-4 py-2 border border-gray-300 rounded-lg outline-none disabled:bg-gray-100 disabled:text-gray-500" />
+                        <input type="text" id="profClass" disabled data-i18n-placeholder="modalClassPlace" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-500 outline-none" />
                     </div>
                 </div>
                 <div class="pt-4 flex flex-col sm:flex-row justify-end items-center space-y-4 sm:space-y-0 sm:space-x-4">
@@ -423,7 +424,8 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 font-semibold" data-i18n="modalPass">Password</label>
-                        <input type="text" id="adminPassword" required class="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none" />
+                        <input type="password" id="adminPassword" autocomplete="new-password" class="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none" />
+                        <p id="admin-password-hint" class="mt-1 text-xs text-gray-500" data-i18n="adminPasswordHintAdd">Required when creating a user. At least 6 characters.</p>
                     </div>
                 </div>
                 <div>
@@ -434,8 +436,9 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 font-semibold" data-i18n="modalRole">Role</label>
                         <select id="adminRole" onchange="app.updateAdminClassLabel()" class="w-full px-4 py-2 border border-gray-300 bg-white rounded-lg outline-none">
-                            <option value="Student" data-i18n="roleStudent">Student</option>
-                            <option value="Teacher" data-i18n="roleTeacher">Teacher</option>
+                            <option value="student" data-i18n="roleStudent">Student</option>
+                            <option value="teacher" data-i18n="roleTeacher">Teacher</option>
+                            <option value="admin" data-i18n="roleAdmin">Administrator</option>
                         </select>
                     </div>
                     <div>
@@ -498,13 +501,26 @@
 
     <!-- JavaScript Application Logic -->
     <script>
-        // Supabase Initialization
         const SUPABASE_URL = 'https://stguzuvmnfjxuygbuuij.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0Z3V6dXZtbmZqeHV5Z2J1dWlqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk2MDM5NzAsImV4cCI6MjEwNTE3OTk3MH0.M5In8uBXMnApSBRSayiCY6UpoZf3lzebIjpa_tOw12A';
-        
+        const AUTH_EMAIL_DOMAIN = 'mathcolate.invalid';
+
         let dbClient = null;
         if (SUPABASE_URL !== 'YOUR_SUPABASE_URL_HERE') {
             dbClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
+
+        function toAuthEmail(username) {
+            return `${String(username || '').trim().toLowerCase()}@${AUTH_EMAIL_DOMAIN}`;
+        }
+
+        function escapeHtml(str) {
+            return String(str ?? '')
+                .replaceAll('&', '&')
+                .replaceAll('<', '<')
+                .replaceAll('>', '>')
+                .replaceAll('"', '"')
+                .replaceAll("'", '&#39;');
         }
 
         const translations = {
@@ -522,6 +538,8 @@
                 modalTitleRegister: 'Create Account',
                 modalUser: 'Username',
                 modalPass: 'Password',
+                modalPassNew: 'New password (optional)',
+                modalPassNewPlace: 'leave blank to keep current password',
                 modalUserPlace: 'enter your username',
                 modalPassPlace: 'enter your password',
                 modalLoginBtn: 'Login',
@@ -533,10 +551,12 @@
                 modalEngNamePlace: 'e.g. CHAN TAI MAN',
                 modalChiNamePlace: 'e.g. 陳大文',
                 modalSchoolPlace: 'e.g. Mathcolate College',
-                modalPassCreatePlace: 'create a strong password',
+                modalPassCreatePlace: 'at least 6 characters',
                 modalRole: 'Role',
                 roleStudent: 'Student',
                 roleTeacher: 'Teacher',
+                roleAdmin: 'Administrator',
+                regRoleHint: 'Teacher accounts are created by the administrator.',
                 modalRegisterBtn: 'Register',
                 modalBackToLogin: 'Back to Sign In',
                 subViewProfile: 'View profile',
@@ -548,6 +568,7 @@
                 profileTitle: 'User Profile',
                 btnEditProfile: 'Edit profile',
                 btnUpdateProfile: 'Update',
+                btnBackToMain: 'Back to Dashboard',
                 lblClassStudent: 'Class (Belongs to)',
                 lblClassTeacher: 'Class (Teaches)',
                 modalClassPlace: 'e.g. 5A',
@@ -563,6 +584,8 @@
                 alertProfileUpdated: 'Profile updated successfully!',
                 alertInvalidAuth: 'Invalid authorization code.',
                 alertForget: 'Account recovery coming soon!',
+                alertIdleLogout: 'You have been logged out due to inactivity.',
+                alertLoggedIn: 'Logged in as <strong>{name}</strong>',
                 selectedPreview: 'You have selected: <strong>Preview</strong>.',
                 selectedReview: 'You have selected: <strong>Review</strong>.',
                 selectedTest: 'You have selected: <strong>Online Test</strong>.',
@@ -586,13 +609,18 @@
                 cannotDeleteTitle: 'Cannot Delete Profile',
                 errAdminDeleteProtected: 'Administrator account is protected by system rules and cannot be deleted.',
                 alertUserAdded: 'User profile created successfully!',
-                alertUserDeleted: 'User profile deleted successfully!',
+                alertUserDeleted: 'Profile deleted. To fully remove login access, also delete the user in Supabase → Authentication → Users.',
                 filterAllSchools: 'All Schools',
                 filterAllRoles: 'All Roles',
                 filterAllClasses: 'All Classes',
                 filterBy: 'Filter by:',
                 errInvalidUsername: 'Username must contain only lowercase letters, numbers, hyphens, and underscores.',
-                errCannotDeleteSelf: 'You cannot delete your own currently logged-in account.'
+                errCannotDeleteSelf: 'You cannot delete your own currently logged-in account.',
+                errPasswordShort: 'Password must be at least 6 characters.',
+                adminPasswordHintAdd: 'Required when creating a user. At least 6 characters.',
+                adminPasswordHintEdit: 'Other users’ passwords must be reset in Supabase → Authentication → Users.',
+                errNotAdmin: 'You do not have permission to manage the website.',
+                errGeneric: 'Something went wrong. Please try again.'
             },
             'zh': {
                 langBtn: 'ENG/中文',
@@ -608,6 +636,8 @@
                 modalTitleRegister: '建立帳號',
                 modalUser: '用戶名',
                 modalPass: '密碼',
+                modalPassNew: '新密碼（可留空）',
+                modalPassNewPlace: '留空則維持原密碼',
                 modalUserPlace: '輸入您的用戶名',
                 modalPassPlace: '輸入您的密碼',
                 modalLoginBtn: '登入',
@@ -619,10 +649,12 @@
                 modalEngNamePlace: '例如: CHAN TAI MAN',
                 modalChiNamePlace: '例如: 陳大文',
                 modalSchoolPlace: '例如: Mathcolate College',
-                modalPassCreatePlace: '請輸入高強度的密碼',
+                modalPassCreatePlace: '至少 6 個字元',
                 modalRole: '身分權限',
                 roleStudent: '學生',
                 roleTeacher: '教師',
+                roleAdmin: '系統管理員',
+                regRoleHint: '教師帳戶須由管理員開立。',
                 modalRegisterBtn: '註冊帳戶',
                 modalBackToLogin: '返回登入介面',
                 subViewProfile: '檢視個人檔案',
@@ -634,6 +666,7 @@
                 profileTitle: '用戶個人檔案',
                 btnEditProfile: '編輯個人檔案',
                 btnUpdateProfile: '更新',
+                btnBackToMain: '返回主控台',
                 lblClassStudent: '班級 (所屬班級)',
                 lblClassTeacher: '班級 (任教班級)',
                 modalClassPlace: '例如: 5A',
@@ -649,6 +682,8 @@
                 alertProfileUpdated: '個人檔案更新成功！',
                 alertInvalidAuth: '授權碼無效，請聯絡校方管理人員。',
                 alertForget: '帳號恢復功能即將推出！',
+                alertIdleLogout: '由於長時間未操作，系統已自動登出。',
+                alertLoggedIn: '已登入為 <strong>{name}</strong>',
                 selectedPreview: '您選擇了：<strong>預習</strong>。',
                 selectedReview: '您選擇了：<strong>複習</strong>。',
                 selectedTest: '您選擇了：<strong>線上測驗</strong>。',
@@ -672,13 +707,18 @@
                 cannotDeleteTitle: '無法刪除帳號',
                 errAdminDeleteProtected: '系統管理員 (administrator) 帳戶受系統保護，無法刪除。',
                 alertUserAdded: '用戶檔案已成功建立！',
-                alertUserDeleted: '用戶檔案已成功刪除！',
+                alertUserDeleted: '檔案已刪除。如要完全取消登入，請再到 Supabase → Authentication → Users 刪除對應帳戶。',
                 filterAllSchools: '所有學校',
                 filterAllRoles: '所有身份',
                 filterAllClasses: '所有班級',
                 filterBy: '篩選:',
                 errInvalidUsername: '用戶名只能包含小寫英文字母 (a-z)、數字 (0-9)、連字號 (-) 和下劃線 (_)。',
-                errCannotDeleteSelf: '您不能刪除當前登入的帳戶。'
+                errCannotDeleteSelf: '您不能刪除當前登入的帳戶。',
+                errPasswordShort: '密碼至少需要 6 個字元。',
+                adminPasswordHintAdd: '新增用戶時必填，至少 6 個字元。',
+                adminPasswordHintEdit: '其他人嘅密碼請到 Supabase → Authentication → Users 重設。',
+                errNotAdmin: '您沒有管理網站的權限。',
+                errGeneric: '發生錯誤，請再試一次。'
             }
         };
 
@@ -690,14 +730,8 @@
             isEditingProfile: false,
             deleteTargetUsername: null,
             outputTimeout: null,
-            
-            // Mock dataset with initial accounts
-            usersRegistry: {
-                'administrator': { username: 'administrator', password: 'Admin123', engName: 'Administrator', chiName: '系統管理員', role: 'Teacher', school: 'Mathcolate College', class: '1A, 2B, 3C' },
-            },
-
+            usersRegistry: {},
             usernameRegex: /^[a-z0-9-_]+$/,
-
             manageState: {
                 sortCol: 'school',
                 sortAsc: true,
@@ -705,15 +739,6 @@
             },
 
             async init() {
-                const savedUser = sessionStorage.getItem('mathcolate_user');
-                if (savedUser) {
-                    try {
-                        this.currentUser = JSON.parse(savedUser);
-                    } catch (e) {
-                        sessionStorage.removeItem('mathcolate_user');
-                    }
-                }
-                
                 this.applyTranslations();
 
                 window.addEventListener('hashchange', () => {
@@ -723,9 +748,6 @@
                     }
                 });
 
-                const initialView = window.location.hash.replace('#', '') || 'main';
-                this.setView(initialView, false);
-                
                 document.addEventListener('click', (e) => {
                     if (!e.target.closest('#user-menu-container')) {
                         this.userMenuOpen = false;
@@ -735,52 +757,78 @@
                 });
 
                 if (dbClient) {
-                    await this.loadUsersFromSupabase();
+                    const { data: { session } } = await dbClient.auth.getSession();
+                    if (session?.user) {
+                        await this.hydrateFromSession(session.user);
+                    }
+                    dbClient.auth.onAuthStateChange(async (event, session) => {
+                        if (event === 'SIGNED_OUT') {
+                            this.currentUser = null;
+                            this.usersRegistry = {};
+                            this.updateHeaderDisplay();
+                        } else if (event === 'SIGNED_IN' && session?.user && !this.currentUser) {
+                            await this.hydrateFromSession(session.user);
+                        }
+                    });
                 }
 
+                const initialView = window.location.hash.replace('#', '') || 'main';
+                this.setView(initialView, false);
                 this.initIdleTimer();
+            },
+
+            async hydrateFromSession(authUser) {
+                if (!dbClient || !authUser) return false;
+                const { data, error } = await dbClient
+                    .from('profiles')
+                    .select('id, username, eng_name, chi_name, role, school, class_codes')
+                    .eq('id', authUser.id)
+                    .single();
+
+                if (error || !data) {
+                    await dbClient.auth.signOut();
+                    this.currentUser = null;
+                    this.updateHeaderDisplay();
+                    return false;
+                }
+
+                this.currentUser = this.mapProfile(data);
+                this.updateHeaderDisplay();
+                return true;
+            },
+
+            mapProfile(row) {
+                return {
+                    id: row.id,
+                    username: row.username,
+                    engName: row.eng_name || '',
+                    chiName: row.chi_name || '',
+                    role: (row.role || 'student').toLowerCase(),
+                    school: row.school || '',
+                    class: row.class_codes || ''
+                };
+            },
+
+            isAdmin() {
+                return this.currentUser?.role === 'admin';
             },
 
             initIdleTimer() {
                 let timeout;
-                
                 const resetTimer = () => {
                     clearTimeout(timeout);
-                    timeout = setTimeout(() => {
+                    timeout = setTimeout(async () => {
                         if (this.currentUser) {
-                            this.handleLogout();
-                            this.showOutputMessage('由於長時間未操作，系統已自動登出。', true);
+                            await this.handleLogout(true);
+                            this.showOutputMessage(this.t('alertIdleLogout'), true);
                         }
-                    }, 1800000); 
+                    }, 1800000);
                 };
-
                 resetTimer();
-
                 window.addEventListener('mousemove', resetTimer);
                 window.addEventListener('keydown', resetTimer);
                 window.addEventListener('click', resetTimer);
                 window.addEventListener('scroll', resetTimer);
-            },
-            
-            async loadUsersFromSupabase() {
-                try {
-                    const { data, error } = await dbClient.from('users_acc_info').select('*');
-                    if (data && !error) {
-                        data.forEach(user => {
-                            this.usersRegistry[user.username] = {
-                                username: user.username,
-                                password: user.password,
-                                engName: user.engName,
-                                chiName: user.chiName,
-                                role: user.role,
-                                school: user.school,
-                                class: user.class
-                            };
-                        });
-                    }
-                } catch (e) {
-                    console.error("Supabase load error:", e);
-                }
             },
 
             toggleLanguage() {
@@ -792,14 +840,19 @@
                 return translations[this.lang][key] || key;
             },
 
-            // Requirement #1: Dynamic language display for user name
             getUserDisplayName(user) {
                 if (!user) return '';
                 if (this.lang === 'zh') {
                     return user.chiName || user.engName || user.username;
-                } else {
-                    return user.engName || user.chiName || user.username;
                 }
+                return user.engName || user.chiName || user.username;
+            },
+
+            roleLabel(role) {
+                const r = (role || '').toLowerCase();
+                if (r === 'admin') return this.t('roleAdmin');
+                if (r === 'teacher') return this.t('roleTeacher');
+                return this.t('roleStudent');
             },
 
             applyTranslations() {
@@ -812,13 +865,19 @@
                 });
                 this.updateHeaderDisplay();
                 this.updateClassLabels();
-
                 if (this.view === 'manage') {
                     this.initManageView();
                 }
             },
 
             setView(viewName, pushHistory = true) {
+                if (viewName === 'manage' && !this.isAdmin()) {
+                    viewName = 'main';
+                    if (this.currentUser) {
+                        this.showOutputMessage(this.t('errNotAdmin'), true);
+                    }
+                }
+
                 this.view = viewName;
                 document.querySelectorAll('.app-view').forEach(el => el.classList.add('hidden'));
                 const targetView = document.getElementById(`view-${viewName}`);
@@ -833,7 +892,6 @@
                 if (pushHistory && window.location.hash !== '#' + viewName) {
                     window.location.hash = viewName;
                 }
-                
             },
 
             showModal(modalName) {
@@ -850,12 +908,10 @@
 
             showOutputMessage(html, isError = false, duration = 5000) {
                 if (this.outputTimeout) clearTimeout(this.outputTimeout);
-
                 const container = document.getElementById('global-output-container');
                 const msgBox = document.getElementById('global-output-msg');
                 msgBox.innerHTML = `<span class="font-medium ${isError ? 'text-red-600' : 'text-[#5c3a18]'}">${html}</span>`;
                 container.classList.remove('hidden');
-
                 if (duration > 0) {
                     this.outputTimeout = setTimeout(() => this.hideOutputMessage(), duration);
                 }
@@ -890,24 +946,24 @@
                 const nameEl = document.getElementById('user-display-name');
                 const guestAv = document.getElementById('user-avatar-guest');
                 const logAv = document.getElementById('user-avatar-logged');
-                
+                const btnManage = document.getElementById('btn-manage-site');
+
                 if (this.currentUser) {
                     const dName = this.getUserDisplayName(this.currentUser);
                     nameEl.innerText = dName;
                     guestAv.classList.add('hidden');
                     logAv.classList.remove('hidden');
-                    logAv.innerText = dName.charAt(0).toUpperCase();
-                    
-                    const btnManage = document.getElementById('btn-manage-site');
-                    if (this.currentUser.username === 'administrator') {
+                    logAv.innerText = (dName.charAt(0) || '?').toUpperCase();
+                    if (this.isAdmin()) {
                         if (btnManage) btnManage.classList.remove('hidden');
-                    } else {
-                        if (btnManage) btnManage.classList.add('hidden');
+                    } else if (btnManage) {
+                        btnManage.classList.add('hidden');
                     }
                 } else {
                     nameEl.innerText = this.t('loginHeader');
                     guestAv.classList.remove('hidden');
                     logAv.classList.add('hidden');
+                    if (btnManage) btnManage.classList.add('hidden');
                 }
             },
 
@@ -916,7 +972,7 @@
                     this.showModal('login');
                     return;
                 }
-                let msg = this.t(`selected${mode.replace(/\s+/g, '')}`);
+                const msg = this.t(`selected${mode.replace(/\s+/g, '')}`);
                 this.showOutputMessage(msg);
             },
 
@@ -926,212 +982,219 @@
 
             async handleLogin(e) {
                 e.preventDefault();
-                const user = document.getElementById('loginUser').value.trim().toLowerCase();
-                const pass = document.getElementById('loginPass').value;
-
-                let userObj = this.usersRegistry[user];
-
-                if (!userObj && dbClient) {
-                    try {
-                        const { data } = await dbClient.from('users_acc_info').select('*').eq('username', user).single();
-                        if (data) {
-                            userObj = {
-                                username: data.username,
-                                password: data.password,
-                                engName: data.engName,
-                                chiName: data.chiName,
-                                role: data.role,
-                                school: data.school,
-                                class: data.class
-                            };
-                            this.usersRegistry[user] = userObj;
-                        }
-                    } catch (err) {
-                        console.error("Login verification error:", err);
-                    }
+                if (!dbClient) {
+                    this.showError('login-error', this.t('errGeneric'));
+                    return;
                 }
 
-                if (userObj && userObj.password === pass) {
-                    this.currentUser = userObj;
-                    sessionStorage.setItem('mathcolate_user', JSON.stringify(userObj));
-                    
-                    this.hideModal('login');
-                    document.getElementById('loginUser').value = '';
-                    document.getElementById('loginPass').value = '';
-                    this.updateHeaderDisplay();
-                    
-                    const dName = this.getUserDisplayName(userObj);
-                    this.showOutputMessage(`<span class="text-green-600">Logged in as <strong>${dName}</strong></span>`);
-                } else {
+                const username = document.getElementById('loginUser').value.trim().toLowerCase();
+                const password = document.getElementById('loginPass').value;
+
+                const { data, error } = await dbClient.auth.signInWithPassword({
+                    email: toAuthEmail(username),
+                    password
+                });
+
+                if (error || !data.user) {
                     this.showError('login-error', this.t('alertInvalidLogin'));
+                    return;
                 }
+
+                const ok = await this.hydrateFromSession(data.user);
+                if (!ok) {
+                    this.showError('login-error', this.t('alertInvalidLogin'));
+                    return;
+                }
+
+                this.hideModal('login');
+                document.getElementById('loginUser').value = '';
+                document.getElementById('loginPass').value = '';
+                const dName = escapeHtml(this.getUserDisplayName(this.currentUser));
+                this.showOutputMessage(
+                    `<span class="text-green-600">${this.t('alertLoggedIn').replace('{name}', dName)}</span>`
+                );
             },
 
-            handleLogout() {
+            async handleLogout(fromIdle = false) {
+                if (dbClient) {
+                    try { await dbClient.auth.signOut(); } catch (err) { /* ignore */ }
+                }
                 this.currentUser = null;
-                sessionStorage.removeItem('mathcolate_user');
-                
+                this.usersRegistry = {};
                 this.userMenuOpen = false;
-                document.getElementById('user-dropdown').classList.add('hidden');
+                const dropdown = document.getElementById('user-dropdown');
+                if (dropdown) dropdown.classList.add('hidden');
                 this.updateHeaderDisplay();
                 this.setView('main');
-                this.showOutputMessage(this.t('alertLogout'));
+                if (!fromIdle) this.showOutputMessage(this.t('alertLogout'));
             },
 
             handleViewProfile() {
                 if (!this.currentUser) return;
                 this.setView('profile');
                 this.isEditingProfile = false;
-                
+
                 document.getElementById('profEngName').value = this.currentUser.engName || '';
                 document.getElementById('profChiName').value = this.currentUser.chiName || '';
                 document.getElementById('profUsername').value = this.currentUser.username;
-                document.getElementById('profPassword').value = this.currentUser.password || '';
+                document.getElementById('profPassword').value = '';
                 document.getElementById('profSchool').value = this.currentUser.school || '';
-                document.getElementById('profRole').value = this.currentUser.role || 'Student';
+                document.getElementById('profRole').value = this.currentUser.role || 'student';
                 document.getElementById('profClass').value = this.currentUser.class || '';
 
                 this.updateClassLabels();
-
-                document.querySelectorAll('.prof-input').forEach(el => el.disabled = true);
+                document.querySelectorAll('.prof-editable').forEach(el => el.disabled = true);
                 document.getElementById('btn-prof-edit').classList.remove('hidden');
                 document.getElementById('btn-prof-update').classList.add('hidden');
             },
 
             enableProfileEdit() {
                 this.isEditingProfile = true;
-                document.querySelectorAll('.prof-input').forEach(el => el.disabled = false);
+                document.querySelectorAll('.prof-editable').forEach(el => el.disabled = false);
                 document.getElementById('btn-prof-edit').classList.add('hidden');
                 document.getElementById('btn-prof-update').classList.remove('hidden');
             },
 
             async handleUpdateProfile(e) {
                 e.preventDefault();
+                if (!this.currentUser || !dbClient) return;
+
                 const engName = document.getElementById('profEngName').value.trim();
                 const chiName = document.getElementById('profChiName').value.trim();
-                const password = document.getElementById('profPassword').value;
-                const school = document.getElementById('profSchool').value.trim(); // English only school name
-                const role = document.getElementById('profRole').value;
-                const userClass = document.getElementById('profClass').value.trim();
+                const newPassword = document.getElementById('profPassword').value;
 
-                const username = this.currentUser.username;
-                const updatedUser = {
-                    username, password, engName, chiName, role, school, class: userClass
-                };
+                if (newPassword && newPassword.length < 6) {
+                    this.showOutputMessage(this.t('errPasswordShort'), true);
+                    return;
+                }
 
-                this.usersRegistry[username] = updatedUser;
-                this.currentUser = updatedUser;
+                const { error } = await dbClient.from('profiles').update({
+                    eng_name: engName,
+                    chi_name: chiName
+                }).eq('id', this.currentUser.id);
 
-                sessionStorage.setItem('mathcolate_user', JSON.stringify(updatedUser));
+                if (error) {
+                    this.showOutputMessage(this.t('errGeneric'), true);
+                    return;
+                }
 
-                if (dbClient) {
-                    try {
-                        await dbClient.from('users_acc_info').update({
-                            password, engName, chiName, role, school, class: userClass
-                        }).eq('username', username);
-                    } catch (err) {
-                        console.error("Update profile error:", err);
+                if (newPassword) {
+                    const { error: pwErr } = await dbClient.auth.updateUser({ password: newPassword });
+                    if (pwErr) {
+                        this.showOutputMessage(this.t('errGeneric'), true);
+                        return;
                     }
                 }
 
+                this.currentUser.engName = engName;
+                this.currentUser.chiName = chiName;
                 this.updateHeaderDisplay();
                 this.handleViewProfile();
                 this.showOutputMessage(`<span class="text-green-600">${this.t('alertProfileUpdated')}</span>`);
             },
 
             updateClassLabels() {
-                const regRole = document.getElementById('regRole')?.value || 'Student';
-                const profRole = document.getElementById('profRole')?.value || 'Student';
-                
+                const profRole = document.getElementById('profRole')?.value || 'student';
                 const lblReg = document.getElementById('lbl-reg-class');
                 const lblProf = document.getElementById('lbl-prof-class');
-
-                if (lblReg) lblReg.innerText = regRole === 'Student' ? this.t('lblClassStudent') : this.t('lblClassTeacher');
-                if (lblProf) lblProf.innerText = profRole === 'Student' ? this.t('lblClassStudent') : this.t('lblClassTeacher');
+                if (lblReg) lblReg.innerText = this.t('lblClassStudent');
+                if (lblProf) {
+                    lblProf.innerText = (profRole === 'teacher')
+                        ? this.t('lblClassTeacher')
+                        : this.t('lblClassStudent');
+                }
             },
 
             handleRegister(e) {
                 e.preventDefault();
-                const username = document.getElementById('regUsername').value.trim();
+                this.processRegistration();
+            },
+
+            handleAuthSubmit(e) {
+                e.preventDefault();
+                this.hideModal('auth');
+            },
+
+            async processRegistration() {
+                if (!dbClient) {
+                    this.showError('reg-error', this.t('errGeneric'));
+                    return;
+                }
+
+                const username = document.getElementById('regUsername').value.trim().toLowerCase();
+                const engName = document.getElementById('regEngName').value.trim();
+                const chiName = document.getElementById('regChiName').value.trim();
+                const password = document.getElementById('regPassword').value;
+                const school = document.getElementById('regSchool').value.trim();
+                const userClass = document.getElementById('regClass').value.trim();
 
                 if (!this.usernameRegex.test(username)) {
                     this.showError('reg-error', this.t('errInvalidUsername'));
                     return;
                 }
-
-                if (this.usersRegistry[username]) {
-                    this.showError('reg-error', this.t('alertUserExists'));
+                if (!password || password.length < 6) {
+                    this.showError('reg-error', this.t('errPasswordShort'));
                     return;
                 }
 
-                const role = document.getElementById('regRole').value;
-                if (role === 'Teacher') {
-                    this.showModal('auth');
-                } else {
-                    this.processRegistration();
-                }
-            },
-
-            handleAuthSubmit(e) {
-                e.preventDefault();
-                const code = document.getElementById('authCode').value;
-                if (code === 'Te4cherMC') {
-                    this.hideModal('auth');
-                    this.processRegistration();
-                } else {
-                    this.showError('auth-error', this.t('alertInvalidAuth'));
-                }
-            },
-
-            async processRegistration() {
-                const username = document.getElementById('regUsername').value.trim();
-                const engName = document.getElementById('regEngName').value.trim();
-                const chiName = document.getElementById('regChiName').value.trim();
-                const password = document.getElementById('regPassword').value;
-                const role = document.getElementById('regRole').value;
-                const school = document.getElementById('regSchool').value.trim(); // English only school name
-                const userClass = document.getElementById('regClass').value.trim();
-
-                const newUser = { username, password, engName, chiName, role, school, class: userClass };
-
-                this.usersRegistry[username] = newUser;
-
-                if (dbClient) {
-                    try {
-                        await dbClient.from('users_acc_info').insert([{
-                            username, password, engName, chiName, role, school, class: userClass
-                        }]);
-                    } catch (e) {
-                        console.error("Supabase Save Error:", e);
+                const { error } = await dbClient.auth.signUp({
+                    email: toAuthEmail(username),
+                    password,
+                    options: {
+                        data: {
+                            username,
+                            engName,
+                            chiName,
+                            school,
+                            classCodes: userClass
+                        }
                     }
+                });
+
+                if (error) {
+                    const msg = /already|registered|exists/i.test(error.message)
+                        ? this.t('alertUserExists')
+                        : error.message;
+                    this.showError('reg-error', msg);
+                    return;
                 }
 
+                await dbClient.auth.signOut();
                 document.getElementById('form-register').reset();
                 this.setView('main');
                 this.showOutputMessage(`<span class="text-green-600">${this.t('alertRegisterSuccess')}</span>`);
             },
 
-            initManageView() {
+            async initManageView() {
+                if (!this.isAdmin()) {
+                    this.setView('main', false);
+                    return;
+                }
+                await this.loadAllProfiles();
                 this.populateManageFilters();
                 this.renderManageTable();
             },
 
-            // Requirement #2 Fixed: Dynamic filter options from registry data
+            async loadAllProfiles() {
+                this.usersRegistry = {};
+                if (!dbClient) return;
+                const { data, error } = await dbClient
+                    .from('profiles')
+                    .select('id, username, eng_name, chi_name, role, school, class_codes');
+                if (error || !data) return;
+                data.forEach(row => {
+                    const user = this.mapProfile(row);
+                    this.usersRegistry[user.username] = user;
+                });
+            },
+
             populateManageFilters() {
                 const users = Object.values(this.usersRegistry);
-                
-                // Extract unique English schools
                 const schools = [...new Set(users.map(u => u.school).filter(Boolean))].sort();
-                
-                // Extract unique Roles
                 const roles = [...new Set(users.map(u => u.role).filter(Boolean))].sort();
-                
-                // Extract individual classes (e.g., "3A, 4C" -> "3A", "4C")
                 const classSet = new Set();
                 users.forEach(u => {
-                    if (u.class) {
-                        u.class.split(',').forEach(c => classSet.add(c.trim()));
-                    }
+                    if (u.class) u.class.split(',').forEach(c => classSet.add(c.trim()));
                 });
                 const classes = Array.from(classSet).sort();
 
@@ -1141,25 +1204,20 @@
 
                 if (schoolFilter) {
                     const currentVal = this.manageState.filters.school;
-                    schoolFilter.innerHTML = `<option value="">${this.t('filterAllSchools')}</option>` + 
-                        schools.map(s => `<option value="${s}">${s}</option>`).join('');
+                    schoolFilter.innerHTML = `<option value="">${escapeHtml(this.t('filterAllSchools'))}</option>` +
+                        schools.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
                     schoolFilter.value = currentVal;
                 }
-
                 if (roleFilter) {
                     const currentVal = this.manageState.filters.role;
-                    roleFilter.innerHTML = `<option value="">${this.t('filterAllRoles')}</option>` + 
-                        roles.map(r => {
-                            const label = r === 'Teacher' ? this.t('roleTeacher') : (r === 'Student' ? this.t('roleStudent') : r);
-                            return `<option value="${r}">${label}</option>`;
-                        }).join('');
+                    roleFilter.innerHTML = `<option value="">${escapeHtml(this.t('filterAllRoles'))}</option>` +
+                        roles.map(r => `<option value="${escapeHtml(r)}">${escapeHtml(this.roleLabel(r))}</option>`).join('');
                     roleFilter.value = currentVal;
                 }
-
                 if (classFilter) {
                     const currentVal = this.manageState.filters.class;
-                    classFilter.innerHTML = `<option value="">${this.t('filterAllClasses')}</option>` + 
-                        classes.map(c => `<option value="${c}">${c}</option>`).join('');
+                    classFilter.innerHTML = `<option value="">${escapeHtml(this.t('filterAllClasses'))}</option>` +
+                        classes.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
                     classFilter.value = currentVal;
                 }
             },
@@ -1192,17 +1250,12 @@
             renderManageTable() {
                 let users = Object.values(this.usersRegistry);
 
-                // Filter by School
                 if (this.manageState.filters.school) {
                     users = users.filter(u => u.school === this.manageState.filters.school);
                 }
-
-                // Filter by Role
                 if (this.manageState.filters.role) {
                     users = users.filter(u => u.role === this.manageState.filters.role);
                 }
-
-                // Filter by Class
                 if (this.manageState.filters.class) {
                     const selClass = this.manageState.filters.class;
                     users = users.filter(u => {
@@ -1210,14 +1263,12 @@
                         return u.class.split(',').map(c => c.trim()).includes(selClass);
                     });
                 }
-                
-                // Sorting logic
+
                 const { sortCol, sortAsc } = this.manageState;
                 if (sortCol) {
                     users.sort((a, b) => {
                         let valA = '';
                         let valB = '';
-
                         if (sortCol === 'accountName') {
                             valA = this.getUserDisplayName(a);
                             valB = this.getUserDisplayName(b);
@@ -1225,8 +1276,7 @@
                             valA = (a[sortCol] || '').toString().trim();
                             valB = (b[sortCol] || '').toString().trim();
                         }
-
-                        return sortAsc 
+                        return sortAsc
                             ? valA.localeCompare(valB, this.lang === 'zh' ? 'zh-Hant' : 'en', { numeric: true })
                             : valB.localeCompare(valA, this.lang === 'zh' ? 'zh-Hant' : 'en', { numeric: true });
                     });
@@ -1234,9 +1284,7 @@
 
                 ['school', 'accountName', 'username', 'role', 'class'].forEach(col => {
                     const icon = document.getElementById(`sort-icon-${col}`);
-                    if (icon) {
-                        icon.textContent = (sortCol === col) ? (sortAsc ? ' ▲' : ' ▼') : '';
-                    }
+                    if (icon) icon.textContent = (sortCol === col) ? (sortAsc ? ' ▲' : ' ▼') : '';
                 });
 
                 const tbody = document.getElementById('manage-table-body');
@@ -1248,26 +1296,23 @@
                 }
 
                 tbody.innerHTML = users.map(u => {
-                    // Requirement #1: Dynamic language display for name, English for school
-                    const displayName = this.getUserDisplayName(u);
-                    const displaySchool = u.school || '-'; // English school
-                    const displayRole = u.role === 'Teacher' ? this.t('roleTeacher') : (u.role === 'Student' ? this.t('roleStudent') : u.role);
-
+                    const displayName = escapeHtml(this.getUserDisplayName(u));
+                    const displaySchool = escapeHtml(u.school || '-');
+                    const displayRole = escapeHtml(this.roleLabel(u.role));
+                    const safeUser = encodeURIComponent(u.username);
                     return `
                         <tr class="hover:bg-gray-50 border-b border-gray-100 transition-colors">
                             <td class="px-4 py-3.5 text-sm text-gray-700 font-medium">${displaySchool}</td>
                             <td class="px-4 py-3.5 text-sm font-bold text-gray-900">${displayName}</td>
-                            <td class="px-4 py-3.5 text-sm text-gray-500 font-mono text-xs">${u.username || '-'}</td>
+                            <td class="px-4 py-3.5 text-sm text-gray-500 font-mono text-xs">${escapeHtml(u.username || '-')}</td>
                             <td class="px-4 py-3.5 text-sm text-gray-700">${displayRole}</td>
-                            <td class="px-4 py-3.5 text-sm text-gray-700">${u.class || '-'}</td>
-                            
-                            <!-- Requirement #3: Edit & Delete buttons side-by-side aligned center -->
+                            <td class="px-4 py-3.5 text-sm text-gray-700">${escapeHtml(u.class || '-')}</td>
                             <td class="px-4 py-3.5 text-sm">
                                 <div class="flex items-center justify-center space-x-2">
-                                    <button onclick="app.openAdminUserModal('${u.username}')" class="px-3 py-1 text-xs font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors min-w-[55px]">
+                                    <button onclick="app.openAdminUserModal(decodeURIComponent('${safeUser}'))" class="px-3 py-1 text-xs font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors min-w-[55px]">
                                         ${this.t('btnEdit')}
                                     </button>
-                                    <button onclick="app.confirmProfileDelete('${u.username}')" class="px-3 py-1 text-xs font-semibold text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 rounded-md transition-colors min-w-[55px]">
+                                    <button onclick="app.confirmProfileDelete(decodeURIComponent('${safeUser}'))" class="px-3 py-1 text-xs font-semibold text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 rounded-md transition-colors min-w-[55px]">
                                         ${this.t('btnDelete')}
                                     </button>
                                 </div>
@@ -1278,53 +1323,64 @@
             },
 
             openAdminUserModal(username) {
-                this.hideModal('admin-user');
                 const titleEl = document.getElementById('admin-user-title');
                 const modeEl = document.getElementById('adminUserMode');
-                
+                const pwInput = document.getElementById('adminPassword');
+                const pwHint = document.getElementById('admin-password-hint');
+                document.getElementById('admin-user-error')?.classList.add('hidden');
+
                 if (username) {
                     const user = this.usersRegistry[username];
                     if (!user) return;
-                    
                     titleEl.innerText = this.t('modalAdminEditTitle');
                     modeEl.value = 'edit';
-                    
                     document.getElementById('adminEngName').value = user.engName || '';
                     document.getElementById('adminChiName').value = user.chiName || '';
                     document.getElementById('adminUsername').value = user.username;
                     document.getElementById('adminUsername').disabled = true;
-                    document.getElementById('adminPassword').value = user.password || '';
+                    pwInput.value = '';
+                    pwInput.removeAttribute('required');
+                    pwInput.disabled = true;
+                    if (pwHint) pwHint.innerText = this.t('adminPasswordHintEdit');
                     document.getElementById('adminSchool').value = user.school || '';
-                    document.getElementById('adminRole').value = user.role || 'Student';
+                    document.getElementById('adminRole').value = user.role || 'student';
                     document.getElementById('adminClass').value = user.class || '';
                 } else {
                     titleEl.innerText = this.t('modalAdminAddTitle');
                     modeEl.value = 'add';
-                    
                     document.getElementById('form-admin-user').reset();
                     document.getElementById('adminUsername').disabled = false;
+                    pwInput.disabled = false;
+                    pwInput.required = true;
+                    if (pwHint) pwHint.innerText = this.t('adminPasswordHintAdd');
                 }
-                
+
                 this.updateAdminClassLabel();
                 this.showModal('admin-user');
             },
 
             updateAdminClassLabel() {
-                const role = document.getElementById('adminRole')?.value || 'Student';
+                const role = document.getElementById('adminRole')?.value || 'student';
                 const lbl = document.getElementById('lbl-admin-class');
-                if (lbl) lbl.innerText = role === 'Student' ? this.t('lblClassStudent') : this.t('lblClassTeacher');
+                if (lbl) {
+                    lbl.innerText = role === 'teacher' ? this.t('lblClassTeacher') : this.t('lblClassStudent');
+                }
             },
 
             async handleAdminUserSubmit(e) {
                 e.preventDefault();
+                if (!this.isAdmin() || !dbClient) return;
+
                 const mode = document.getElementById('adminUserMode').value;
-                const username = document.getElementById('adminUsername').value.trim();
+                const username = document.getElementById('adminUsername').value.trim().toLowerCase();
                 const engName = document.getElementById('adminEngName').value.trim();
                 const chiName = document.getElementById('adminChiName').value.trim();
                 const password = document.getElementById('adminPassword').value;
                 const school = document.getElementById('adminSchool').value.trim();
-                const role = document.getElementById('adminRole').value;
+                let role = (document.getElementById('adminRole').value || 'student').toLowerCase();
                 const userClass = document.getElementById('adminClass').value.trim();
+
+                if (username === 'administrator') role = 'admin';
 
                 if (mode === 'add') {
                     if (!this.usernameRegex.test(username)) {
@@ -1335,54 +1391,93 @@
                         this.showError('admin-user-error', this.t('alertUserExists'));
                         return;
                     }
+                    if (!password || password.length < 6) {
+                        this.showError('admin-user-error', this.t('errPasswordShort'));
+                        return;
+                    }
+
+                    const { data: { session: savedSession } } = await dbClient.auth.getSession();
+                    const { error: signErr } = await dbClient.auth.signUp({
+                        email: toAuthEmail(username),
+                        password,
+                        options: {
+                            data: { username, engName, chiName, school, classCodes: userClass }
+                        }
+                    });
+
+                    if (savedSession) {
+                        await dbClient.auth.setSession({
+                            access_token: savedSession.access_token,
+                            refresh_token: savedSession.refresh_token
+                        });
+                    }
+
+                    if (signErr) {
+                        const msg = /already|registered|exists/i.test(signErr.message)
+                            ? this.t('alertUserExists')
+                            : signErr.message;
+                        this.showError('admin-user-error', msg);
+                        return;
+                    }
+
+                    const { error: updErr } = await dbClient.from('profiles').update({
+                        eng_name: engName,
+                        chi_name: chiName,
+                        role,
+                        school,
+                        class_codes: userClass
+                    }).eq('username', username);
+
+                    if (updErr) {
+                        this.showError('admin-user-error', updErr.message);
+                        return;
+                    }
+
+                    this.hideModal('admin-user');
+                    await this.initManageView();
+                    this.showOutputMessage(`<span class="text-green-600">${this.t('alertUserAdded')}</span>`);
+                    return;
                 }
 
-                const userData = { username, password, engName, chiName, role, school, class: userClass };
-                this.usersRegistry[username] = userData;
+                const { error } = await dbClient.from('profiles').update({
+                    eng_name: engName,
+                    chi_name: chiName,
+                    role,
+                    school,
+                    class_codes: userClass
+                }).eq('username', username);
 
-                if (dbClient) {
-                    try {
-                        if (mode === 'add') {
-                            await dbClient.from('users_acc_info').insert([{
-                                username, password, engName, chiName, role, school, class: userClass
-                            }]);
-                        } else {
-                            await dbClient.from('users_acc_info').update({
-                                password, engName, chiName, role, school, class: userClass
-                            }).eq('username', username);
-                        }
-                    } catch (err) {
-                        console.error("Admin user save error:", err);
-                    }
+                if (error) {
+                    this.showError('admin-user-error', error.message);
+                    return;
+                }
+
+                if (this.currentUser?.username === username) {
+                    this.currentUser = {
+                        ...this.currentUser,
+                        engName, chiName, role, school, class: userClass
+                    };
+                    this.updateHeaderDisplay();
                 }
 
                 this.hideModal('admin-user');
-                this.initManageView();
-                this.showOutputMessage(`<span class="text-green-600">${this.t('alertUserAdded')}</span>`);
+                await this.initManageView();
+                this.showOutputMessage(`<span class="text-green-600">${this.t('alertProfileUpdated')}</span>`);
             },
 
-            // Requirement #4: Open delete modal for any user, then validate inside modal on action
             confirmProfileDelete(username) {
                 const user = this.usersRegistry[username];
                 if (!user) return;
-
                 this.deleteTargetUsername = username;
-
-                // Hide any previous error inside the modal
                 const errBox = document.getElementById('delete-confirm-error');
                 if (errBox) errBox.classList.add('hidden');
-
-                // Display selected user details in popup
                 const infoBox = document.getElementById('delete-user-info');
                 if (infoBox) {
-                    const dName = this.getUserDisplayName(user);
-                    infoBox.innerHTML = `<span class="font-bold text-gray-800">${dName}</span> <span class="text-gray-500 text-xs">(@${user.username})</span>`;
+                    infoBox.innerHTML = `<span class="font-bold text-gray-800">${escapeHtml(this.getUserDisplayName(user))}</span> <span class="text-gray-500 text-xs">(@${escapeHtml(user.username)})</span>`;
                 }
-
                 this.showModal('delete-confirm');
             },
 
-            // Executed when user clicks "Delete" button INSIDE the modal popup
             async processProfileDelete() {
                 const username = this.deleteTargetUsername;
                 if (!username) return;
@@ -1390,38 +1485,34 @@
                 const errBox = document.getElementById('delete-confirm-error');
                 const errText = document.getElementById('delete-confirm-error-text');
 
-                // Requirement #4 Rule A: Administrator account is protected
                 if (username === 'administrator') {
                     if (errText && errBox) {
                         errText.innerText = this.t('errAdminDeleteProtected');
                         errBox.classList.remove('hidden');
                     }
-                    return; // Stop execution, keep modal open to display message
+                    return;
                 }
-
-                // Requirement #4 Rule B: Cannot delete currently logged in account
                 if (this.currentUser && username === this.currentUser.username) {
                     if (errText && errBox) {
                         errText.innerText = this.t('errCannotDeleteSelf');
                         errBox.classList.remove('hidden');
                     }
-                    return; // Stop execution, keep modal open
+                    return;
                 }
 
-                // Perform actual deletion if allowed
-                delete this.usersRegistry[username];
-
-                if (dbClient) {
-                    try {
-                        await dbClient.from('users_acc_info').delete().eq('username', username);
-                    } catch (err) {
-                        console.error("Delete user error:", err);
+                const { error } = await dbClient.from('profiles').delete().eq('username', username);
+                if (error) {
+                    if (errText && errBox) {
+                        errText.innerText = error.message;
+                        errBox.classList.remove('hidden');
                     }
+                    return;
                 }
 
+                delete this.usersRegistry[username];
                 this.deleteTargetUsername = null;
                 this.hideModal('delete-confirm');
-                this.initManageView();
+                await this.initManageView();
                 this.showOutputMessage(`<span class="text-green-600">${this.t('alertUserDeleted')}</span>`);
             }
         };
