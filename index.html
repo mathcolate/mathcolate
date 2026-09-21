@@ -475,7 +475,7 @@
             <!-- Selected user details -->
             <div id="delete-user-info" class="bg-gray-50 p-3 rounded-lg border border-gray-200 text-sm mb-4 font-mono"></div>
 
-            <!-- Requirement #4 Error Box inside Popup -->
+            <!-- Error Box inside Popup -->
             <div id="delete-confirm-error" class="hidden p-3.5 mb-5 bg-red-50 border-l-4 border-red-500 rounded-r-md">
                 <div class="flex items-start space-x-2">
                     <span class="text-red-500 font-bold text-base">⚠️</span>
@@ -516,10 +516,10 @@
 
         function escapeHtml(str) {
             return String(str ?? '')
-                .replaceAll('&', '&')
-                .replaceAll('<', '<')
-                .replaceAll('>', '>')
-                .replaceAll('"', '"')
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
                 .replaceAll("'", '&#39;');
         }
 
@@ -616,7 +616,7 @@
                 filterBy: 'Filter by:',
                 errInvalidUsername: 'Username must contain only lowercase letters, numbers, hyphens, and underscores.',
                 errCannotDeleteSelf: 'You cannot delete your own currently logged-in account.',
-                errPasswordShort: 'Requires at least 8 characters.',
+                errPasswordShort: 'Requires at least 6 characters.',
                 adminPasswordHintAdd: 'Requires at least 8 characters.',
                 adminPasswordHintEdit: 'Other users’ passwords must be reset in Supabase → Authentication → Users.',
                 errNotAdmin: 'You do not have permission to manage the website.',
@@ -714,8 +714,8 @@
                 filterBy: '篩選:',
                 errInvalidUsername: '用戶名只能包含小寫英文字母 (a-z)、數字 (0-9)、連字號 (-) 和下劃線 (_)。',
                 errCannotDeleteSelf: '您不能刪除當前登入的帳戶。',
-                errPasswordShort: '必填至少8個字元。',
-                adminPasswordHintAdd: '必填至少8個字元。',
+                errPasswordShort: '必填至少6個字元。',
+                adminPasswordHintAdd: '必填至少6個字元。',
                 adminPasswordHintEdit: '其他人嘅密碼請到 Supabase → Authentication → Users 重設。',
                 errNotAdmin: '您沒有管理網站的權限。',
                 errGeneric: '發生錯誤，請再試一次。'
@@ -781,13 +781,54 @@
 
             async hydrateFromSession(authUser) {
                 if (!dbClient || !authUser) return false;
-                const { data, error } = await dbClient
+
+                // 1. 優先以 ID 查詢
+                let { data, error } = await dbClient
                     .from('users_acc_info')
                     .select('id, username, eng_name, chi_name, role, school, class_codes')
                     .eq('id', authUser.id)
-                    .single();
+                    .maybeSingle();
 
-                if (error || !data) {
+                // 2. 備用：若 ID 未匹配，以 username 進行備用查詢
+                if (!data) {
+                    const metaUsername = authUser.user_metadata?.username || authUser.email?.split('@')[0];
+                    if (metaUsername) {
+                        const { data: byName } = await dbClient
+                            .from('users_acc_info')
+                            .select('id, username, eng_name, chi_name, role, school, class_codes')
+                            .eq('username', metaUsername)
+                            .maybeSingle();
+                        data = byName;
+                    }
+                }
+
+                // 3. 自動修復 (Auto-Repair)：若 users_acc_info 缺失該紀錄，自動從 Auth Metadata 補建
+                if (!data) {
+                    const meta = authUser.user_metadata || {};
+                    const fallbackUsername = meta.username || authUser.email?.split('@')[0] || 'user';
+                    const isDefaultAdmin = fallbackUsername.toLowerCase() === 'administrator' || fallbackUsername.toLowerCase() === 'admin';
+                    const newRow = {
+                        id: authUser.id,
+                        username: fallbackUsername,
+                        eng_name: meta.engName || meta.eng_name || (isDefaultAdmin ? 'Administrator' : ''),
+                        chi_name: meta.chiName || meta.chi_name || (isDefaultAdmin ? '系統管理員' : ''),
+                        role: meta.role || (isDefaultAdmin ? 'admin' : 'student'),
+                        school: meta.school || 'Mathcolate College',
+                        class_codes: meta.classCodes || meta.class_codes || 'ALL'
+                    };
+
+                    const { data: inserted } = await dbClient
+                        .from('users_acc_info')
+                        .upsert(newRow)
+                        .select()
+                        .maybeSingle();
+
+                    if (inserted) {
+                        data = inserted;
+                    }
+                }
+
+                if (!data) {
                     await dbClient.auth.signOut();
                     this.currentUser = null;
                     this.updateHeaderDisplay();
@@ -1129,6 +1170,8 @@
                 const password = document.getElementById('regPassword').value;
                 const school = document.getElementById('regSchool').value.trim();
                 const userClass = document.getElementById('regClass').value.trim();
+                // 修復：正式定義 role 變數，避免 ReferenceError 崩潰
+                const role = document.getElementById('regRole')?.value || 'student';
 
                 if (!this.usernameRegex.test(username)) {
                     this.showError('reg-error', this.t('errInvalidUsername'));
@@ -1149,7 +1192,10 @@
                             chiName,
                             role,
                             school,
-                            classCodes: userClass
+                            classCodes: userClass,
+                            eng_name: engName,
+                            chi_name: chiName,
+                            class_codes: userClass
                         }
                     }
                 });
@@ -1413,9 +1459,12 @@
                                     username: username,
                                     engName: engName,
                                     chiName: chiName,
-                                    role: role, // 這會傳給剛才建好的 SQL Trigger 並轉型為 user_role
+                                    role: role,
                                     school: school,
-                                    classCodes: userClass
+                                    classCodes: userClass,
+                                    eng_name: engName,
+                                    chi_name: chiName,
+                                    class_codes: userClass
                                 }
                             }
                         });
