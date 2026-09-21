@@ -782,50 +782,20 @@
             async hydrateFromSession(authUser) {
                 if (!dbClient || !authUser) return false;
 
-                // 1. 優先以 ID 查詢
                 let { data, error } = await dbClient
                     .from('users_acc_info')
                     .select('id, username, eng_name, chi_name, role, school, class_codes')
                     .eq('id', authUser.id)
                     .maybeSingle();
 
-                // 2. 備用：若 ID 未匹配，以 username 進行備用查詢
                 if (!data) {
-                    const metaUsername = authUser.user_metadata?.username || authUser.email?.split('@')[0];
-                    if (metaUsername) {
-                        const { data: byName } = await dbClient
-                            .from('users_acc_info')
-                            .select('id, username, eng_name, chi_name, role, school, class_codes')
-                            .eq('username', metaUsername)
-                            .maybeSingle();
-                        data = byName;
-                    }
-                }
-
-                // 3. 自動修復 (Auto-Repair)：若 users_acc_info 缺失該紀錄，自動從 Auth Metadata 補建
-                if (!data) {
-                    const meta = authUser.user_metadata || {};
-                    const fallbackUsername = meta.username || authUser.email?.split('@')[0] || 'user';
-                    const isDefaultAdmin = fallbackUsername.toLowerCase() === 'administrator' || fallbackUsername.toLowerCase() === 'admin';
-                    const newRow = {
-                        id: authUser.id,
-                        username: fallbackUsername,
-                        eng_name: meta.engName || meta.eng_name || (isDefaultAdmin ? 'Administrator' : ''),
-                        chi_name: meta.chiName || meta.chi_name || (isDefaultAdmin ? '系統管理員' : ''),
-                        role: meta.role || (isDefaultAdmin ? 'admin' : 'student'),
-                        school: meta.school || 'Mathcolate College',
-                        class_codes: meta.classCodes || meta.class_codes || 'ALL'
-                    };
-
-                    const { data: inserted } = await dbClient
+                    await new Promise(r => setTimeout(r, 400));
+                    const retry = await dbClient
                         .from('users_acc_info')
-                        .upsert(newRow)
-                        .select()
+                        .select('id, username, eng_name, chi_name, role, school, class_codes')
+                        .eq('id', authUser.id)
                         .maybeSingle();
-
-                    if (inserted) {
-                        data = inserted;
-                    }
+                    data = retry.data;
                 }
 
                 if (!data) {
@@ -1201,7 +1171,6 @@
                             username,
                             engName,
                             chiName,
-                            role,
                             school,
                             classCodes: userClass,
                             eng_name: engName,
@@ -1455,32 +1424,25 @@
                     }
 
                     try {
-                        const tempClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-                            auth: { persistSession: false }
+                        const { data: sessionData } = await dbClient.auth.getSession();
+                        const token = sessionData.session?.access_token;
+
+                        const res = await fetch(`${SUPABASE_URL}/functions/v1/manage-user`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`,
+                                'apikey': SUPABASE_ANON_KEY
+                            },
+                            body: JSON.stringify({
+                                action: 'createUser',
+                                payload: { username, password, engName, chiName, role, school, classCodes: userClass }
+                            })
                         });
 
-                        const email = `${username}@mathcolate.invalid`;
-
-                        const { data, error } = await tempClient.auth.signUp({
-                            email: email,
-                            password: password,
-                            options: {
-                                data: {
-                                    username: username,
-                                    engName: engName,
-                                    chiName: chiName,
-                                    role: role,
-                                    school: school,
-                                    classCodes: userClass,
-                                    eng_name: engName,
-                                    chi_name: chiName,
-                                    class_codes: userClass
-                                }
-                            }
-                        });
-
-                        if (error) {
-                            this.showError('admin-user-error', error.message);
+                        const result = await res.json();
+                        if (!res.ok || result.error) {
+                            this.showError('admin-user-error', result.error || this.t('errGeneric'));
                             return;
                         }
 
@@ -1548,20 +1510,43 @@
                     return;
                 }
 
-                const { error } = await dbClient.from('users_acc_info').delete().eq('username', username);
-                if (error) {
+                try {
+                    const { data: sessionData } = await dbClient.auth.getSession();
+                    const token = sessionData.session?.access_token;
+
+                    const res = await fetch(`${SUPABASE_URL}/functions/v1/manage-user`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`,
+                            'apikey': SUPABASE_ANON_KEY
+                        },
+                        body: JSON.stringify({
+                            action: 'deleteUser',
+                            payload: { targetUsername: username }
+                        })
+                    });
+
+                    const result = await res.json();
+                    if (!res.ok || result.error) {
+                        if (errText && errBox) {
+                            errText.innerText = result.error || this.t('errGeneric');
+                            errBox.classList.remove('hidden');
+                        }
+                        return;
+                    }
+
+                    delete this.usersRegistry[username];
+                    this.deleteTargetUsername = null;
+                    this.hideModal('delete-confirm');
+                    await this.initManageView();
+                    this.showOutputMessage(`<span class="text-green-600">${this.t('alertUserDeleted')}</span>`);
+                } catch (err) {
                     if (errText && errBox) {
-                        errText.innerText = error.message;
+                        errText.innerText = err.message || this.t('errGeneric');
                         errBox.classList.remove('hidden');
                     }
-                    return;
                 }
-
-                delete this.usersRegistry[username];
-                this.deleteTargetUsername = null;
-                this.hideModal('delete-confirm');
-                await this.initManageView();
-                this.showOutputMessage(`<span class="text-green-600">${this.t('alertUserDeleted')}</span>`);
             }
         };
 
