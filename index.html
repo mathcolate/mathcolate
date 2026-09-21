@@ -106,7 +106,7 @@
     </div>
 
     <!-- MAIN VIEW -->
-    <main id="view-main" class="app-view flex-grow flex items-center justify-center p-6 animate-fade">
+    <main id="view-main" class="app-view hidden flex-grow flex items-center justify-center p-6 animate-fade">
         <div class="max-w-4xl w-full">
             <div class="text-center mb-12">
                 <h2 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">Mathcolate</h2>
@@ -756,6 +756,8 @@
                     }
                 });
 
+                const initialView = window.location.hash.replace('#', '') || 'main';
+
                 if (dbClient) {
                     const { data: { session } } = await dbClient.auth.getSession();
                     if (session?.user) {
@@ -766,13 +768,13 @@
                             this.currentUser = null;
                             this.usersRegistry = {};
                             this.updateHeaderDisplay();
+                            this.setView('main');
                         } else if (event === 'SIGNED_IN' && session?.user && !this.currentUser) {
                             await this.hydrateFromSession(session.user);
                         }
                     });
                 }
 
-                const initialView = window.location.hash.replace('#', '') || 'main';
                 this.setView(initialView, false);
                 this.initIdleTimer();
             },
@@ -780,7 +782,7 @@
             async hydrateFromSession(authUser) {
                 if (!dbClient || !authUser) return false;
                 const { data, error } = await dbClient
-                    .from('profiles')
+                    .from('users_acc_info')
                     .select('id, username, eng_name, chi_name, role, school, class_codes')
                     .eq('id', authUser.id)
                     .single();
@@ -1068,7 +1070,7 @@
                     return;
                 }
 
-                const { error } = await dbClient.from('profiles').update({
+                const { error } = await dbClient.from('users_acc_info').update({
                     eng_name: engName,
                     chi_name: chiName
                 }).eq('id', this.currentUser.id);
@@ -1145,6 +1147,7 @@
                             username,
                             engName,
                             chiName,
+                            role,
                             school,
                             classCodes: userClass
                         }
@@ -1180,7 +1183,7 @@
                 this.usersRegistry = {};
                 if (!dbClient) return;
                 const { data, error } = await dbClient
-                    .from('profiles')
+                    .from('users_acc_info')
                     .select('id, username, eng_name, chi_name, role, school, class_codes');
                 if (error || !data) return;
                 data.forEach(row => {
@@ -1431,7 +1434,7 @@
                     return;
                 }
 
-                const { error } = await dbClient.from('profiles').update({
+                const { error } = await dbClient.from('users_acc_info').update({
                     eng_name: engName,
                     chi_name: chiName,
                     role: role,
@@ -1486,7 +1489,7 @@
                     return;
                 }
 
-                const { error } = await dbClient.from('profiles').delete().eq('username', username);
+                const { error } = await dbClient.from('users_acc_info').delete().eq('username', username);
                 if (error) {
                     if (errText && errBox) {
                         errText.innerText = error.message;
