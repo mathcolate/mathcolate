@@ -618,7 +618,6 @@
                 errCannotDeleteSelf: 'You cannot delete your own currently logged-in account.',
                 errPasswordShort: 'Requires at least 6 characters.',
                 adminPasswordHintAdd: 'Requires at least 8 characters.',
-                adminPasswordHintEdit: 'Other users’ passwords must be reset in Supabase → Authentication → Users.',
                 errNotAdmin: 'You do not have permission to manage the website.',
                 errGeneric: 'Something went wrong. Please try again.'
             },
@@ -716,7 +715,6 @@
                 errCannotDeleteSelf: '您不能刪除當前登入的帳戶。',
                 errPasswordShort: '必填至少6個字元。',
                 adminPasswordHintAdd: '必填至少6個字元。',
-                adminPasswordHintEdit: '其他人嘅密碼請到 Supabase → Authentication → Users 重設。',
                 errNotAdmin: '您沒有管理網站的權限。',
                 errGeneric: '發生錯誤，請再試一次。'
             }
@@ -1391,7 +1389,6 @@
                     pwInput.value = '';
                     pwInput.removeAttribute('required');
                     pwInput.disabled = true;
-                    if (pwHint) pwHint.innerText = this.t('adminPasswordHintEdit');
                     document.getElementById('adminSchool').value = user.school || '';
                     document.getElementById('adminRole').value = user.role || 'student';
                     document.getElementById('adminClass').value = user.class || '';
