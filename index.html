@@ -739,9 +739,6 @@
             async init() {
                 this.applyTranslations();
 
-                const initialView = window.location.hash.replace('#', '') || 'main';
-                this.setView(initialView, false);
-
                 window.addEventListener('hashchange', () => {
                     const hashView = window.location.hash.replace('#', '') || 'main';
                     if (this.view !== hashView) {
@@ -762,6 +759,7 @@
                     if (session?.user) {
                         await this.hydrateFromSession(session.user);
                     }
+                    
                     dbClient.auth.onAuthStateChange(async (event, session) => {
                         if (event === 'SIGNED_OUT') {
                             this.currentUser = null;
@@ -774,6 +772,10 @@
                     });
                 }
 
+                this.updateHeaderDisplay();
+                const initialView = window.location.hash.replace('#', '') || 'main';
+                this.setView(initialView, false);
+                
                 this.initIdleTimer();
             },
 
@@ -835,6 +837,11 @@
 
                 this.currentUser = this.mapProfile(data);
                 this.updateHeaderDisplay();
+
+                if (this.view === 'profile') {
+                    this.initProfileView();
+                }
+                
                 return true;
             },
 
@@ -928,6 +935,8 @@
 
                 if (viewName === 'manage') {
                     this.initManageView();
+                } else if (viewName === 'profile') {
+                    this.initProfileView();
                 }
 
                 if (pushHistory && window.location.hash !== '#' + viewName) {
@@ -1073,6 +1082,10 @@
             handleViewProfile() {
                 if (!this.currentUser) return;
                 this.setView('profile');
+            },
+
+            initProfileView() {
+                if (!this.currentUser) return;
                 this.isEditingProfile = false;
 
                 document.getElementById('profEngName').value = this.currentUser.engName || '';
