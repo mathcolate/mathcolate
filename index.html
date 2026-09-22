@@ -80,6 +80,12 @@
                                 </svg>
                                 <span data-i18n="subManageWebsite">Manage website</span>
                             </button>
+                            <button id="btn-my-school" onclick="app.setView('my-school')" class="hidden w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0h4m-4 0v-4a1 1 0 011-1h2a1 1 0 011 1v4m-4 0h4" />
+                                </svg>
+                                <span data-i18n="subMySchool">My School</span>
+                            </button>
                             <button onclick="app.handleLogout()" class="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center space-x-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -204,7 +210,7 @@
         </div>
     </main>
 
-    <!-- MANAGE VIEW -->
+    <!-- ADMIN MANAGE VIEW -->
     <main id="view-manage" class="app-view hidden flex-grow flex flex-col p-6 animate-fade w-full max-w-6xl mx-auto">
         <div class="bg-white rounded-2xl shadow-sm border border-[#f2e8e5] p-6 sm:p-8 w-full flex flex-col flex-grow">
             <div class="flex justify-between items-center mb-6">
@@ -267,6 +273,68 @@
         </div>
     </main>
 
+    <!-- TEACHER MANAGE VIEW -->
+    <main id="view-my-school" class="app-view hidden flex-grow flex flex-col p-6 animate-fade w-full max-w-6xl mx-auto">
+        <div class="bg-white rounded-2xl shadow-sm border border-[#f2e8e5] p-6 sm:p-8 w-full flex flex-col flex-grow">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold text-gray-900" data-i18n="manageTitle">View my school</h2>
+                <button onclick="app.setView('main')" class="bg-[#f2e8e5] hover:bg-[#e6d5ce] text-[#5c3a18] font-semibold py-2 px-4 rounded-lg text-sm" data-i18n="manageBack">
+                    Back to Dashboard
+                </button>
+            </div>
+            
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-4 mb-6 pb-6 border-b border-gray-100">
+                <div class="flex flex-wrap gap-3">
+                    <button class="bg-[#8b5a2b] text-white px-4 py-2.5 rounded-lg text-sm font-semibold" data-i18n="btnPromoteClass" onclick="app.showOutputMessage(app.lang === 'zh' ? '班級轉換功能即將推出！' : 'Promote Class features coming soon!')">Promote Class</button>
+                    <button class="bg-white border border-gray-300 text-gray-700 px-4 py-2.5 rounded-lg text-sm font-semibold" data-i18n="btnUpdateQb" onclick="app.showOutputMessage(app.lang === 'zh' ? '更新題庫功能即將推出！' : 'Update Question Bank features coming soon!')">Update question bank</button>
+                    <button onclick="app.openAdminUserModal(null)" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-lg text-sm font-semibold flex items-center space-x-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        <span data-i18n="btnAddProfile">Add Students</span>
+                    </button>
+                </div>
+                
+                <div class="flex flex-wrap items-center gap-3">
+                    <span class="text-sm font-medium text-gray-500" data-i18n="filterBy">Filter by:</span>
+                    <select id="filter-role" onchange="app.handleManageFilter()" class="text-sm border border-gray-300 rounded-md px-3 py-2 outline-none min-w-[120px] bg-white"></select>
+                    <select id="filter-class" onchange="app.handleManageFilter()" class="text-sm border border-gray-300 rounded-md px-3 py-2 outline-none min-w-[120px] bg-white"></select>
+                    <button onclick="app.resetManageFilters()" class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-600 font-semibold px-3 py-2 rounded-md border border-gray-300 transition-colors" data-i18n="btnReset">
+                        Clear Filter
+                    </button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto bg-white rounded-lg border border-gray-200 shadow-sm flex-grow">
+                <table class="min-w-full text-left border-collapse">
+                    <thead class="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                            <th onclick="app.handleManageSort('school')" class="px-4 py-3 text-xs font-semibold text-gray-600 uppercase cursor-pointer hover:bg-gray-200 select-none w-[25%]">
+                                <span data-i18n="colSchool">School</span><span id="sort-icon-school" class="sort-icon ml-1 text-[#8b5a2b] font-bold"></span>
+                            </th>
+                            <th onclick="app.handleManageSort('accountName')" class="px-4 py-3 text-xs font-semibold text-gray-600 uppercase cursor-pointer hover:bg-gray-200 select-none w-[20%]">
+                                <span data-i18n="colName">Name</span><span id="sort-icon-accountName" class="sort-icon ml-1 text-[#8b5a2b] font-bold"></span>
+                            </th>
+                            <th onclick="app.handleManageSort('username')" class="px-4 py-3 text-xs font-semibold text-gray-600 uppercase cursor-pointer hover:bg-gray-200 select-none w-[18%]">
+                                <span data-i18n="colUsername">Username</span><span id="sort-icon-username" class="sort-icon ml-1 text-[#8b5a2b] font-bold"></span>
+                            </th>
+                            <th onclick="app.handleManageSort('role')" class="px-4 py-3 text-xs font-semibold text-gray-600 uppercase cursor-pointer hover:bg-gray-200 select-none w-[12%]">
+                                <span data-i18n="colRole">Role</span><span id="sort-icon-role" class="sort-icon ml-1 text-[#8b5a2b] font-bold"></span>
+                            </th>
+                            <th onclick="app.handleManageSort('class')" class="px-4 py-3 text-xs font-semibold text-gray-600 uppercase cursor-pointer hover:bg-gray-200 select-none w-[12%]">
+                                <span data-i18n="colClass">Class</span><span id="sort-icon-class" class="sort-icon ml-1 text-[#8b5a2b] font-bold"></span>
+                            </th>
+                            <th class="px-4 py-3 text-xs font-semibold text-gray-600 uppercase text-center w-[13%]" data-i18n="colActions">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="myschool-table-body" class="divide-y divide-gray-100"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+    
     <!-- PROFILE VIEW -->
     <main id="view-profile" class="app-view hidden flex-grow flex items-center justify-center p-6 animate-fade">
         <div class="max-w-3xl w-full bg-white rounded-2xl shadow-sm border border-[#f2e8e5] p-8 sm:p-10">
@@ -619,7 +687,9 @@
                 errPasswordShort: 'Requires at least 6 characters.',
                 adminPasswordHintAdd: 'Requires at least 8 characters.',
                 errNotAdmin: 'You do not have permission to manage the website.',
-                errGeneric: 'Something went wrong. Please try again.'
+                errGeneric: 'Something went wrong. Please try again.',
+                subMySchool: 'My School',
+                errNotTeacher: 'You do not have permission to view My School.',
             },
             'zh': {
                 langBtn: 'ENG/中文',
@@ -716,7 +786,9 @@
                 errPasswordShort: '必填至少6個字元。',
                 adminPasswordHintAdd: '必填至少6個字元。',
                 errNotAdmin: '您沒有管理網站的權限。',
-                errGeneric: '發生錯誤，請再試一次。'
+                errGeneric: '發生錯誤，請再試一次。',
+                subMySchool: '我的學校',
+                errNotTeacher: '您沒有權限查看「我的學校」。',
             }
         };
 
@@ -730,6 +802,7 @@
             outputTimeout: null,
             usersRegistry: {},
             usernameRegex: /^[a-z0-9-_]+$/,
+            manageMode: 'admin',
             manageState: {
                 sortCol: 'school',
                 sortAsc: true,
@@ -830,6 +903,12 @@
             isAdmin() {
                 return this.currentUser?.role === 'admin';
             },
+            isTeacher() {
+                return this.currentUser?.role === 'teacher';
+            },
+            isAdminOrTeacher() {
+                return this.isAdmin() || this.isTeacher();
+            },
 
             initIdleTimer() {
                 let timeout;
@@ -895,6 +974,12 @@
                         this.showOutputMessage(this.t('errNotAdmin'), true);
                     }
                 }
+                if (viewName === 'my-school' && !this.isTeacher()) {
+                    viewName = 'main';
+                    if (this.currentUser) {
+                        this.showOutputMessage(this.t('errNotTeacher') || 'You do not have permission to View my school.', true);
+                    }
+                }
 
                 this.view = viewName;
                 document.querySelectorAll('.app-view').forEach(el => el.classList.add('hidden'));
@@ -907,6 +992,8 @@
                     this.initManageView();
                 } else if (viewName === 'profile') {
                     this.initProfileView();
+                } else if (viewName === 'my-school') {
+                    this.initMySchoolView();
                 }
 
                 if (pushHistory && window.location.hash !== '#' + viewName) {
@@ -967,6 +1054,7 @@
                 const guestAv = document.getElementById('user-avatar-guest');
                 const logAv = document.getElementById('user-avatar-logged');
                 const btnManage = document.getElementById('btn-manage-site');
+                const btnMySchool = document.getElementById('btn-my-school');
 
                 if (this.currentUser) {
                     const dName = this.getUserDisplayName(this.currentUser);
@@ -979,11 +1067,25 @@
                     } else if (btnManage) {
                         btnManage.classList.add('hidden');
                     }
+                    const btnMySchool = document.getElementById('btn-my-school');
+                    if (this.isTeacher()) {
+                        if (btnMySchool) btnMySchool.classList.remove('hidden');
+                    } else if (btnMySchool) {
+                        btnMySchool.classList.add('hidden');
+                    }
+                    if (btnMySchool) {
+                        if (this.currentUser.role === 'teacher') {
+                            btnMySchool.classList.remove('hidden');
+                        } else {
+                            btnMySchool.classList.add('hidden');
+                        }
+                    }
                 } else {
                     nameEl.innerText = this.t('loginHeader');
                     guestAv.classList.remove('hidden');
                     logAv.classList.add('hidden');
                     if (btnManage) btnManage.classList.add('hidden');
+                    if (btnMySchool) btnMySchool.classList.add('hidden');
                 }
             },
 
@@ -1087,7 +1189,7 @@
                 const chiName = document.getElementById('profChiName').value.trim();
                 const newPassword = document.getElementById('profPassword').value;
 
-                if (newPassword && newPassword.length < 6) {
+                if (newPassword && newPassword.length < 8) {
                     this.showOutputMessage(this.t('errPasswordShort'), true);
                     return;
                 }
@@ -1158,7 +1260,7 @@
                     this.showError('reg-error', this.t('errInvalidUsername'));
                     return;
                 }
-                if (!password || password.length < 6) {
+                if (!password || password.length < 8) {
                     this.showError('reg-error', this.t('errPasswordShort'));
                     return;
                 }
@@ -1200,6 +1302,19 @@
                     this.showOutputMessage(this.t('errNotAdmin'), true);
                     return;
                 }
+                this.manageMode = 'admin';
+                await this.loadAllProfiles();
+                this.populateManageFilters();
+                this.renderManageTable();
+            },
+
+            async initMySchoolView() {
+                if (!this.isTeacher()) {
+                    this.setView('main', false);
+                    this.showOutputMessage(this.t('errNotTeacher') || 'You do not have permission.', true);
+                    return;
+                }
+                this.manageMode = 'teacher';
                 await this.loadAllProfiles();
                 this.populateManageFilters();
                 this.renderManageTable();
@@ -1208,9 +1323,13 @@
             async loadAllProfiles() {
                 this.usersRegistry = {};
                 if (!dbClient) return;
-                const { data, error } = await dbClient
+                let query = dbClient
                     .from('users_acc_info')
                     .select('id, username, eng_name, chi_name, role, school, class_codes');
+                if (this.manageMode === 'teacher' && this.currentUser?.school) {
+                    query = query.eq('school', this.currentUser.school);
+                }
+                const { data, error } = await query;
                 if (error || !data) return;
                 data.forEach(row => {
                     const user = this.mapProfile(row);
@@ -1233,10 +1352,15 @@
                 const classFilter = document.getElementById('filter-class');
 
                 if (schoolFilter) {
-                    const currentVal = this.manageState.filters.school;
-                    schoolFilter.innerHTML = `<option value="">${escapeHtml(this.t('filterAllSchools'))}</option>` +
-                        schools.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
-                    schoolFilter.value = currentVal;
+                    if (this.manageMode === 'teacher') {
+                        schoolFilter.style.display = 'none';
+                    } else {
+                        schoolFilter.style.display = '';
+                        const currentVal = this.manageState.filters.school;
+                        schoolFilter.innerHTML = `<option value="">${escapeHtml(this.t('filterAllSchools'))}</option>` +
+                            schools.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
+                        schoolFilter.value = currentVal;
+                    }
                 }
                 if (roleFilter) {
                     const currentVal = this.manageState.filters.role;
@@ -1253,17 +1377,25 @@
             },
 
             handleManageFilter() {
-                this.manageState.filters.school = document.getElementById('filter-school').value;
-                this.manageState.filters.role = document.getElementById('filter-role').value;
-                this.manageState.filters.class = document.getElementById('filter-class').value;
+                const schoolEl = document.getElementById('filter-school');
+                const roleEl = document.getElementById('filter-role');
+                const classEl = document.getElementById('filter-class');
+                
+                this.manageState.filters.school = schoolEl ? schoolEl.value : '';
+                this.manageState.filters.role   = roleEl   ? roleEl.value   : '';
+                this.manageState.filters.class  = classEl  ? classEl.value  : '';
                 this.renderManageTable();
             },
 
             resetManageFilters() {
                 this.manageState.filters = { school: '', role: '', class: '' };
-                document.getElementById('filter-school').value = '';
-                document.getElementById('filter-role').value = '';
-                document.getElementById('filter-class').value = '';
+                const schoolEl = document.getElementById('filter-school');
+                const roleEl = document.getElementById('filter-role');
+                const classEl = document.getElementById('filter-class');
+    
+                if (schoolEl) schoolEl.value = '';
+                if (roleEl) roleEl.value = '';
+                if (classEl) classEl.value = '';
                 this.renderManageTable();
             },
 
@@ -1278,6 +1410,10 @@
             },
 
             renderManageTable() {
+                const tbodyId = this.manageMode === 'teacher' ? 'myschool-table-body' : 'manage-table-body';
+                const tbody = document.getElementById(tbodyId);
+                if (!tbody) return;
+                
                 let users = Object.values(this.usersRegistry);
 
                 if (this.manageState.filters.school) {
@@ -1317,9 +1453,6 @@
                     if (icon) icon.textContent = (sortCol === col) ? (sortAsc ? ' ▲' : ' ▼') : '';
                 });
 
-                const tbody = document.getElementById('manage-table-body');
-                if (!tbody) return;
-
                 if (users.length === 0) {
                     tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-gray-400 font-medium">${this.lang === 'zh' ? '沒有找到相符的用戶資料' : 'No matching profiles found'}</td></tr>`;
                     return;
@@ -1330,6 +1463,33 @@
                     const displaySchool = escapeHtml(u.school || '-');
                     const displayRole = escapeHtml(this.roleLabel(u.role));
                     const safeUser = encodeURIComponent(u.username);
+
+                    const isStudent = u.role === 'student';
+                    const canEdit = this.manageMode === 'admin' || (this.manageMode === 'teacher' && isStudent);
+                    const canDelete = this.manageMode === 'admin' || (this.manageMode === 'teacher' && isStudent);
+
+                    let actionsHtml = '';
+                    if (canEdit || canDelete) {
+                        actionsHtml = `<div class="flex items-center justify-center space-x-2">`;
+                        if (canEdit) {
+                            actionsHtml += `
+                                <button onclick="app.openAdminUserModal(decodeURIComponent('${safeUser}'))" 
+                                        class="px-3 py-1 text-xs font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors min-w-[55px]">
+                                    ${this.t('btnEdit')}
+                                </button>`;
+                        }
+                        if (canDelete) {
+                            actionsHtml += `
+                                <button onclick="app.confirmProfileDelete(decodeURIComponent('${safeUser}'))" 
+                                        class="px-3 py-1 text-xs font-semibold text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 rounded-md transition-colors min-w-[55px]">
+                                    ${this.t('btnDelete')}
+                                </button>`;
+                        }
+                        actionsHtml += `</div>`;
+                    } else {
+                        actionsHtml = `<div class="text-center text-xs text-gray-400">View only</div>`;
+                    }
+
                     return `
                         <tr class="hover:bg-gray-50 border-b border-gray-100 transition-colors">
                             <td class="px-4 py-3.5 text-sm text-gray-700 font-medium">${displaySchool}</td>
@@ -1338,32 +1498,34 @@
                             <td class="px-4 py-3.5 text-sm text-gray-700">${displayRole}</td>
                             <td class="px-4 py-3.5 text-sm text-gray-700">${escapeHtml(u.class || '-')}</td>
                             <td class="px-4 py-3.5 text-sm">
-                                <div class="flex items-center justify-center space-x-2">
-                                    <button onclick="app.openAdminUserModal(decodeURIComponent('${safeUser}'))" class="px-3 py-1 text-xs font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors min-w-[55px]">
-                                        ${this.t('btnEdit')}
-                                    </button>
-                                    <button onclick="app.confirmProfileDelete(decodeURIComponent('${safeUser}'))" class="px-3 py-1 text-xs font-semibold text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 rounded-md transition-colors min-w-[55px]">
-                                        ${this.t('btnDelete')}
-                                    </button>
-                                </div>
+                                ${actionsHtml}
                             </td>
                         </tr>
                     `;
                 }).join('');
             },
 
-            openAdminUserModal(username) {
+            openAdminUserModal(username = null) {
                 const titleEl = document.getElementById('admin-user-title');
                 const modeEl = document.getElementById('adminUserMode');
                 const pwInput = document.getElementById('adminPassword');
                 const pwHint = document.getElementById('admin-password-hint');
+                const schoolInput = document.getElementById('adminSchool');
+                const roleSelect = document.getElementById('adminRole');
                 document.getElementById('admin-user-error')?.classList.add('hidden');
 
                 if (username) {
                     const user = this.usersRegistry[username];
                     if (!user) return;
+
+                    if (this.manageMode === 'teacher' && user.role !== 'student') {
+                        this.showOutputMessage('You can only edit students.', true);
+                        return;
+                    }
+                    
                     titleEl.innerText = this.t('modalAdminEditTitle');
-                    modeEl.value = 'edit';
+                    modeEl.value = this.manageMode === 'teacher' ? 'edit-teacher' : 'edit';
+                    
                     document.getElementById('adminEngName').value = user.engName || '';
                     document.getElementById('adminChiName').value = user.chiName || '';
                     document.getElementById('adminUsername').value = user.username;
@@ -1371,17 +1533,36 @@
                     pwInput.value = '';
                     pwInput.removeAttribute('required');
                     pwInput.disabled = true;
-                    document.getElementById('adminSchool').value = user.school || '';
-                    document.getElementById('adminRole').value = user.role || 'student';
+                    schoolInput.value = user.school || '';
+                    roleSelect.value = user.role || 'student';
                     document.getElementById('adminClass').value = user.class || '';
+
+                    if (this.manageMode === 'teacher') {
+                        schoolInput.disabled = true;
+                        roleSelect.disabled = true;
+                    } else {
+                        schoolInput.disabled = false;
+                        roleSelect.disabled = false;
+                    }
                 } else {
-                    titleEl.innerText = this.t('modalAdminAddTitle');
-                    modeEl.value = 'add';
+                    titleEl.innerText = this.manageMode === 'teacher'
+                        ? (this.lang === 'zh' ? '新增學生' : 'Add Student') 
+                        : this.t('modalAdminAddTitle');
+                    modeEl.value = this.manageMode === 'teacher' ? 'add-teacher' : 'add';
                     document.getElementById('form-admin-user').reset();
                     document.getElementById('adminUsername').disabled = false;
                     pwInput.disabled = false;
                     pwInput.required = true;
                     if (pwHint) pwHint.innerText = this.t('adminPasswordHintAdd');
+                    if (this.manageMode === 'teacher') {
+                        schoolInput.value = this.currentUser.school || '';
+                        schoolInput.disabled = true;
+                        roleSelect.value = 'student';
+                        roleSelect.disabled = true;
+                    } else {
+                        schoolInput.disabled = false;
+                        roleSelect.disabled = false;
+                    }
                 }
 
                 this.updateAdminClassLabel();
@@ -1398,18 +1579,38 @@
 
             async handleAdminUserSubmit(e) {
                 e.preventDefault();
-                if (!this.isAdmin() || !dbClient) return;
+                if (!dbClient) return;
 
                 const mode = document.getElementById('adminUserMode').value;
+
+                if (mode === 'add' || mode === 'edit') {
+                    if (!this.isAdmin()) {
+                        this.showError('admin-user-error', this.t('errNotAdmin'));
+                        return;
+                    }
+                } else if (mode === 'add-teacher' || mode === 'edit-teacher') {
+                    if (!this.isTeacher()) {
+                        this.showError('admin-user-error', 'Permission denied');
+                        return;
+                    }
+                } else {
+                    return;
+                }
+                
                 const username = document.getElementById('adminUsername').value.trim().toLowerCase();
                 const engName = document.getElementById('adminEngName').value.trim();
                 const chiName = document.getElementById('adminChiName').value.trim();
                 const password = document.getElementById('adminPassword').value;
-                const school = document.getElementById('adminSchool').value.trim();
+                let school = document.getElementById('adminSchool').value.trim();
                 let role = (document.getElementById('adminRole').value || 'student').toLowerCase();
                 const userClass = document.getElementById('adminClass').value.trim();
 
-                if (mode === 'add') {
+                if (mode === 'add-teacher' || mode === 'edit-teacher') {
+                    school = this.currentUser.school;
+                    role = 'student';
+                }
+
+                if (mode === 'add' || mode === 'add-teacher') {
                     if (!this.usernameRegex.test(username)) {
                         this.showError('admin-user-error', this.t('errInvalidUsername'));
                         return;
@@ -1418,7 +1619,7 @@
                         this.showError('admin-user-error', this.t('alertUserExists'));
                         return;
                     }
-                    if (!password || password.length < 6) {
+                    if (!password || password.length < 8) {
                         this.showError('admin-user-error', this.t('errPasswordShort'));
                         return;
                     }
@@ -1447,7 +1648,11 @@
                         }
 
                         this.hideModal('admin-user');
-                        await this.initManageView();
+                        if (this.manageMode === 'teacher') {
+                            await this.initMySchoolView();
+                        } else {
+                            await this.initManageView();
+                        }
                         this.showOutputMessage(`<span class="text-green-600">${this.t('alertUserAdded')}</span>`);
                     } catch (err) {
                         this.showError('admin-user-error', err.message || this.t('errGeneric'));
@@ -1469,7 +1674,11 @@
                 }
 
                 this.hideModal('admin-user');
-                await this.initManageView();
+                if (this.manageMode === 'teacher') {
+                    await this.initMySchoolView();
+                } else {
+                    await this.initManageView();
+                }
                 this.showOutputMessage(`<span class="text-green-600">${this.t('alertProfileUpdated')}</span>`);
             },
 
@@ -1539,7 +1748,11 @@
                     delete this.usersRegistry[username];
                     this.deleteTargetUsername = null;
                     this.hideModal('delete-confirm');
-                    await this.initManageView();
+                    if (this.manageMode === 'teacher') {
+                        await this.initMySchoolView();
+                    } else {
+                        await this.initManageView();
+                    }
                     this.showOutputMessage(`<span class="text-green-600">${this.t('alertUserDeleted')}</span>`);
                 } catch (err) {
                     if (errText && errBox) {
