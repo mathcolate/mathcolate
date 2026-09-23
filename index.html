@@ -931,6 +931,9 @@
             toggleLanguage() {
                 this.lang = this.lang === 'en' ? 'zh' : 'en';
                 this.applyTranslations();
+                if (this.manageMode === 'teacher' || this.manageMode === 'admin') {
+                    this.renderManageTable();
+                }
             },
 
             t(key) {
@@ -940,9 +943,9 @@
             getUserDisplayName(user) {
                 if (!user) return '';
                 if (this.lang === 'zh') {
-                    return user.chiName || user.engName || user.username;
+                    return user.chiName || user.engName || user.username || '';
                 }
-                return user.engName || user.chiName || user.username;
+                return user.engName || user.chiName || user.username || '';
             },
 
             roleLabel(role) {
