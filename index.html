@@ -1125,15 +1125,16 @@
                     return;
                 }
 
+                this.hideModal('login');
+                document.getElementById('loginUser').value = '';
+                document.getElementById('loginPass').value = '';
+
                 const ok = await this.hydrateFromSession(data.user);
                 if (!ok) {
                     this.showError('login-error', this.t('alertInvalidLogin'));
                     return;
                 }
 
-                this.hideModal('login');
-                document.getElementById('loginUser').value = '';
-                document.getElementById('loginPass').value = '';
                 const dName = escapeHtml(this.getUserDisplayName(this.currentUser));
                 this.showOutputMessage(
                     `<span class="text-green-600">${this.t('alertLoggedIn').replace('{name}', dName)}</span>`
