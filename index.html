@@ -1386,8 +1386,8 @@
                 const isTeacherMode = this.manageMode === 'teacher';
                 
                 const schoolEl = document.getElementById('filter-school');
-                const roleEl = document.getElementById('filter-role');
-                const classEl = document.getElementById('filter-class');
+                const roleEl   = document.getElementById(isTeacherMode ? 'myschool-filter-role' : 'filter-role');
+                const classEl  = document.getElementById(isTeacherMode ? 'myschool-filter-class' : 'filter-class');
                 
                 this.manageState.filters.school = schoolEl ? schoolEl.value : '';
                 this.manageState.filters.role   = roleEl   ? roleEl.value   : '';
