@@ -297,8 +297,8 @@
                 
                 <div class="flex flex-wrap items-center gap-3">
                     <span class="text-sm font-medium text-gray-500" data-i18n="filterBy">Filter by:</span>
-                    <select id="filter-role" onchange="app.handleManageFilter()" class="text-sm border border-gray-300 rounded-md px-3 py-2 outline-none min-w-[120px] bg-white"></select>
-                    <select id="filter-class" onchange="app.handleManageFilter()" class="text-sm border border-gray-300 rounded-md px-3 py-2 outline-none min-w-[120px] bg-white"></select>
+                    <select id="myschool-filter-role" onchange="app.handleManageFilter()" class="text-sm border border-gray-300 rounded-md px-3 py-2 outline-none min-w-[120px] bg-white"></select>
+                    <select id="myschool-filter-class" onchange="app.handleManageFilter()" class="text-sm border border-gray-300 rounded-md px-3 py-2 outline-none min-w-[120px] bg-white"></select>
                     <button onclick="app.resetManageFilters()" class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-600 font-semibold px-3 py-2 rounded-md border border-gray-300 transition-colors" data-i18n="btnReset">
                         Clear Filter
                     </button>
@@ -1350,10 +1350,9 @@
                 });
                 const classes = Array.from(classSet).sort();
 
-                const schoolFilter = document.getElementById('filter-school');
-                const roleFilter = document.getElementById('filter-role');
-                const classFilter = document.getElementById('filter-class');
+                const isTeacherMode = this.manageMode === 'teacher';
 
+                const schoolFilter = document.getElementById('filter-school');
                 if (schoolFilter) {
                     if (this.manageMode === 'teacher') {
                         schoolFilter.style.display = 'none';
@@ -1365,12 +1364,16 @@
                         schoolFilter.value = currentVal;
                     }
                 }
+                const roleFilterId = isTeacherMode ? 'myschool-filter-role' : 'filter-role';
+                const roleFilter = document.getElementById(roleFilterId);
                 if (roleFilter) {
                     const currentVal = this.manageState.filters.role;
                     roleFilter.innerHTML = `<option value="">${escapeHtml(this.t('filterAllRoles'))}</option>` +
                         roles.map(r => `<option value="${escapeHtml(r)}">${escapeHtml(this.roleLabel(r))}</option>`).join('');
                     roleFilter.value = currentVal;
                 }
+                const classFilterId = isTeacherMode ? 'myschool-filter-class' : 'filter-class';
+                const classFilter = document.getElementById(classFilterId);
                 if (classFilter) {
                     const currentVal = this.manageState.filters.class;
                     classFilter.innerHTML = `<option value="">${escapeHtml(this.t('filterAllClasses'))}</option>` +
@@ -1380,6 +1383,8 @@
             },
 
             handleManageFilter() {
+                const isTeacherMode = this.manageMode === 'teacher';
+                
                 const schoolEl = document.getElementById('filter-school');
                 const roleEl = document.getElementById('filter-role');
                 const classEl = document.getElementById('filter-class');
@@ -1392,9 +1397,12 @@
 
             resetManageFilters() {
                 this.manageState.filters = { school: '', role: '', class: '' };
+
+                const isTeacherMode = this.manageMode === 'teacher';
+                
                 const schoolEl = document.getElementById('filter-school');
-                const roleEl = document.getElementById('filter-role');
-                const classEl = document.getElementById('filter-class');
+                const roleEl   = document.getElementById(isTeacherMode ? 'myschool-filter-role' : 'filter-role');
+                const classEl  = document.getElementById(isTeacherMode ? 'myschool-filter-class' : 'filter-class');
     
                 if (schoolEl) schoolEl.value = '';
                 if (roleEl) roleEl.value = '';
