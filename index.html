@@ -197,6 +197,10 @@
                         <label id="lbl-reg-class" class="block text-sm font-medium text-gray-700 mb-1 font-semibold" data-i18n="lblClassStudent">Class (Belongs to)</label>
                         <input type="text" id="regClass" required data-i18n-placeholder="modalClassPlace" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8b5a2b] outline-none" />
                     </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 font-semibold" data-i18n="lblClassNumber">Class Number</label>
+                        <input type="text" id="profClassNumber" disabled class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-500 outline-none" />
+                    </div>
                 </div>
                 <div class="pt-4 flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
                     <button type="button" onclick="app.setView('main'); app.showModal('login');" class="text-sm text-[#6f4822] hover:underline" data-i18n="modalBackToLogin">
@@ -262,6 +266,9 @@
                             <th onclick="app.handleManageSort('class')" class="px-4 py-3 text-xs font-semibold text-gray-600 uppercase cursor-pointer hover:bg-gray-200 select-none w-[12%]">
                                 <span data-i18n="colClass">Class</span><span id="sort-icon-class" class="sort-icon ml-1 text-[#8b5a2b] font-bold"></span>
                             </th>
+                            <th onclick="app.handleManageSort('classNumber')" class="px-4 py-3 text-xs font-semibold text-gray-600 uppercase cursor-pointer hover:bg-gray-200 select-none w-[10%]">
+                                <span data-i18n="colClassNumber">Class No</span><span id="sort-icon-classNumber" class="sort-icon ml-1 text-[#8b5a2b] font-bold"></span>
+                            </th>
                             <th class="px-4 py-3 text-xs font-semibold text-gray-600 uppercase text-center w-[13%]" data-i18n="colActions">
                                 Actions
                             </th>
@@ -310,19 +317,22 @@
                     <thead class="bg-gray-50 border-b border-gray-200">
                         <tr>
                             <th onclick="app.handleManageSort('school')" class="px-4 py-3 text-xs font-semibold text-gray-600 uppercase cursor-pointer hover:bg-gray-200 select-none w-[25%]">
-                                <span data-i18n="colSchool">School</span><span id="sort-icon-school" class="sort-icon ml-1 text-[#8b5a2b] font-bold"></span>
+                                <span data-i18n="colSchool">School</span><span id="sort-icon-myschool-school" class="sort-icon ml-1 text-[#8b5a2b] font-bold"></span>
                             </th>
                             <th onclick="app.handleManageSort('accountName')" class="px-4 py-3 text-xs font-semibold text-gray-600 uppercase cursor-pointer hover:bg-gray-200 select-none w-[20%]">
-                                <span data-i18n="colName">Name</span><span id="sort-icon-accountName" class="sort-icon ml-1 text-[#8b5a2b] font-bold"></span>
+                                <span data-i18n="colName">Name</span><span id="sort-icon-myschool-accountName" class="sort-icon ml-1 text-[#8b5a2b] font-bold"></span>
                             </th>
                             <th onclick="app.handleManageSort('username')" class="px-4 py-3 text-xs font-semibold text-gray-600 uppercase cursor-pointer hover:bg-gray-200 select-none w-[18%]">
-                                <span data-i18n="colUsername">Username</span><span id="sort-icon-username" class="sort-icon ml-1 text-[#8b5a2b] font-bold"></span>
+                                <span data-i18n="colUsername">Username</span><span id="sort-icon-myschool-username" class="sort-icon ml-1 text-[#8b5a2b] font-bold"></span>
                             </th>
                             <th onclick="app.handleManageSort('role')" class="px-4 py-3 text-xs font-semibold text-gray-600 uppercase cursor-pointer hover:bg-gray-200 select-none w-[12%]">
-                                <span data-i18n="colRole">Role</span><span id="sort-icon-role" class="sort-icon ml-1 text-[#8b5a2b] font-bold"></span>
+                                <span data-i18n="colRole">Role</span><span id="sort-icon-myschool-role" class="sort-icon ml-1 text-[#8b5a2b] font-bold"></span>
                             </th>
                             <th onclick="app.handleManageSort('class')" class="px-4 py-3 text-xs font-semibold text-gray-600 uppercase cursor-pointer hover:bg-gray-200 select-none w-[12%]">
-                                <span data-i18n="colClass">Class</span><span id="sort-icon-class" class="sort-icon ml-1 text-[#8b5a2b] font-bold"></span>
+                                <span data-i18n="colClass">Class</span><span id="sort-icon-myschool-class" class="sort-icon ml-1 text-[#8b5a2b] font-bold"></span>
+                            </th>
+                            <th onclick="app.handleManageSort('classNumber')" class="px-4 py-3 text-xs font-semibold text-gray-600 uppercase cursor-pointer hover:bg-gray-200 select-none w-[10%]">
+                                <span data-i18n="colClassNumber">Class No</span><span id="sort-icon-myschool-classNumber" class="sort-icon ml-1 text-[#8b5a2b] font-bold"></span>
                             </th>
                             <th class="px-4 py-3 text-xs font-semibold text-gray-600 uppercase text-center w-[13%]" data-i18n="colActions">
                                 Actions
@@ -365,18 +375,22 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1 font-semibold" data-i18n="modalSchool">School Name (in English)</label>
                     <input type="text" id="profSchool" disabled class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-500 outline-none" />
                 </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1 font-semibold" data-i18n="modalRole">Role</label>
+                    <select id="profRole" disabled class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-500 outline-none">
+                        <option value="student" data-i18n="roleStudent">Student</option>
+                        <option value="teacher" data-i18n="roleTeacher">Teacher</option>
+                        <option value="admin" data-i18n="roleAdmin">Administrator</option>
+                    </select>
+                </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 font-semibold" data-i18n="modalRole">Role</label>
-                        <select id="profRole" disabled class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-500 outline-none">
-                            <option value="student" data-i18n="roleStudent">Student</option>
-                            <option value="teacher" data-i18n="roleTeacher">Teacher</option>
-                            <option value="admin" data-i18n="roleAdmin">Administrator</option>
-                        </select>
-                    </div>
                     <div>
                         <label id="lbl-prof-class" class="block text-sm font-medium text-gray-700 mb-1 font-semibold" data-i18n="lblClassStudent">Class</label>
                         <input type="text" id="profClass" disabled data-i18n-placeholder="modalClassPlace" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-500 outline-none" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 font-semibold" data-i18n="lblClassNumber">Class No.</label>
+                        <input type="text" id="profClassNumber" disabled class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-500 outline-none" />
                     </div>
                 </div>
                 <div class="pt-4 flex flex-col sm:flex-row justify-end items-center space-y-4 sm:space-y-0 sm:space-x-4">
@@ -500,18 +514,22 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1 font-semibold" data-i18n="modalSchool">School Name (in English)</label>
                     <input type="text" id="adminSchool" required class="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none" />
                 </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1 font-semibold" data-i18n="modalRole">Role</label>
+                    <select id="adminRole" onchange="app.updateAdminClassLabel()" class="w-full px-4 py-2 border border-gray-300 bg-white rounded-lg outline-none">
+                        <option value="student" data-i18n="roleStudent">Student</option>
+                        <option value="teacher" data-i18n="roleTeacher">Teacher</option>
+                        <option value="admin" data-i18n="roleAdmin">Administrator</option>
+                    </select>
+                </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 font-semibold" data-i18n="modalRole">Role</label>
-                        <select id="adminRole" onchange="app.updateAdminClassLabel()" class="w-full px-4 py-2 border border-gray-300 bg-white rounded-lg outline-none">
-                            <option value="student" data-i18n="roleStudent">Student</option>
-                            <option value="teacher" data-i18n="roleTeacher">Teacher</option>
-                            <option value="admin" data-i18n="roleAdmin">Administrator</option>
-                        </select>
-                    </div>
                     <div>
                         <label id="lbl-admin-class" class="block text-sm font-medium text-gray-700 mb-1 font-semibold" data-i18n="lblClassStudent">Class (Belongs to)</label>
                         <input type="text" id="adminClass" required class="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 font-semibold" data-i18n="lblClassNumber">Class Number</label>
+                        <input type="text" id="adminClassNumber" data-i18n-placeholder="modalClassNumberPlace" class="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none" />
                     </div>
                 </div>
                 <div class="pt-4 flex justify-end space-x-3">
@@ -640,6 +658,10 @@
                 lblClassStudent: 'Class (Belongs to)',
                 lblClassTeacher: 'Class (Teaches)',
                 modalClassPlace: 'e.g. 5A',
+                colClassNumber: 'Class No.',
+                lblClassNumber: 'Class No.',
+                modalClassNumberPlace: 'e.g. 01',
+                errInvalidClassNumber: 'Class No. must be 1–3 digits, or leave blank.',
                 authTitle: 'Teacher Authorization',
                 authDesc: 'Please enter the authorization code provided by the administration to create a teacher account.',
                 authCodePlace: 'Enter Code',
@@ -739,6 +761,10 @@
                 lblClassStudent: '班級 (所屬班級)',
                 lblClassTeacher: '班級 (任教班級)',
                 modalClassPlace: '例如: 5A',
+                colClassNumber: '班號',
+                lblClassNumber: '班號',
+                modalClassNumberPlace: '例如: 01',
+                errInvalidClassNumber: '班號須為 1–3 位數字，或留空。',
                 authTitle: '教師權限驗證',
                 authDesc: '請輸入由校方提供的授權碼以建立教師帳戶。',
                 authCodePlace: '輸入授權碼',
@@ -802,6 +828,7 @@
             outputTimeout: null,
             usersRegistry: {},
             usernameRegex: /^[a-z0-9-_]+$/,
+            classNumberRegex: /^\d{1,3}$/,
             manageMode: 'admin',
             manageState: {
                 sortCol: 'school',
@@ -857,7 +884,7 @@
 
                 let { data, error } = await dbClient
                     .from('users_acc_info')
-                    .select('id, username, eng_name, chi_name, role, school, class_codes')
+                    .select('id, username, eng_name, chi_name, role, school, class_codes, class_number')
                     .eq('id', authUser.id)
                     .maybeSingle();
 
@@ -865,7 +892,7 @@
                     await new Promise(r => setTimeout(r, 400));
                     const retry = await dbClient
                         .from('users_acc_info')
-                        .select('id, username, eng_name, chi_name, role, school, class_codes')
+                        .select('id, username, eng_name, chi_name, role, school, class_codes, class_number')
                         .eq('id', authUser.id)
                         .maybeSingle();
                     data = retry.data;
@@ -896,7 +923,8 @@
                     chiName: row.chi_name || '',
                     role: (row.role || 'student').toLowerCase(),
                     school: row.school || '',
-                    class: row.class_codes || ''
+                    class: row.class_codes || '',
+                    classNumber: row.class_number || ''
                 };
             },
 
@@ -908,6 +936,10 @@
             },
             isAdminOrTeacher() {
                 return this.isAdmin() || this.isTeacher();
+            },
+            isValidClassNumber(val) {
+                if (val === null || val === undefined || String(val).trim() === '') return true;
+                return this.classNumberRegex.test(String(val).trim());
             },
 
             initIdleTimer() {
@@ -1171,6 +1203,7 @@
                 document.getElementById('profSchool').value = this.currentUser.school || '';
                 document.getElementById('profRole').value = this.currentUser.role || 'student';
                 document.getElementById('profClass').value = this.currentUser.class || '';
+                document.getElementById('profClassNumber').value = this.currentUser.classNumber || '';
 
                 this.updateClassLabels();
                 document.querySelectorAll('.prof-editable').forEach(el => el.disabled = true);
@@ -1329,7 +1362,7 @@
                 if (!dbClient) return;
                 let query = dbClient
                     .from('users_acc_info')
-                    .select('id, username, eng_name, chi_name, role, school, class_codes');
+                    .select('id, username, eng_name, chi_name, role, school, class_codes, class_number');
                 if (this.manageMode === 'teacher' && this.currentUser?.school) {
                     query = query.eq('school', this.currentUser.school);
                 }
@@ -1460,13 +1493,14 @@
                     });
                 }
 
-                ['school', 'accountName', 'username', 'role', 'class'].forEach(col => {
+                const iconPrefix = this.manageMode === 'teacher' ? 'sort-icon-myschool-' : 'sort-icon-';
+                ['school', 'accountName', 'username', 'role', 'class', 'classNumber'].forEach(col => {
                     const icon = document.getElementById(`sort-icon-${col}`);
                     if (icon) icon.textContent = (sortCol === col) ? (sortAsc ? ' ▲' : ' ▼') : '';
                 });
 
                 if (users.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-gray-400 font-medium">${this.lang === 'zh' ? '沒有找到相符的用戶資料' : 'No matching profiles found'}</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-gray-400 font-medium">${this.lang === 'zh' ? '沒有找到相符的用戶資料' : 'No matching profiles found'}</td></tr>`;
                     return;
                 }
 
@@ -1509,6 +1543,7 @@
                             <td class="px-4 py-3.5 text-sm text-gray-500 font-mono text-xs">${escapeHtml(u.username || '-')}</td>
                             <td class="px-4 py-3.5 text-sm text-gray-700">${displayRole}</td>
                             <td class="px-4 py-3.5 text-sm text-gray-700">${escapeHtml(u.class || '-')}</td>
+                            <td class="px-4 py-3.5 text-sm text-gray-700">${escapeHtml(u.classNumber || '-')}</td>
                             <td class="px-4 py-3.5 text-sm">
                                 ${actionsHtml}
                             </td>
@@ -1548,6 +1583,7 @@
                     schoolInput.value = user.school || '';
                     roleSelect.value = user.role || 'student';
                     document.getElementById('adminClass').value = user.class || '';
+                    document.getElementById('adminClassNumber').value = user.classNumber || '';
 
                     if (this.manageMode === 'teacher') {
                         schoolInput.disabled = true;
@@ -1562,6 +1598,7 @@
                         : this.t('modalAdminAddTitle');
                     modeEl.value = this.manageMode === 'teacher' ? 'add-teacher' : 'add';
                     document.getElementById('form-admin-user').reset();
+                    document.getElementById('adminClassNumber').value = '';
                     document.getElementById('adminUsername').disabled = false;
                     pwInput.disabled = false;
                     pwInput.required = true;
@@ -1616,10 +1653,16 @@
                 let school = document.getElementById('adminSchool').value.trim();
                 let role = (document.getElementById('adminRole').value || 'student').toLowerCase();
                 const userClass = document.getElementById('adminClass').value.trim();
+                const classNumber = document.getElementById('adminClassNumber').value.trim();
 
                 if (mode === 'add-teacher' || mode === 'edit-teacher') {
                     school = this.currentUser.school;
                     role = 'student';
+                }
+
+                if (!this.isValidClassNumber(classNumber)) {
+                    this.showError('admin-user-error', this.t('errInvalidClassNumber'));
+                    return;
                 }
 
                 if (mode === 'add' || mode === 'add-teacher') {
@@ -1649,7 +1692,7 @@
                             },
                             body: JSON.stringify({
                                 action: 'createUser',
-                                payload: { username, password, engName, chiName, role, school, classCodes: userClass }
+                                payload: { username, password, engName, chiName, role, school, classCodes: userClass, classNumber: classNumber === '' ? null : classNumber }
                             })
                         });
 
@@ -1677,7 +1720,8 @@
                     chi_name: chiName,
                     role: role,
                     school: school,
-                    class_codes: userClass
+                    class_codes: userClass,
+                    class_number: classNumber === '' ? null : classNumber
                 }).eq('username', username);
 
                 if (error) {
