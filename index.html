@@ -25,6 +25,16 @@
     </script>
     <style>
         .hidden { display: none !important; }
+        /* Keep filter dropdown chevrons comfortably inset from the right edge. */
+        .filter-select {
+            appearance: none;
+            -webkit-appearance: none;
+            padding-right: 2.75rem !important;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%231f2937' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1rem 1rem;
+        }
         .animate-fade { animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn {
             from { opacity: 0; }
@@ -238,9 +248,9 @@
                 
                 <div class="flex flex-wrap items-center gap-3">
                     <span class="text-sm font-medium text-gray-500" data-i18n="filterBy">Filter by:</span>
-                    <select id="filter-school" onchange="app.handleManageFilter()" class="text-sm border border-gray-300 rounded-md px-3 py-2 outline-none min-w-[140px] bg-white"></select>
-                    <select id="filter-role" onchange="app.handleManageFilter()" class="text-sm border border-gray-300 rounded-md px-3 py-2 outline-none min-w-[120px] bg-white"></select>
-                    <select id="filter-class" onchange="app.handleManageFilter()" class="text-sm border border-gray-300 rounded-md px-3 py-2 outline-none min-w-[120px] bg-white"></select>
+                    <select id="filter-school" onchange="app.handleManageFilter()" class="text-sm border border-gray-300 rounded-md px-3 py-2 outline-none min-w-[140px] bg-white filter-select"></select>
+                    <select id="filter-role" onchange="app.handleManageFilter()" class="text-sm border border-gray-300 rounded-md px-3 py-2 outline-none min-w-[120px] bg-white filter-select"></select>
+                    <select id="filter-class" onchange="app.handleManageFilter()" class="text-sm border border-gray-300 rounded-md px-3 py-2 outline-none min-w-[120px] bg-white filter-select"></select>
                     <button onclick="app.resetManageFilters()" class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-600 font-semibold px-3 py-2 rounded-md border border-gray-300 transition-colors" data-i18n="btnReset">
                         Clear Filter
                     </button>
@@ -304,8 +314,8 @@
                 
                 <div class="flex flex-wrap items-center gap-3">
                     <span class="text-sm font-medium text-gray-500" data-i18n="filterBy">Filter by:</span>
-                    <select id="myschool-filter-role" onchange="app.handleManageFilter()" class="text-sm border border-gray-300 rounded-md px-3 py-2 outline-none min-w-[120px] bg-white"></select>
-                    <select id="myschool-filter-class" onchange="app.handleManageFilter()" class="text-sm border border-gray-300 rounded-md px-3 py-2 outline-none min-w-[120px] bg-white"></select>
+                    <select id="myschool-filter-role" onchange="app.handleManageFilter()" class="text-sm border border-gray-300 rounded-md px-3 py-2 outline-none min-w-[120px] bg-white filter-select"></select>
+                    <select id="myschool-filter-class" onchange="app.handleManageFilter()" class="text-sm border border-gray-300 rounded-md px-3 py-2 outline-none min-w-[120px] bg-white filter-select"></select>
                     <button onclick="app.resetManageFilters()" class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-600 font-semibold px-3 py-2 rounded-md border border-gray-300 transition-colors" data-i18n="btnReset">
                         Clear Filter
                     </button>
@@ -1857,7 +1867,7 @@
                 try {
                     const result = await this.callPromoteFunction('previewPromotion', { school });
                     const wrap = document.getElementById('promote-mapping-rows'); wrap.innerHTML = '';
-                    (result.classes || []).forEach(item => this.addPromoteMappingRow(item.class, ''));
+                    (result.classes || []).forEach(className => this.addPromoteMappingRow(className, ''));
                     if (!(result.classes || []).length) { this.addPromoteMappingRow(); this.showError('promote-error', this.lang === 'zh' ? '此校暫時沒有可升班學生。' : 'No student classes found for this school.'); }
                 } catch (err) { this.showError('promote-error', err.message || 'Could not load classes.'); }
             },
