@@ -1650,28 +1650,37 @@
 
                     let actionsHtml = '';
                     if (canEdit || canDelete) {
-                        actionsHtml = `<div class="flex items-center justify-center space-x-2">`;
+                        actionsHtml = `<div class="flex items-center justify-center gap-1.5 whitespace-nowrap">`;
                         if (canEdit) {
                             actionsHtml += `
-                                <button onclick="app.openAdminUserModal(decodeURIComponent('${safeUser}'))" 
-                                        class="px-3 py-1 text-xs font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors min-w-[55px]">
+                                <button onclick="app.openAdminUserModal(decodeURIComponent('${safeUser}'))"
+                                        class="px-2.5 py-1 text-xs font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors">
                                     ${this.t('btnEdit')}
                                 </button>`;
                         }
                         if (canDelete) {
                             actionsHtml += `
-                                <button onclick="app.confirmProfileDelete(decodeURIComponent('${safeUser}'))" 
-                                        class="px-3 py-1 text-xs font-semibold text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 rounded-md transition-colors min-w-[55px]">
+                                <button onclick="app.confirmProfileDelete(decodeURIComponent('${safeUser}'))"
+                                        class="px-2.5 py-1 text-xs font-semibold text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 rounded-md transition-colors">
                                     ${this.t('btnDelete')}
                                 </button>`;
                         }
 
                         if (this.manageMode === 'admin') {
                             actionsHtml += `
-                                <button onclick="app.openResetPassword(decodeURIComponent('${safeUser}'))"
-                                        class="px-3 py-1 text-xs font-semibold text-amber-700 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 rounded-md transition-colors">
-                                    ${this.lang === 'zh' ? '重設密碼' : 'Reset password'}
-                                </button>`;
+                                <details class="relative inline-block text-left">
+                                    <summary aria-label="${this.lang === 'zh' ? '更多操作' : 'More actions'}"
+                                             title="${this.lang === 'zh' ? '更多操作' : 'More actions'}"
+                                             class="list-none cursor-pointer select-none px-2 py-1 text-base leading-none font-bold text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors">
+                                        &#8942;
+                                    </summary>
+                                    <div class="absolute right-0 top-full mt-1 w-40 rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 z-30 py-1">
+                                        <button onclick="app.openResetPassword(decodeURIComponent('${safeUser}')); this.closest('details').open = false;"
+                                                class="block w-full text-left px-3 py-2 text-xs font-semibold text-amber-700 hover:bg-amber-50 transition-colors">
+                                            ${this.lang === 'zh' ? '重設密碼' : 'Reset password'}
+                                        </button>
+                                    </div>
+                                </details>`;
                         }
                         actionsHtml += `</div>`;
                     } else {
