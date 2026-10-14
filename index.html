@@ -611,6 +611,37 @@
       </div>
     </div>
 
+
+    <!-- Admin Password Reset Modal -->
+    <div id="modal-reset-password" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-[80] p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 sm:p-8">
+            <div class="flex justify-between items-center mb-5">
+                <h3 class="text-xl font-bold text-gray-900" data-i18n="resetPasswordTitle">Reset user password</h3>
+                <button type="button" onclick="app.hideModal('reset-password')" class="text-gray-400 hover:text-gray-600 text-2xl leading-none" aria-label="Close">&times;</button>
+            </div>
+            <p class="text-sm text-gray-600 mb-4" data-i18n="resetPasswordDesc">Set a new password for the selected account.</p>
+            <div id="reset-password-target" class="text-sm font-semibold text-gray-800 bg-gray-50 border rounded-lg p-3 mb-4"></div>
+            <div id="reset-password-error" class="hidden p-3 mb-4 bg-red-50 text-red-700 rounded-lg text-sm"></div>
+            <div id="reset-password-success" class="hidden p-3 mb-4 bg-green-50 text-green-700 rounded-lg text-sm"></div>
+            <form id="form-reset-password" onsubmit="app.submitResetPassword(event)" class="space-y-4">
+                <input type="hidden" id="reset-password-username">
+                <div>
+                    <label for="reset-password-new" class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="resetPasswordNewLabel">New password</label>
+                    <input id="reset-password-new" type="password" required minlength="12" autocomplete="new-password" class="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#8b5a2b]" data-i18n-placeholder="resetPasswordNewPlace">
+                    <p class="mt-1 text-xs text-gray-500" data-i18n="resetPasswordHint">Use at least 12 characters. Avoid sharing passwords over email.</p>
+                </div>
+                <div>
+                    <label for="reset-password-confirm" class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="resetPasswordConfirmLabel">Confirm new password</label>
+                    <input id="reset-password-confirm" type="password" required minlength="12" autocomplete="new-password" class="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#8b5a2b]" data-i18n-placeholder="resetPasswordConfirmPlace">
+                </div>
+                <div class="flex justify-end gap-3 pt-2">
+                    <button type="button" onclick="app.hideModal('reset-password')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg" data-i18n="authCancel">Cancel</button>
+                    <button id="reset-password-submit" type="submit" class="px-5 py-2 text-sm font-semibold text-white bg-[#6f4822] hover:bg-[#5c3a18] rounded-lg" data-i18n="resetPasswordSubmit">Reset password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- JavaScript Application Logic -->
     <script>
         const SUPABASE_URL = 'https://stguzuvmnfjxuygbuuij.supabase.co';
@@ -699,7 +730,18 @@
                 alertLogout: 'Logged out successfully!',
                 alertProfileUpdated: 'Profile updated successfully!',
                 alertInvalidAuth: 'Invalid authorization code.',
-                alertForget: 'Account recovery coming soon!',
+                alertForget: 'To request account recovery, please contact mathcolate@gmail.com.',
+                resetPasswordTitle: 'Reset user password',
+                resetPasswordDesc: 'Set a new password for the selected account.',
+                resetPasswordNewLabel: 'New password',
+                resetPasswordNewPlace: 'Enter a new password (12+ characters)',
+                resetPasswordConfirmLabel: 'Confirm new password',
+                resetPasswordConfirmPlace: 'Re-enter the new password',
+                resetPasswordHint: 'Use at least 12 characters. Avoid sharing passwords over email.',
+                resetPasswordSubmit: 'Reset password',
+                resetPasswordSuccess: 'Password reset successfully. Tell the user to sign in with the new password.',
+                resetPasswordMismatch: 'The passwords do not match.',
+                resetPasswordFailed: 'Could not reset the password. Please try again.',
                 alertIdleLogout: 'You have been logged out due to inactivity.',
                 alertLoggedIn: 'Logged in as <strong>{name}</strong>',
                 selectedPreview: 'You have selected: <strong>Preview</strong>.',
@@ -802,7 +844,18 @@
                 alertLogout: '已成功登出！',
                 alertProfileUpdated: '個人檔案更新成功！',
                 alertInvalidAuth: '授權碼無效，請聯絡校方管理人員。',
-                alertForget: '帳號恢復功能即將推出！',
+                alertForget: '如需恢復帳戶，請電郵至 mathcolate@gmail.com。',
+                resetPasswordTitle: '重設用戶密碼',
+                resetPasswordDesc: '為所選帳戶設定新密碼。',
+                resetPasswordNewLabel: '新密碼',
+                resetPasswordNewPlace: '輸入新密碼（至少12個字元）',
+                resetPasswordConfirmLabel: '確認新密碼',
+                resetPasswordConfirmPlace: '再次輸入新密碼',
+                resetPasswordHint: '請使用至少12個字元；避免透過電郵傳送密碼。',
+                resetPasswordSubmit: '重設密碼',
+                resetPasswordSuccess: '密碼已成功重設。請通知用戶使用新密碼登入。',
+                resetPasswordMismatch: '兩次輸入的密碼並不相同。',
+                resetPasswordFailed: '未能重設密碼，請再試一次。',
                 alertIdleLogout: '由於長時間未操作，系統已自動登出。',
                 alertLoggedIn: '已登入為 <strong>{name}</strong>',
                 selectedPreview: '您選擇了：<strong>預習</strong>。',
@@ -1612,6 +1665,14 @@
                                     ${this.t('btnDelete')}
                                 </button>`;
                         }
+
+                        if (this.manageMode === 'admin') {
+                            actionsHtml += `
+                                <button onclick="app.openResetPassword(decodeURIComponent('${safeUser}'))"
+                                        class="px-3 py-1 text-xs font-semibold text-amber-700 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 rounded-md transition-colors">
+                                    ${this.lang === 'zh' ? '重設密碼' : 'Reset password'}
+                                </button>`;
+                        }
                         actionsHtml += `</div>`;
                     } else {
                         actionsHtml = `<div class="text-center text-xs text-gray-400">View only</div>`;
@@ -1901,6 +1962,76 @@
                     this.showOutputMessage(zh ? `升班完成：已更新 ${Number(result.updatedStudents || 0)} 位學生。Graduated 學生帳戶及成績已保留。` : `Promotion complete: ${Number(result.updatedStudents || 0)} students updated. Graduated accounts and grades were preserved.`);
                 } catch (err) { this.showError('promote-error', err.message || 'Promotion failed.'); }
                 finally { btn.disabled = false; btn.textContent = zh ? '確認升班' : 'Confirm promotion'; }
+            },
+
+
+            openResetPassword(username) {
+                if (!this.isAdmin() || this.manageMode !== 'admin') {
+                    this.showOutputMessage(this.t('errNotAdmin'), true);
+                    return;
+                }
+                const user = this.usersRegistry[username];
+                if (!user) return;
+                document.getElementById('reset-password-username').value = user.username;
+                document.getElementById('reset-password-target').textContent =
+                    `${this.getUserDisplayName(user)} (@${user.username}) · ${user.school || '-'}`;
+                document.getElementById('reset-password-new').value = '';
+                document.getElementById('reset-password-confirm').value = '';
+                document.getElementById('reset-password-error').classList.add('hidden');
+                document.getElementById('reset-password-success').classList.add('hidden');
+                document.getElementById('reset-password-submit').disabled = false;
+                this.applyTranslations();
+                this.showModal('reset-password');
+            },
+
+            async submitResetPassword(e) {
+                e.preventDefault();
+                if (!this.isAdmin() || this.manageMode !== 'admin') {
+                    this.showError('reset-password-error', this.t('errNotAdmin'));
+                    return;
+                }
+                const username = document.getElementById('reset-password-username').value;
+                const password = document.getElementById('reset-password-new').value;
+                const confirm = document.getElementById('reset-password-confirm').value;
+                const errorBox = document.getElementById('reset-password-error');
+                const successBox = document.getElementById('reset-password-success');
+                const submit = document.getElementById('reset-password-submit');
+                errorBox.classList.add('hidden');
+                successBox.classList.add('hidden');
+                if (password.length < 12) {
+                    this.showError('reset-password-error', this.lang === 'zh' ? '新密碼至少需要12個字元。' : 'The new password must be at least 12 characters.');
+                    return;
+                }
+                if (password !== confirm) {
+                    this.showError('reset-password-error', this.t('resetPasswordMismatch'));
+                    return;
+                }
+                submit.disabled = true;
+                submit.textContent = this.lang === 'zh' ? '處理中…' : 'Processing…';
+                try {
+                    const { data: sessionData } = await dbClient.auth.getSession();
+                    const token = sessionData.session?.access_token;
+                    if (!token) throw new Error(this.lang === 'zh' ? '登入已過期，請重新登入。' : 'Your session has expired. Please sign in again.');
+                    const res = await fetch(`${SUPABASE_URL}/functions/v1/manage-user`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`,
+                            'apikey': SUPABASE_ANON_KEY
+                        },
+                        body: JSON.stringify({ action: 'resetPassword', payload: { targetUsername: username, newPassword: password } })
+                    });
+                    const result = await res.json().catch(() => ({}));
+                    if (!res.ok || result.error) throw new Error(result.error || this.t('resetPasswordFailed'));
+                    document.getElementById('form-reset-password').reset();
+                    successBox.textContent = this.t('resetPasswordSuccess');
+                    successBox.classList.remove('hidden');
+                } catch (err) {
+                    this.showError('reset-password-error', err.message || this.t('resetPasswordFailed'));
+                } finally {
+                    submit.disabled = false;
+                    submit.textContent = this.t('resetPasswordSubmit');
+                }
             },
 
             confirmProfileDelete(username) {
