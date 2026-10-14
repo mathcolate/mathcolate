@@ -1867,7 +1867,7 @@
                 try {
                     const result = await this.callPromoteFunction('previewPromotion', { school });
                     const wrap = document.getElementById('promote-mapping-rows'); wrap.innerHTML = '';
-                    (result.classes || []).forEach(item => this.addPromoteMappingRow(item.class, ''));
+                    (result.classes || []).forEach(className => this.addPromoteMappingRow(className, ''));
                     if (!(result.classes || []).length) { this.addPromoteMappingRow(); this.showError('promote-error', this.lang === 'zh' ? '此校暫時沒有可升班學生。' : 'No student classes found for this school.'); }
                 } catch (err) { this.showError('promote-error', err.message || 'Could not load classes.'); }
             },
