@@ -931,6 +931,17 @@
                         const dropdown = document.getElementById('user-dropdown');
                         if (dropdown) dropdown.classList.add('hidden');
                     }
+
+                    // Close row action menus when clicking elsewhere, so only one stays open.
+                    if (!e.target.closest('td details')) {
+                        document.querySelectorAll('td details[open]').forEach(menu => {
+                            menu.open = false;
+                        });
+                    } else {
+                        document.querySelectorAll('td details[open]').forEach(menu => {
+                            if (menu !== e.target.closest('td details')) menu.open = false;
+                        });
+                    }
                 });
 
                 if (dbClient) {
