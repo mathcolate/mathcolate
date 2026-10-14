@@ -244,6 +244,7 @@
                         </svg>
                         <span data-i18n="btnAddProfile">Add Profile</span>
                     </button>
+                    <button onclick="app.openCsvImportModal()" class="bg-white border border-[#8b5a2b] text-[#6f4822] hover:bg-[#fdf8f6] px-4 py-2.5 rounded-lg text-sm font-semibold" data-i18n="btnBulkImport">Import users from CSV</button>
                 </div>
                 
                 <div class="flex flex-wrap items-center gap-3">
@@ -612,6 +613,44 @@
     </div>
 
 
+    <!-- Admin CSV Bulk Import Modal -->
+    <div id="modal-csv-import" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-[75] p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-4xl p-6 sm:p-8 max-h-[92vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-900" data-i18n="csvModalTitle">Bulk import users</h3>
+                <button type="button" onclick="app.hideModal('csv-import')" class="text-gray-400 hover:text-gray-600 text-2xl leading-none" aria-label="Close">&times;</button>
+            </div>
+            <p class="text-sm text-gray-600 mb-4" data-i18n="csvModalDesc">Upload a CSV containing student and teacher accounts.</p>
+            <div class="flex flex-wrap gap-3 items-center mb-4">
+                <button type="button" onclick="app.downloadCsvTemplate()" class="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50" data-i18n="csvDownloadTemplate">Download CSV template</button>
+                <label class="px-3 py-2 text-sm font-semibold bg-[#f2e8e5] text-[#5c3a18] rounded-lg cursor-pointer hover:bg-[#e6d5ce]">
+                    <span data-i18n="csvChooseFile">Choose CSV file</span>
+                    <input id="csv-import-file" type="file" accept=".csv,text/csv" class="hidden" onchange="app.handleCsvFile(event)">
+                </label>
+                <span id="csv-file-name" class="text-xs text-gray-500"></span>
+            </div>
+            <div id="csv-import-error" class="hidden p-3 mb-4 bg-red-50 text-red-700 rounded-lg text-sm"></div>
+            <div id="csv-import-preview" class="hidden mb-4">
+                <h4 class="font-semibold text-gray-800 mb-2" data-i18n="csvPreviewTitle">Import preview</h4>
+                <p id="csv-preview-count" class="text-sm text-gray-600 mb-3"></p>
+                <div class="overflow-x-auto border rounded-lg max-h-64">
+                    <table class="min-w-full text-left text-xs">
+                        <thead class="bg-gray-50 sticky top-0"><tr>
+                            <th class="px-3 py-2">#</th><th class="px-3 py-2">English name</th><th class="px-3 py-2">中文姓名</th><th class="px-3 py-2">Username</th><th class="px-3 py-2">School</th><th class="px-3 py-2">Role</th><th class="px-3 py-2">Class</th><th class="px-3 py-2">Class No.</th>
+                        </tr></thead>
+                        <tbody id="csv-preview-body" class="divide-y divide-gray-100"></tbody>
+                    </table>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">Passwords are never shown in this preview.</p>
+            </div>
+            <div id="csv-import-results" class="hidden mb-4 p-3 rounded-lg bg-gray-50 border text-sm"></div>
+            <div class="flex justify-end gap-3 pt-3">
+                <button type="button" onclick="app.hideModal('csv-import')" class="px-4 py-2 text-sm bg-gray-100 rounded-lg" data-i18n="csvCancel">Cancel</button>
+                <button id="csv-import-submit" type="button" onclick="app.submitCsvImport()" disabled class="px-4 py-2 text-sm font-semibold text-white bg-[#6f4822] rounded-lg disabled:opacity-50" data-i18n="csvImportButton">Create accounts</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Admin Password Reset Modal -->
     <div id="modal-reset-password" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-[80] p-4">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 sm:p-8">
@@ -666,236 +705,7 @@
                 .replaceAll("'", '&#39;');
         }
 
-        const translations = {
-            'en': {
-                langBtn: '中文/ENG',
-                loginHeader: ' Login',
-                subtitle: 'because mathematics should be sweet',
-                previewTitle: 'Preview',
-                previewDesc: 'Explore new concepts and prepare for upcoming lessons.',
-                reviewTitle: 'Review',
-                reviewDesc: 'Practice past topics to strengthen your foundation.',
-                testTitle: 'Online Test',
-                testDesc: 'Take an assessment to check your current knowledge.',
-                modalTitleSignIn: 'Sign In',
-                modalTitleRegister: 'Create Account',
-                modalUser: 'Username',
-                modalPass: 'Password',
-                modalPassNew: 'New password (optional)',
-                modalPassNewPlace: 'leave blank to keep current password',
-                modalUserPlace: 'enter your username',
-                modalPassPlace: 'enter your password',
-                modalLoginBtn: 'Login',
-                modalCreate: 'Create an account',
-                modalForget: 'Forget username or password',
-                modalEngName: 'English Name',
-                modalChiName: 'Chinese Name',
-                modalSchool: 'School Name (in English)',
-                modalEngNamePlace: 'e.g. CHAN TAI MAN',
-                modalChiNamePlace: 'e.g. 陳大文',
-                modalSchoolPlace: 'e.g. Mathcolate College',
-                modalPassCreatePlace: 'at least 8 characters',
-                modalRole: 'Role',
-                roleStudent: 'Student',
-                roleTeacher: 'Teacher',
-                roleAdmin: 'Administrator',
-                regRoleHint: 'Teacher accounts are created by the administrator.',
-                modalRegisterBtn: 'Register',
-                modalBackToLogin: 'Back to Sign In',
-                subViewProfile: 'View profile',
-                subManageWebsite: 'Manage website',
-                subLogout: 'Log out',
-                manageTitle: 'Manage Website',
-                manageDesc: 'Welcome to the administration dashboard.',
-                manageBack: 'Back to Dashboard',
-                profileTitle: 'User Profile',
-                btnEditProfile: 'Edit profile',
-                btnUpdateProfile: 'Update',
-                btnBackToMain: 'Back to Dashboard',
-                lblClassStudent: 'Class (Belongs to)',
-                lblClassTeacher: 'Class (Teaches)',
-                modalClassPlace: 'e.g. 5A',
-                colClassNumber: 'Class Number',
-                lblClassNumber: 'Class Number',
-                modalClassNumberPlace: 'e.g. 01',
-                errInvalidClassNumber: 'Class number must be 1–3 digits.',
-                authTitle: 'Teacher Authorization',
-                authDesc: 'Please enter the authorization code provided by the administration to create a teacher account.',
-                authCodePlace: 'Enter Code',
-                authCancel: 'Cancel',
-                authSubmit: 'Verify & Register',
-                alertUserExists: 'This username is already taken.',
-                alertInvalidLogin: 'Invalid username or password.',
-                alertRegisterSuccess: 'Account created successfully! Please sign in to continue.',
-                alertLogout: 'Logged out successfully!',
-                alertProfileUpdated: 'Profile updated successfully!',
-                alertInvalidAuth: 'Invalid authorization code.',
-                alertForget: 'To request account recovery, please contact mathcolate@gmail.com.',
-                resetPasswordTitle: 'Reset user password',
-                resetPasswordDesc: 'Set a new password for the selected account.',
-                resetPasswordNewLabel: 'New password',
-                resetPasswordNewPlace: 'Enter a new password (at least 8 characters)',
-                resetPasswordConfirmLabel: 'Confirm new password',
-                resetPasswordConfirmPlace: 'Re-enter the new password',
-                resetPasswordHint: 'Use at least 8 characters. Avoid sharing passwords over email.',
-                resetPasswordSubmit: 'Reset password',
-                resetPasswordSuccess: 'Password reset successfully. Tell the user to sign in with the new password.',
-                resetPasswordMismatch: 'The passwords do not match.',
-                resetPasswordFailed: 'Could not reset the password. Please try again.',
-                alertIdleLogout: 'You have been logged out due to inactivity.',
-                alertLoggedIn: 'Logged in as <strong>{name}</strong>',
-                selectedPreview: 'You have selected: <strong>Preview</strong>.',
-                selectedReview: 'You have selected: <strong>Review</strong>.',
-                selectedTest: 'You have selected: <strong>Online Test</strong>.',
-                btnPromoteClass: 'Promote Class',
-                btnUpdateQb: 'Update Question Bank',
-                btnAddProfile: 'Add Profile',
-                colSchool: 'School',
-                colName: 'Name',
-                colUsername: 'Username',
-                colRole: 'Role',
-                colClass: 'Class',
-                colActions: 'Actions',
-                btnEdit: 'Edit',
-                btnDelete: 'Delete',
-                btnSave: 'Save',
-                btnReset: 'Clear Filter',
-                modalAdminAddTitle: 'Add User Profile',
-                modalAdminEditTitle: 'Edit User Profile',
-                confirmDeleteTitle: 'Confirm Delete Profile',
-                confirmDeleteText: 'Are you sure you want to delete this profile? This action cannot be undone.',
-                cannotDeleteTitle: 'Cannot Delete Profile',
-                errAdminDeleteProtected: 'Administrator account is protected by system rules and cannot be deleted.',
-                alertUserAdded: 'User profile created successfully!',
-                alertUserDeleted: 'Profile deleted. To fully remove login access, also delete the user in Supabase → Authentication → Users.',
-                filterAllSchools: 'All Schools',
-                filterAllRoles: 'All Roles',
-                filterAllClasses: 'All Classes',
-                filterBy: 'Filter by:',
-                errInvalidUsername: 'Username must contain only lowercase letters, numbers, hyphens, and underscores.',
-                errCannotDeleteSelf: 'You cannot delete your own currently logged-in account.',
-                errPasswordShort: 'Requires at least 8 characters.',
-                adminPasswordHintAdd: 'Requires at least 8 characters.',
-                errNotAdmin: 'You do not have permission to manage the website.',
-                errGeneric: 'Something went wrong. Please try again.',
-                subMySchool: 'My School',
-                errNotTeacher: 'You do not have permission to view My School.',
-            },
-            'zh': {
-                langBtn: 'ENG/中文',
-                loginHeader: ' 登入',
-                subtitle: 'because mathematics should be sweet',
-                previewTitle: '預習',
-                previewDesc: '探索新概念並為即將到來的課程做準備。',
-                reviewTitle: '複習',
-                reviewDesc: '練習過去的主題以鞏固您的基礎。',
-                testTitle: '線上測驗',
-                testDesc: '進行評估以檢查您目前的知識。',
-                modalTitleSignIn: '登入',
-                modalTitleRegister: '建立帳號',
-                modalUser: '用戶名',
-                modalPass: '密碼',
-                modalPassNew: '新密碼（可留空）',
-                modalPassNewPlace: '留空則維持原密碼',
-                modalUserPlace: '輸入您的用戶名',
-                modalPassPlace: '輸入您的密碼',
-                modalLoginBtn: '登入',
-                modalCreate: '建立新帳號',
-                modalForget: '忘記用戶名或密碼',
-                modalEngName: '英文姓名',
-                modalChiName: '中文姓名',
-                modalSchool: '學校名稱（以英文輸入）',
-                modalEngNamePlace: '例如: CHAN TAI MAN',
-                modalChiNamePlace: '例如: 陳大文',
-                modalSchoolPlace: '例如: Mathcolate College',
-                modalPassCreatePlace: '至少8個字元',
-                modalRole: '身分權限',
-                roleStudent: '學生',
-                roleTeacher: '教師',
-                roleAdmin: '系統管理員',
-                regRoleHint: '教師帳戶須由管理員開立。',
-                modalRegisterBtn: '註冊帳戶',
-                modalBackToLogin: '返回登入介面',
-                subViewProfile: '檢視個人檔案',
-                subManageWebsite: '管理網站',
-                subLogout: '登出',
-                manageTitle: '管理網站',
-                manageDesc: '歡迎來到管理儀表板。',
-                manageBack: '返回主控台',
-                profileTitle: '用戶個人檔案',
-                btnEditProfile: '編輯個人檔案',
-                btnUpdateProfile: '更新',
-                btnBackToMain: '返回主控台',
-                lblClassStudent: '班級 (所屬班級)',
-                lblClassTeacher: '班級 (任教班級)',
-                modalClassPlace: '例如: 5A',
-                colClassNumber: '班號',
-                lblClassNumber: '班號',
-                modalClassNumberPlace: '例如: 01',
-                errInvalidClassNumber: '班號須為 1–3 位數字。',
-                authTitle: '教師權限驗證',
-                authDesc: '請輸入由校方提供的授權碼以建立教師帳戶。',
-                authCodePlace: '輸入授權碼',
-                authCancel: '取消',
-                authSubmit: '驗證並註冊',
-                alertUserExists: '此用戶名已被註冊，請選用其他名稱。',
-                alertInvalidLogin: '用戶名或密碼錯誤，請重新輸入。',
-                alertRegisterSuccess: '帳戶已成功創建！請立即進行登入。',
-                alertLogout: '已成功登出！',
-                alertProfileUpdated: '個人檔案更新成功！',
-                alertInvalidAuth: '授權碼無效，請聯絡校方管理人員。',
-                alertForget: '如需恢復帳戶，請電郵至 mathcolate@gmail.com。',
-                resetPasswordTitle: '重設用戶密碼',
-                resetPasswordDesc: '為所選帳戶設定新密碼。',
-                resetPasswordNewLabel: '新密碼',
-                resetPasswordNewPlace: '輸入新密碼（至少8個字元）',
-                resetPasswordConfirmLabel: '確認新密碼',
-                resetPasswordConfirmPlace: '再次輸入新密碼',
-                resetPasswordHint: '請使用至少8個字元；避免透過電郵傳送密碼。',
-                resetPasswordSubmit: '重設密碼',
-                resetPasswordSuccess: '密碼已成功重設。請通知用戶使用新密碼登入。',
-                resetPasswordMismatch: '兩次輸入的密碼並不相同。',
-                resetPasswordFailed: '未能重設密碼，請再試一次。',
-                alertIdleLogout: '由於長時間未操作，系統已自動登出。',
-                alertLoggedIn: '已登入為 <strong>{name}</strong>',
-                selectedPreview: '您選擇了：<strong>預習</strong>。',
-                selectedReview: '您選擇了：<strong>複習</strong>。',
-                selectedTest: '您選擇了：<strong>線上測驗</strong>。',
-                btnPromoteClass: '班級轉換',
-                btnUpdateQb: '更新題庫',
-                btnAddProfile: '新增檔案',
-                colSchool: '學校',
-                colName: '姓名',
-                colUsername: '用戶名',
-                colRole: '身分權限',
-                colClass: '班級',
-                colActions: '操作',
-                btnEdit: '編輯',
-                btnDelete: '刪除',
-                btnSave: '儲存',
-                btnReset: '清除',
-                modalAdminAddTitle: '新增用戶檔案',
-                modalAdminEditTitle: '編輯用戶檔案',
-                confirmDeleteTitle: '確認刪除檔案',
-                confirmDeleteText: '您確定要刪除此用戶檔案嗎？此操作將無法復原。',
-                cannotDeleteTitle: '無法刪除帳號',
-                errAdminDeleteProtected: '系統管理員 (administrator) 帳戶受系統保護，無法刪除。',
-                alertUserAdded: '用戶檔案已成功建立！',
-                alertUserDeleted: '檔案已刪除。如要完全取消登入，請再到 Supabase → Authentication → Users 刪除對應帳戶。',
-                filterAllSchools: '所有學校',
-                filterAllRoles: '所有身份',
-                filterAllClasses: '所有班級',
-                filterBy: '篩選:',
-                errInvalidUsername: '用戶名只能包含小寫英文字母 (a-z)、數字 (0-9)、連字號 (-) 和下劃線 (_)。',
-                errCannotDeleteSelf: '您不能刪除當前登入的帳戶。',
-                errPasswordShort: '必填至少8個字元。',
-                adminPasswordHintAdd: '必填至少8個字元。',
-                errNotAdmin: '您沒有管理網站的權限。',
-                errGeneric: '發生錯誤，請再試一次。',
-                subMySchool: '我的學校',
-                errNotTeacher: '您沒有權限查看「我的學校」。',
-            }
-        };
+        let translations = { en: {}, zh: {} };
 
         const app = {
             lang: 'en',
@@ -904,6 +714,7 @@
             userMenuOpen: false,
             isEditingProfile: false,
             deleteTargetUsername: null,
+            csvImportRows: [],
             outputTimeout: null,
             usersRegistry: {},
             usernameRegex: /^[a-z0-9-_]+$/,
@@ -916,6 +727,7 @@
             },
 
             async init() {
+                await this.loadTranslations();
                 this.applyTranslations();
 
                 window.addEventListener('hashchange', () => {
@@ -1078,8 +890,26 @@
                 return this.t('roleStudent');
             },
 
+            async loadTranslations() {
+                try {
+                    const [enResponse, zhResponse] = await Promise.all([
+                        fetch('./locales/en.json', { cache: 'no-cache' }),
+                        fetch('./locales/zh.json', { cache: 'no-cache' })
+                    ]);
+                    if (!enResponse.ok || !zhResponse.ok) throw new Error('Translation files could not be loaded');
+                    const [enData, zhData] = await Promise.all([enResponse.json(), zhResponse.json()]);
+                    translations = { en: enData, zh: zhData };
+                } catch (error) {
+                    console.error('Failed to load Mathcolate translations:', error);
+                    translations = {
+                        en: { langBtn: '中文/ENG', loginHeader: 'Login', errGeneric: 'Could not load language files. Please refresh the page.' },
+                        zh: { langBtn: 'ENG/中文', loginHeader: '登入', errGeneric: '未能載入語言檔案，請重新整理頁面。' }
+                    };
+                }
+            },
+
             applyTranslations() {
-                const t = translations[this.lang];
+                const t = translations[this.lang] || translations.en || {};
                 document.querySelectorAll('[data-i18n]').forEach(el => {
                     if (t[el.dataset.i18n]) el.innerHTML = t[el.dataset.i18n];
                 });
@@ -1984,6 +1814,171 @@
                 finally { btn.disabled = false; btn.textContent = zh ? '確認升班' : 'Confirm promotion'; }
             },
 
+
+            openCsvImportModal() {
+                if (!this.isAdmin() || this.manageMode !== 'admin') {
+                    this.showOutputMessage(this.t('errNotAdmin'), true);
+                    return;
+                }
+                this.csvImportRows = [];
+                document.getElementById('csv-import-file').value = '';
+                document.getElementById('csv-file-name').textContent = '';
+                document.getElementById('csv-import-error').classList.add('hidden');
+                document.getElementById('csv-import-preview').classList.add('hidden');
+                document.getElementById('csv-import-results').classList.add('hidden');
+                document.getElementById('csv-import-submit').disabled = true;
+                this.showModal('csv-import');
+            },
+
+            downloadCsvTemplate() {
+                const headers = ['eng_name','chi_name','username','password','school','role','class_codes','class_number'];
+                const example = ['CHAN TAI MAN','陳大文','student001','ChangeMe123','Mathcolate College','student','4S1A','1'];
+                const csv = '\uFEFF' + [headers, example].map(row => row.map(value => {
+                    const v = String(value ?? '');
+                    return /[",\r\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+                }).join(',')).join('\r\n');
+                const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'mathcolate-users-template.csv';
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                URL.revokeObjectURL(url);
+            },
+
+            parseCsvText(text) {
+                const rows = [];
+                let row = [], cell = '', quoted = false;
+                for (let i = 0; i < text.length; i++) {
+                    const ch = text[i];
+                    if (quoted) {
+                        if (ch === '"' && text[i + 1] === '"') { cell += '"'; i++; }
+                        else if (ch === '"') quoted = false;
+                        else cell += ch;
+                    } else if (ch === '"' && cell.length === 0) quoted = true;
+                    else if (ch === ',') { row.push(cell); cell = ''; }
+                    else if (ch === '\n') { row.push(cell.replace(/\r$/, '')); rows.push(row); row = []; cell = ''; }
+                    else cell += ch;
+                }
+                if (quoted) throw new Error('CSV contains an unclosed quoted field.');
+                if (cell.length || row.length) { row.push(cell.replace(/\r$/, '')); rows.push(row); }
+                return rows.filter(r => r.some(v => String(v).trim() !== ''));
+            },
+
+            async handleCsvFile(event) {
+                const file = event.target.files?.[0];
+                const errorBox = document.getElementById('csv-import-error');
+                const preview = document.getElementById('csv-import-preview');
+                const submit = document.getElementById('csv-import-submit');
+                errorBox.classList.add('hidden');
+                preview.classList.add('hidden');
+                submit.disabled = true;
+                this.csvImportRows = [];
+                if (!file) return;
+                document.getElementById('csv-file-name').textContent = file.name;
+                try {
+                    if (file.size > 2 * 1024 * 1024) throw new Error('CSV file must be 2 MB or smaller.');
+                    const text = (await file.text()).replace(/^\uFEFF/, '');
+                    const parsed = this.parseCsvText(text);
+                    if (parsed.length < 2) throw new Error(this.t('csvNoRows'));
+                    const expected = ['eng_name','chi_name','username','password','school','role','class_codes','class_number'];
+                    const headers = parsed[0].map(h => h.trim().toLowerCase());
+                    if (expected.some((h, i) => headers[i] !== h) || headers.length !== expected.length) {
+                        throw new Error(this.t('csvInvalidHeaders') + ' Required: ' + expected.join(', '));
+                    }
+                    const rows = parsed.slice(1);
+                    if (rows.length > 100) throw new Error('A maximum of 100 accounts can be imported per file.');
+                    const accounts = rows.map((cells, i) => {
+                        const values = expected.map((_, index) => String(cells[index] ?? '').trim());
+                        if (cells.length !== expected.length) throw new Error('CSV row ' + (i + 2) + ' has the wrong number of columns.');
+                        const [engName, chiName, username, password, school, role, classCodes, classNumber] = values;
+                        if (!engName || !username || !password || !school || !role || !classCodes || !classNumber) {
+                            throw new Error('CSV row ' + (i + 2) + ' is missing a required value.');
+                        }
+                        if (!['student','teacher'].includes(role.toLowerCase())) throw new Error('CSV row ' + (i + 2) + ': role must be student or teacher.');
+                        if (!/^[a-z0-9_-]{1,40}$/i.test(username)) throw new Error('CSV row ' + (i + 2) + ': invalid username format.');
+                        if (password.length < 8 || password.length > 128) throw new Error('CSV row ' + (i + 2) + ': password must be 8–128 characters.');
+                        if (!/^\d{1,3}$/.test(classNumber)) throw new Error('CSV row ' + (i + 2) + ': class_number must be 1–3 digits.');
+                        return { rowNumber: i + 2, engName, chiName, username: username.toLowerCase(), password, school, role: role.toLowerCase(), classCodes, classNumber };
+                    });
+                    const seen = new Set();
+                    for (const account of accounts) {
+                        if (seen.has(account.username)) throw new Error('Duplicate username in CSV: ' + account.username);
+                        seen.add(account.username);
+                    }
+                    this.csvImportRows = accounts;
+                    document.getElementById('csv-preview-count').textContent = this.t('csvPreviewCount').replace('{count}', String(accounts.length));
+                    document.getElementById('csv-preview-body').innerHTML = accounts.map((a, i) => '<tr>' +
+                        '<td class="px-3 py-2">' + (i + 1) + '</td>' +
+                        '<td class="px-3 py-2">' + escapeHtml(a.engName) + '</td>' +
+                        '<td class="px-3 py-2">' + escapeHtml(a.chiName || '-') + '</td>' +
+                        '<td class="px-3 py-2">' + escapeHtml(a.username) + '</td>' +
+                        '<td class="px-3 py-2">' + escapeHtml(a.school) + '</td>' +
+                        '<td class="px-3 py-2">' + escapeHtml(a.role) + '</td>' +
+                        '<td class="px-3 py-2">' + escapeHtml(a.classCodes) + '</td>' +
+                        '<td class="px-3 py-2">' + escapeHtml(a.classNumber) + '</td></tr>').join('');
+                    preview.classList.remove('hidden');
+                    document.getElementById('csv-import-results').classList.add('hidden');
+                    submit.disabled = false;
+                } catch (error) {
+                    this.showError('csv-import-error', error.message || this.t('errGeneric'));
+                }
+            },
+
+            async submitCsvImport() {
+                if (!this.isAdmin() || this.manageMode !== 'admin') {
+                    this.showError('csv-import-error', this.t('errNotAdmin'));
+                    return;
+                }
+                if (!this.csvImportRows?.length) {
+                    this.showError('csv-import-error', this.t('csvNoFile'));
+                    return;
+                }
+                const submit = document.getElementById('csv-import-submit');
+                const errorBox = document.getElementById('csv-import-error');
+                const resultsBox = document.getElementById('csv-import-results');
+                errorBox.classList.add('hidden');
+                resultsBox.classList.add('hidden');
+                submit.disabled = true;
+                submit.textContent = this.t('csvImporting');
+                try {
+                    const { data: sessionData } = await dbClient.auth.getSession();
+                    const token = sessionData.session?.access_token;
+                    if (!token) throw new Error(this.lang === 'zh' ? '登入已過期，請重新登入。' : 'Your session has expired. Please sign in again.');
+                    const accounts = this.csvImportRows.map(a => ({
+                        rowNumber: a.rowNumber, engName: a.engName, chiName: a.chiName, username: a.username,
+                        password: a.password, school: a.school, role: a.role, classCodes: a.classCodes, classNumber: a.classNumber
+                    }));
+                    const res = await fetch(`${SUPABASE_URL}/functions/v1/manage-user`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, 'apikey': SUPABASE_ANON_KEY },
+                        body: JSON.stringify({ action: 'bulkCreateUsers', payload: { users: accounts } })
+                    });
+                    const result = await res.json().catch(() => ({}));
+                    if (!res.ok || result.error) throw new Error(result.error || this.t('errGeneric'));
+                    const rows = result.results || [];
+                    const succeeded = rows.filter(r => r.success);
+                    const failed = rows.filter(r => !r.success);
+                    resultsBox.innerHTML = '<div class="font-semibold mb-2">' + escapeHtml(this.t('csvResultsTitle')) + '</div>' +
+                        '<div class="text-green-700">' + escapeHtml(this.t('csvSuccessCount').replace('{count}', String(succeeded.length))) + '</div>' +
+                        '<div class="text-red-700">' + escapeHtml(this.t('csvFailedCount').replace('{count}', String(failed.length))) + '</div>' +
+                        (failed.length ? '<ul class="mt-2 list-disc pl-5 space-y-1">' + failed.map(r => '<li>' + escapeHtml(this.t('csvRowLabel').replace('{row}', String(r.rowNumber))) + ': ' + escapeHtml(r.error || 'Failed') + '</li>').join('') + '</ul>' : '');
+                    resultsBox.classList.remove('hidden');
+                    if (succeeded.length) {
+                        await this.loadAllProfiles();
+                        this.populateManageFilters();
+                        this.renderManageTable();
+                    }
+                    this.csvImportRows = [];
+                    document.getElementById('csv-import-preview').classList.add('hidden');
+                    submit.disabled = true;
+                } catch (error) {
+                    this.showError('csv-import-error', error.message || this.t('errGeneric'));
+                } finally {
+                    submit.textContent = this.t('csvImportButton');
+                }
+            },
 
             openResetPassword(username) {
                 if (!this.isAdmin() || this.manageMode !== 'admin') {
