@@ -226,7 +226,7 @@
             
             <div class="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-4 mb-6 pb-6 border-b border-gray-100">
                 <div class="flex flex-wrap gap-3">
-                    <button class="bg-[#8b5a2b] text-white px-4 py-2.5 rounded-lg text-sm font-semibold" data-i18n="btnPromoteClass" onclick="app.showOutputMessage(app.lang === 'zh' ? '班級轉換功能即將推出！' : 'Promote Class features coming soon!')">Promote Class</button>
+                    <button class="bg-[#8b5a2b] text-white px-4 py-2.5 rounded-lg text-sm font-semibold" data-i18n="btnPromoteClass" onclick="app.openPromoteClassModal()">Promote Class</button>
                     <button class="bg-white border border-gray-300 text-gray-700 px-4 py-2.5 rounded-lg text-sm font-semibold" data-i18n="btnUpdateQb" onclick="app.showOutputMessage(app.lang === 'zh' ? '更新題庫功能即將推出！' : 'Update Question Bank features coming soon!')">Update question bank</button>
                     <button onclick="app.openAdminUserModal(null)" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-lg text-sm font-semibold flex items-center space-x-1">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -292,7 +292,7 @@
             
             <div class="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-4 mb-6 pb-6 border-b border-gray-100">
                 <div class="flex flex-wrap gap-3">
-                    <button class="bg-[#8b5a2b] text-white px-4 py-2.5 rounded-lg text-sm font-semibold" data-i18n="btnPromoteClass" onclick="app.showOutputMessage(app.lang === 'zh' ? '班級轉換功能即將推出！' : 'Promote Class features coming soon!')">Promote Class</button>
+                    <button class="bg-[#8b5a2b] text-white px-4 py-2.5 rounded-lg text-sm font-semibold" data-i18n="btnPromoteClass" onclick="app.openPromoteClassModal()">Promote Class</button>
                     <button class="bg-white border border-gray-300 text-gray-700 px-4 py-2.5 rounded-lg text-sm font-semibold" data-i18n="btnUpdateQb" onclick="app.showOutputMessage(app.lang === 'zh' ? '更新題庫功能即將推出！' : 'Update Question Bank features coming soon!')">Update question bank</button>
                     <button onclick="app.openAdminUserModal(null)" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-lg text-sm font-semibold flex items-center space-x-1">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -583,6 +583,22 @@
                 </button>
             </div>
         </div>
+    </div>
+
+
+    <div id="modal-promote-class" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-[70] p-4">
+      <div class="bg-white rounded-2xl shadow-xl w-full max-w-3xl p-6 max-h-[92vh] overflow-y-auto">
+        <div class="flex justify-between items-center mb-4"><h3 id="promote-title" class="text-2xl font-bold">Promote Class</h3><button onclick="app.hideModal('promote-class')" class="text-2xl text-gray-500">&times;</button></div>
+        <p id="promote-description" class="text-sm text-gray-600 mb-4"></p>
+        <div id="promote-error" class="hidden p-3 mb-4 bg-red-50 text-red-700 rounded-lg text-sm"></div>
+        <label id="promote-school-label" for="promote-school" class="block text-sm font-semibold mb-1">School</label>
+        <select id="promote-school" onchange="app.loadPromoteClasses()" class="w-full px-3 py-2 border border-gray-300 rounded-lg mb-5"></select>
+        <div class="flex justify-between items-center mb-2"><h4 id="promote-mapping-title" class="font-bold">Class mapping</h4><button type="button" onclick="app.addPromoteMappingRow()" class="px-3 py-2 text-sm border rounded-lg">+ <span id="promote-add-label">Add mapping</span></button></div>
+        <p id="promote-mapping-help" class="text-xs text-gray-500 mb-3"></p>
+        <div id="promote-mapping-rows" class="space-y-2"></div>
+        <div id="promote-preview" class="hidden mt-5 p-4 bg-gray-50 border rounded-lg"></div>
+        <div class="flex flex-col-reverse sm:flex-row sm:justify-between gap-3 mt-6 pt-4 border-t"><button onclick="app.hideModal('promote-class')" class="px-4 py-2 text-sm bg-gray-100 rounded-lg">Cancel</button><div class="flex gap-3 justify-end"><button onclick="app.previewPromoteClass()" class="px-4 py-2 text-sm border border-[#8b5a2b] rounded-lg">Preview</button><button id="promote-confirm-button" onclick="app.executePromoteClass()" class="px-4 py-2 text-sm text-white bg-[#6f4822] rounded-lg">Confirm promotion</button></div></div>
+      </div>
     </div>
 
     <!-- JavaScript Application Logic -->
@@ -1791,6 +1807,90 @@
                     await this.initManageView();
                 }
                 this.showOutputMessage(`<span class="text-green-600">${this.t('alertProfileUpdated')}</span>`);
+            },
+
+
+            async callPromoteFunction(action, payload) {
+                const { data } = await dbClient.auth.getSession();
+                const token = data.session?.access_token;
+                if (!token) throw new Error(this.lang === 'zh' ? '登入已失效，請重新登入。' : 'Session expired. Please sign in again.');
+                const res = await fetch(`${SUPABASE_URL}/functions/v1/manage-user`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, 'apikey': SUPABASE_ANON_KEY }, body: JSON.stringify({ action, payload }) });
+                const result = await res.json();
+                if (!res.ok || result.error) throw new Error(result.error || 'Request failed');
+                return result;
+            },
+            openPromoteClassModal() {
+                if (!this.isAdminOrTeacher()) return;
+                const zh = this.lang === 'zh';
+                document.getElementById('promote-title').innerText = zh ? '班級升班' : 'Promote Class';
+                document.getElementById('promote-description').innerText = zh ? '設定每個原班別對應的新班別。請先預覽，再確認升班；中六可對應至 Graduated。' : 'Map each current class to its destination. Preview first; map graduating classes to Graduated.';
+                document.getElementById('promote-school-label').innerText = zh ? '學校' : 'School';
+                document.getElementById('promote-mapping-title').innerText = zh ? '升班對應' : 'Class mapping';
+                document.getElementById('promote-add-label').innerText = zh ? '新增對應' : 'Add mapping';
+                document.getElementById('promote-mapping-help').innerText = zh ? '每個原班別只可出現一次。中六班別的新班別請填 Graduated。' : 'Each source class must be unique. Use Graduated for graduating classes.';
+                document.getElementById('promote-confirm-button').innerText = zh ? '確認升班' : 'Confirm promotion';
+                document.getElementById('promote-error').classList.add('hidden');
+                document.getElementById('promote-preview').classList.add('hidden');
+                const schools = this.isAdmin() ? [...new Set(Object.values(this.usersRegistry).map(u => (u.school || '').trim()).filter(Boolean))].sort() : [this.currentUser.school].filter(Boolean);
+                const select = document.getElementById('promote-school');
+                select.innerHTML = schools.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
+                select.disabled = this.isTeacher();
+                document.getElementById('promote-mapping-rows').innerHTML = '';
+                this.showModal('promote-class');
+                if (schools.length) this.loadPromoteClasses();
+                else this.showError('promote-error', zh ? '找不到學校資料。請重新載入管理頁面。' : 'No schools found. Reload the management page.');
+            },
+            addPromoteMappingRow(fromClass = '', toClass = '') {
+                const row = document.createElement('div');
+                row.className = 'promote-mapping-row grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr_auto] gap-2 items-center';
+                const from = document.createElement('input'); from.className = 'promote-from w-full px-3 py-2 border rounded-lg'; from.value = fromClass; from.placeholder = this.lang === 'zh' ? '原班別（例如 1A）' : 'Current class (e.g. 1A)';
+                const arrow = document.createElement('span'); arrow.className = 'text-center'; arrow.textContent = '→';
+                const to = document.createElement('input'); to.className = 'promote-to w-full px-3 py-2 border rounded-lg'; to.value = toClass; to.placeholder = this.lang === 'zh' ? '新班別（例如 2A / Graduated）' : 'Destination (e.g. 2A / Graduated)';
+                const remove = document.createElement('button'); remove.type = 'button'; remove.className = 'px-3 py-2 text-sm text-red-600'; remove.textContent = this.lang === 'zh' ? '移除' : 'Remove'; remove.onclick = () => { row.remove(); document.getElementById('promote-preview').classList.add('hidden'); };
+                row.append(from, arrow, to, remove); document.getElementById('promote-mapping-rows').appendChild(row);
+            },
+            async loadPromoteClasses() {
+                const school = document.getElementById('promote-school').value;
+                if (!school) return;
+                document.getElementById('promote-error').classList.add('hidden');
+                document.getElementById('promote-preview').classList.add('hidden');
+                try {
+                    const result = await this.callPromoteFunction('previewPromotion', { school });
+                    const wrap = document.getElementById('promote-mapping-rows'); wrap.innerHTML = '';
+                    (result.classes || []).forEach(item => this.addPromoteMappingRow(item.class, ''));
+                    if (!(result.classes || []).length) { this.addPromoteMappingRow(); this.showError('promote-error', this.lang === 'zh' ? '此校暫時沒有可升班學生。' : 'No student classes found for this school.'); }
+                } catch (err) { this.showError('promote-error', err.message || 'Could not load classes.'); }
+            },
+            collectPromoteMappings() {
+                const mappings = [...document.querySelectorAll('#promote-mapping-rows .promote-mapping-row')].map(row => ({ fromClass: row.querySelector('.promote-from').value.trim(), toClass: row.querySelector('.promote-to').value.trim() }));
+                if (!mappings.length || mappings.some(m => !m.fromClass || !m.toClass)) throw new Error(this.lang === 'zh' ? '請填妥所有原班別及新班別。' : 'Complete every source and destination class.');
+                if (new Set(mappings.map(m => m.fromClass.toLowerCase())).size !== mappings.length) throw new Error(this.lang === 'zh' ? '原班別不可重複。' : 'Source classes must be unique.');
+                return mappings;
+            },
+            async previewPromoteClass() {
+                const box = document.getElementById('promote-preview'); box.classList.add('hidden'); document.getElementById('promote-error').classList.add('hidden');
+                try {
+                    const school = document.getElementById('promote-school').value;
+                    const mappings = this.collectPromoteMappings();
+                    const result = await this.callPromoteFunction('previewPromotion', { school, mappings });
+                    const zh = this.lang === 'zh';
+                    box.innerHTML = `<h5 class="font-bold mb-3">${zh ? '升班預覽' : 'Promotion preview'}</h5><div class="space-y-2">${(result.preview || []).map(item => `<div class="flex justify-between gap-3 text-sm border-b pb-2"><span>${escapeHtml(item.fromClass)} → ${escapeHtml(item.toClass)}</span><strong>${Number(item.studentCount)} ${zh ? '位學生' : 'students'}</strong></div>`).join('')}</div><p class="mt-3 text-sm font-semibold">${zh ? '合共受影響學生：' : 'Total students affected: '}${Number(result.totalStudents || 0)}</p><p class="mt-2 text-xs text-gray-500">${zh ? '預覽不會修改資料。' : 'Preview does not change data.'}</p>`;
+                    box.dataset.school = school; box.dataset.mappings = JSON.stringify(mappings); box.dataset.total = String(Number(result.totalStudents || 0)); box.classList.remove('hidden');
+                } catch (err) { this.showError('promote-error', err.message || 'Preview failed.'); }
+            },
+            async executePromoteClass() {
+                const box = document.getElementById('promote-preview');
+                if (box.classList.contains('hidden')) { this.showError('promote-error', this.lang === 'zh' ? '請先預覽升班名單。' : 'Preview the promotion first.'); return; }
+                const zh = this.lang === 'zh';
+                if (!window.confirm(zh ? `確定更新「${box.dataset.school}」共 ${box.dataset.total} 位學生嘅班別？` : `Promote ${box.dataset.total} students at ${box.dataset.school}?`)) return;
+                const btn = document.getElementById('promote-confirm-button'); btn.disabled = true; btn.textContent = zh ? '處理中…' : 'Processing…';
+                try {
+                    const result = await this.callPromoteFunction('promoteClass', { school: box.dataset.school, mappings: JSON.parse(box.dataset.mappings || '[]') });
+                    this.hideModal('promote-class');
+                    if (this.manageMode === 'teacher') await this.initMySchoolView(); else await this.initManageView();
+                    this.showOutputMessage(zh ? `升班完成：已更新 ${Number(result.updatedStudents || 0)} 位學生。Graduated 學生帳戶及成績已保留。` : `Promotion complete: ${Number(result.updatedStudents || 0)} students updated. Graduated accounts and grades were preserved.`);
+                } catch (err) { this.showError('promote-error', err.message || 'Promotion failed.'); }
+                finally { btn.disabled = false; btn.textContent = zh ? '確認升班' : 'Confirm promotion'; }
             },
 
             confirmProfileDelete(username) {
