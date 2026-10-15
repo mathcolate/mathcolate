@@ -128,5 +128,8 @@
   "csvSuccessCount": "Created: {count}",
   "csvFailedCount": "Failed: {count}",
   "csvRowLabel": "Row {row}",
-  "csvImportDone": "CSV import completed."
+  "csvImportDone": "CSV import completed.",
+  "promoteCancel": "Cancel",
+  "promotePreview": "Preview",
+  "clearFilter": "Clear Filter"
 }
