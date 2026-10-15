@@ -128,5 +128,8 @@
   "csvSuccessCount": "成功建立：{count}",
   "csvFailedCount": "建立失敗：{count}",
   "csvRowLabel": "第 {row} 列",
-  "csvImportDone": "CSV 匯入完成。"
+  "csvImportDone": "CSV 匯入完成。",
+  "promoteCancel": "取消",
+  "promotePreview": "預覽",
+  "clearFilter": "清除篩選"
 }
