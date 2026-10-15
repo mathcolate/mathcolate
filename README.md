@@ -1,1 +1,1 @@
-# mathcolate
+# Mathcolate
