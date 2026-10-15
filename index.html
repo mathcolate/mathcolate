@@ -705,9 +705,12 @@
                 .replaceAll("'", '&#39;');
         }
 
+        const IDLE_TIMEOUT_MS = 30 * 60 * 1000;
         let translations = { en: {}, zh: {} };
 
         const app = {
+            idleFallbackActivityAt: {},
+
             lang: 'en',
             view: 'main',
             currentUser: null,
@@ -760,27 +763,27 @@
                 if (dbClient) {
                     const { data: { session } } = await dbClient.auth.getSession();
                     if (session?.user) {
-                        const activityKey = `mathcolate_last_activity_${session.user.id}`;
-                        const lastActivity = Number(localStorage.getItem(activityKey));
-                        if (lastActivity && Date.now() - lastActivity >= 1800000) {
+                        if (this.isIdle(session.user.id)) {
                             idleLogoutOnStartup = true;
                             await dbClient.auth.signOut();
-                            localStorage.removeItem(activityKey);
+                            this.clearActivity(session.user.id);
                         } else {
-                            // Existing sessions without a timestamp get a fresh baseline after this update.
-                            if (!lastActivity) localStorage.setItem(activityKey, String(Date.now()));
+                            this.ensureActivityRecord(session.user.id);
                             await this.hydrateFromSession(session.user);
                         }
                     }
-                    
+
                     dbClient.auth.onAuthStateChange(async (event, session) => {
                         if (event === 'SIGNED_OUT') {
                             this.currentUser = null;
                             this.usersRegistry = {};
+                            this.refreshIdleTimer?.();
                             this.updateHeaderDisplay();
                             this.setView('main');
                         } else if (event === 'SIGNED_IN' && session?.user && !this.currentUser) {
                             await this.hydrateFromSession(session.user);
+                            this.ensureActivityRecord(session.user.id);
+                            this.refreshIdleTimer?.();
                         }
                     });
                 }
@@ -793,6 +796,46 @@
                 if (idleLogoutOnStartup) {
                     this.showOutputMessage(this.t('alertIdleLogout'), true);
                 }
+            },
+
+            getActivityKey(userId) {
+                return `mathcolate_last_activity_${userId}`;
+            },
+
+            getLastActivity(userId) {
+                try {
+                    return Number(localStorage.getItem(this.getActivityKey(userId))) || this.idleFallbackActivityAt[userId] || 0;
+                } catch (err) {
+                    return this.idleFallbackActivityAt[userId] || 0;
+                }
+            },
+
+            recordActivity(userId = this.currentUser?.id) {
+                if (!userId) return;
+                const timestamp = Date.now();
+                this.idleFallbackActivityAt[userId] = timestamp;
+                try {
+                    localStorage.setItem(this.getActivityKey(userId), String(timestamp));
+                } catch (err) { /* ignore storage errors */ }
+            },
+
+            ensureActivityRecord(userId) {
+                if (userId && !this.getLastActivity(userId)) {
+                    this.recordActivity(userId);
+                }
+            },
+
+            clearActivity(userId = this.currentUser?.id) {
+                if (!userId) return;
+                delete this.idleFallbackActivityAt[userId];
+                try {
+                    localStorage.removeItem(this.getActivityKey(userId));
+                } catch (err) { /* ignore storage errors */ }
+            },
+
+            isIdle(userId) {
+                const lastActivity = this.getLastActivity(userId);
+                return lastActivity > 0 && Date.now() - lastActivity >= IDLE_TIMEOUT_MS;
             },
 
             async hydrateFromSession(authUser) {
@@ -822,9 +865,6 @@
                 }
 
                 this.currentUser = this.mapProfile(data);
-                try {
-                    localStorage.setItem(`mathcolate_last_activity_${authUser.id}`, String(Date.now()));
-                } catch (err) { /* ignore storage errors */ }
                 this.updateHeaderDisplay();
 
                 if (this.view === 'profile') {
@@ -864,25 +904,54 @@
 
             initIdleTimer() {
                 let timeout;
-                const resetTimer = () => {
+                let lastActivityWriteAt = 0;
+
+                const scheduleFromLastActivity = () => {
                     clearTimeout(timeout);
-                    if (this.currentUser?.id) {
-                        try {
-                            localStorage.setItem(`mathcolate_last_activity_${this.currentUser.id}`, String(Date.now()));
-                        } catch (err) { /* ignore storage errors */ }
-                    }
+                    const userId = this.currentUser?.id;
+                    if (!userId) return;
+
+                    this.ensureActivityRecord(userId);
+                    const remaining = IDLE_TIMEOUT_MS - (Date.now() - this.getLastActivity(userId));
                     timeout = setTimeout(async () => {
-                        if (this.currentUser) {
+                        if (!this.currentUser?.id) return;
+                        if (this.isIdle(this.currentUser.id)) {
                             await this.handleLogout(true);
                             this.showOutputMessage(this.t('alertIdleLogout'), true);
+                        } else {
+                            scheduleFromLastActivity();
                         }
-                    }, 1800000);
+                    }, Math.max(0, remaining));
                 };
-                resetTimer();
-                window.addEventListener('mousemove', resetTimer);
-                window.addEventListener('keydown', resetTimer);
-                window.addEventListener('click', resetTimer);
-                window.addEventListener('scroll', resetTimer);
+
+                const recordUserActivity = () => {
+                    if (!this.currentUser?.id) return;
+                    const now = Date.now();
+                    if (now - lastActivityWriteAt >= 1000) {
+                        this.recordActivity();
+                        lastActivityWriteAt = now;
+                    }
+                    scheduleFromLastActivity();
+                };
+
+                this.refreshIdleTimer = scheduleFromLastActivity;
+                scheduleFromLastActivity();
+
+                ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(eventName => {
+                    window.addEventListener(eventName, recordUserActivity, { passive: true });
+                });
+
+                window.addEventListener('storage', event => {
+                    const userId = this.currentUser?.id;
+                    if (userId && event.key === this.getActivityKey(userId) && event.newValue) {
+                        scheduleFromLastActivity();
+                    }
+                });
+
+                document.addEventListener('visibilitychange', () => {
+                    if (!document.hidden) scheduleFromLastActivity();
+                });
+                window.addEventListener('focus', scheduleFromLastActivity);
             },
 
             toggleLanguage() {
@@ -1114,6 +1183,9 @@
                     return;
                 }
 
+                this.recordActivity(data.user.id);
+                this.refreshIdleTimer?.();
+
                 const dName = escapeHtml(this.getUserDisplayName(this.currentUser));
                 this.showOutputMessage(
                     `<span class="text-green-600">${this.t('alertLoggedIn').replace('{name}', dName)}</span>`
@@ -1121,9 +1193,7 @@
             },
 
             async handleLogout(fromIdle = false) {
-                if (this.currentUser?.id) {
-                    try { localStorage.removeItem(`mathcolate_last_activity_${this.currentUser.id}`); } catch (err) { /* ignore storage errors */ }
-                }
+                this.clearActivity();
                 if (dbClient) {
                     try { await dbClient.auth.signOut(); } catch (err) { /* ignore */ }
                 }
