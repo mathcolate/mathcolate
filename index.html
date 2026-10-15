@@ -253,7 +253,7 @@
                     <select id="filter-role" onchange="app.handleManageFilter()" class="text-sm border border-gray-300 rounded-md px-3 py-2 outline-none min-w-[120px] bg-white filter-select dropdown-select"></select>
                     <select id="filter-class" onchange="app.handleManageFilter()" class="text-sm border border-gray-300 rounded-md px-3 py-2 outline-none min-w-[120px] bg-white filter-select dropdown-select"></select>
                     <button onclick="app.resetManageFilters()" class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-600 font-semibold px-3 py-2 rounded-md border border-gray-300 transition-colors" data-i18n="btnReset">
-                        Clear Filter
+                        <span data-i18n="clearFilter">Clear Filter</span>
                     </button>
                 </div>
             </div>
@@ -608,7 +608,7 @@
         <p id="promote-mapping-help" class="text-xs text-gray-500 mb-3"></p>
         <div id="promote-mapping-rows" class="space-y-2"></div>
         <div id="promote-preview" class="hidden mt-5 p-4 bg-gray-50 border rounded-lg"></div>
-        <div class="flex flex-col-reverse sm:flex-row sm:justify-between gap-3 mt-6 pt-4 border-t"><button onclick="app.hideModal('promote-class')" class="px-4 py-2 text-sm bg-gray-100 rounded-lg">Cancel</button><div class="flex gap-3 justify-end"><button onclick="app.previewPromoteClass()" class="px-4 py-2 text-sm border border-[#8b5a2b] rounded-lg">Preview</button><button id="promote-confirm-button" onclick="app.executePromoteClass()" class="px-4 py-2 text-sm text-white bg-[#6f4822] rounded-lg">Confirm promotion</button></div></div>
+        <div class="flex flex-col-reverse sm:flex-row sm:justify-between gap-3 mt-6 pt-4 border-t"><button onclick="app.hideModal('promote-class')" class="px-4 py-2 text-sm bg-gray-100 rounded-lg" data-i18n="promoteCancel">Cancel</button><div class="flex gap-3 justify-end"><button onclick="app.previewPromoteClass()" class="px-4 py-2 text-sm border border-[#8b5a2b] rounded-lg" data-i18n="promotePreview">Preview</button><button id="promote-confirm-button" onclick="app.executePromoteClass()" class="px-4 py-2 text-sm text-white bg-[#6f4822] rounded-lg">Confirm promotion</button></div></div>
       </div>
     </div>
 
