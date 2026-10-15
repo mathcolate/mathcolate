@@ -867,6 +867,9 @@
                 this.lang = this.lang === 'en' ? 'zh' : 'en';
                 this.applyTranslations();
                 if (this.manageMode === 'teacher' || this.manageMode === 'admin') {
+                    // Rebuild dynamic filter options so labels such as All Schools,
+                    // All Roles and All Classes follow the newly selected language.
+                    this.populateManageFilters();
                     this.renderManageTable();
                 }
             },
