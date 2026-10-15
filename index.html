@@ -921,9 +921,10 @@
                 });
                 this.updateHeaderDisplay();
                 this.updateClassLabels();
-                if (this.view === 'manage') {
-                    this.initManageView();
-                }
+                // Language changes should only update visible labels and the existing table.
+                // Do not re-run initManageView() here: it reloads every profile from Supabase
+                // and can reset the admin table/scroll position. toggleLanguage() already
+                // refreshes the localized filters and table using the profiles in memory.
             },
 
             setView(viewName, pushHistory = true) {
