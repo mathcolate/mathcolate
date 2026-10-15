@@ -710,6 +710,7 @@
 
         const app = {
             idleFallbackActivityAt: {},
+            isLoggingOut: false,
 
             lang: 'en',
             view: 'main',
@@ -777,6 +778,7 @@
                         if (event === 'SIGNED_OUT') {
                             this.currentUser = null;
                             this.usersRegistry = {};
+                            this.isLoggingOut = false;
                             this.refreshIdleTimer?.();
                             this.updateHeaderDisplay();
                             this.setView('main');
@@ -803,11 +805,11 @@
             },
 
             getLastActivity(userId) {
+                let storedTimestamp = 0;
                 try {
-                    return Number(localStorage.getItem(this.getActivityKey(userId))) || this.idleFallbackActivityAt[userId] || 0;
-                } catch (err) {
-                    return this.idleFallbackActivityAt[userId] || 0;
-                }
+                    storedTimestamp = Number(localStorage.getItem(this.getActivityKey(userId))) || 0;
+                } catch (err) { /* use in-memory fallback */ }
+                return Math.max(storedTimestamp, this.idleFallbackActivityAt[userId] || 0);
             },
 
             recordActivity(userId = this.currentUser?.id) {
@@ -924,10 +926,12 @@
                     }, Math.max(0, remaining));
                 };
 
-                const recordUserActivity = () => {
+                const recordUserActivity = event => {
                     if (!this.currentUser?.id) return;
                     const now = Date.now();
-                    if (now - lastActivityWriteAt >= 1000) {
+                    const eventName = event?.type || '';
+                    const shouldAlwaysRecord = ['keydown', 'click', 'touchstart'].includes(eventName);
+                    if (shouldAlwaysRecord || now - lastActivityWriteAt >= 1000) {
                         this.recordActivity();
                         lastActivityWriteAt = now;
                     }
@@ -943,7 +947,7 @@
 
                 window.addEventListener('storage', event => {
                     const userId = this.currentUser?.id;
-                    if (userId && event.key === this.getActivityKey(userId) && event.newValue) {
+                    if (userId && event.key === this.getActivityKey(userId)) {
                         scheduleFromLastActivity();
                     }
                 });
@@ -1193,6 +1197,8 @@
             },
 
             async handleLogout(fromIdle = false) {
+                if (this.isLoggingOut || !this.currentUser) return;
+                this.isLoggingOut = true;
                 this.clearActivity();
                 if (dbClient) {
                     try { await dbClient.auth.signOut(); } catch (err) { /* ignore */ }
@@ -1204,6 +1210,7 @@
                 if (dropdown) dropdown.classList.add('hidden');
                 this.updateHeaderDisplay();
                 this.setView('main');
+                this.isLoggingOut = false;
                 if (!fromIdle) this.showOutputMessage(this.t('alertLogout'));
             },
 
