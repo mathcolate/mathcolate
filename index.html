@@ -1734,7 +1734,7 @@
             async callPromoteFunction(action, payload) {
                 const { data } = await dbClient.auth.getSession();
                 const token = data.session?.access_token;
-                if (!token) throw new Error(this.lang === 'zh' ? '登入已失效，請重新登入。' : 'Session expired. Please sign in again.');
+                if (!token) throw new Error(this.lang === 'zh' ? '登入已過時，請重新登入。' : 'Session expired. Please sign in again.');
                 const res = await fetch(`${SUPABASE_URL}/functions/v1/manage-user`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, 'apikey': SUPABASE_ANON_KEY }, body: JSON.stringify({ action, payload }) });
                 const result = await res.json();
                 if (!res.ok || result.error) throw new Error(result.error || 'Request failed');
@@ -1743,13 +1743,13 @@
             openPromoteClassModal() {
                 if (!this.isAdminOrTeacher()) return;
                 const zh = this.lang === 'zh';
-                document.getElementById('promote-title').innerText = zh ? '班級升班' : 'Promote Class';
-                document.getElementById('promote-description').innerText = zh ? '設定每個原班別對應的新班別。請先預覽，再確認升班；中六可對應至 Graduated。' : 'Map each current class to its destination. Preview first; map graduating classes to Graduated.';
+                document.getElementById('promote-title').innerText = zh ? '班級轉換' : 'Promote Class';
+                document.getElementById('promote-description').innerText = zh ? '設定每個原班別至對應的新班別，中六可對應至 "Graduated" 。請先預覽，再確認升班。' : 'Map each current class to its destination, map graduating classes to "Graduated". Preview before confirm promotion. ';
                 document.getElementById('promote-school-label').innerText = zh ? '學校' : 'School';
-                document.getElementById('promote-mapping-title').innerText = zh ? '升班對應' : 'Class mapping';
-                document.getElementById('promote-add-label').innerText = zh ? '新增對應' : 'Add mapping';
-                document.getElementById('promote-mapping-help').innerText = zh ? '每個原班別只可出現一次。中六班別的新班別請填 Graduated。' : 'Each source class must be unique. Use Graduated for graduating classes.';
-                document.getElementById('promote-confirm-button').innerText = zh ? '確認升班' : 'Confirm promotion';
+                document.getElementById('promote-mapping-title').innerText = zh ? '班別對應' : 'Class Mapping';
+                document.getElementById('promote-add-label').innerText = zh ? '新增對應' : 'Add Mapping';
+                document.getElementById('promote-mapping-help').innerText = zh ? '每個原班別只可出現一次，中六班別的新班別請填 "Graduated" 。' : 'Each original class must be unique, use "Graduated" for new class for graduating classes.';
+                document.getElementById('promote-confirm-button').innerText = zh ? '確認升班' : 'Confirm Promotion';
                 document.getElementById('promote-error').classList.add('hidden');
                 document.getElementById('promote-preview').classList.add('hidden');
                 const schools = this.isAdmin() ? [...new Set(Object.values(this.usersRegistry).map(u => (u.school || '').trim()).filter(Boolean))].sort() : [this.currentUser.school].filter(Boolean);
