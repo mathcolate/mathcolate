@@ -756,10 +756,21 @@
                     }
                 });
 
+                let idleLogoutOnStartup = false;
                 if (dbClient) {
                     const { data: { session } } = await dbClient.auth.getSession();
                     if (session?.user) {
-                        await this.hydrateFromSession(session.user);
+                        const activityKey = `mathcolate_last_activity_${session.user.id}`;
+                        const lastActivity = Number(localStorage.getItem(activityKey));
+                        if (lastActivity && Date.now() - lastActivity >= 1800000) {
+                            idleLogoutOnStartup = true;
+                            await dbClient.auth.signOut();
+                            localStorage.removeItem(activityKey);
+                        } else {
+                            // Existing sessions without a timestamp get a fresh baseline after this update.
+                            if (!lastActivity) localStorage.setItem(activityKey, String(Date.now()));
+                            await this.hydrateFromSession(session.user);
+                        }
                     }
                     
                     dbClient.auth.onAuthStateChange(async (event, session) => {
@@ -779,6 +790,9 @@
                 this.setView(initialView, false);
                 
                 this.initIdleTimer();
+                if (idleLogoutOnStartup) {
+                    this.showOutputMessage(this.t('alertIdleLogout'), true);
+                }
             },
 
             async hydrateFromSession(authUser) {
@@ -808,6 +822,9 @@
                 }
 
                 this.currentUser = this.mapProfile(data);
+                try {
+                    localStorage.setItem(`mathcolate_last_activity_${authUser.id}`, String(Date.now()));
+                } catch (err) { /* ignore storage errors */ }
                 this.updateHeaderDisplay();
 
                 if (this.view === 'profile') {
@@ -849,6 +866,11 @@
                 let timeout;
                 const resetTimer = () => {
                     clearTimeout(timeout);
+                    if (this.currentUser?.id) {
+                        try {
+                            localStorage.setItem(`mathcolate_last_activity_${this.currentUser.id}`, String(Date.now()));
+                        } catch (err) { /* ignore storage errors */ }
+                    }
                     timeout = setTimeout(async () => {
                         if (this.currentUser) {
                             await this.handleLogout(true);
@@ -1099,6 +1121,9 @@
             },
 
             async handleLogout(fromIdle = false) {
+                if (this.currentUser?.id) {
+                    try { localStorage.removeItem(`mathcolate_last_activity_${this.currentUser.id}`); } catch (err) { /* ignore storage errors */ }
+                }
                 if (dbClient) {
                     try { await dbClient.auth.signOut(); } catch (err) { /* ignore */ }
                 }
