@@ -1832,7 +1832,7 @@
 
             downloadCsvTemplate() {
                 const headers = ['eng_name','chi_name','username','password','school','role','class_codes','class_number'];
-                const example = ['CHAN TAI MAN','陳大文','student001','ChangeMe123','Mathcolate College','student','4S1A','1'];
+                const example = ['CHAN TAI MAN','陳大文','chantaiman','Pass1234','Mathcolate College','student','1A','1'];
                 const csv = '\uFEFF' + [headers, example].map(row => row.map(value => {
                     const v = String(value ?? '');
                     return /[",\r\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
