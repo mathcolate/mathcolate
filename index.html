@@ -63,14 +63,14 @@
                 
                 <div class="relative inline-block text-left" id="user-menu-container">
                     <button id="user-btn" onclick="app.toggleUserMenu()" class="flex items-center space-x-4 hover:bg-gray-100 p-2 -mr-2 rounded-xl transition-colors focus:outline-none cursor-pointer">
-                        <span id="user-display-name" class="text-sm font-medium text-gray-500" data-i18n="loginHeader"> Login</span>
+                        <span id="user-display-name" class="text-sm font-medium text-gray-500 opacity-0" data-i18n="loginHeader"> Login</span>
                         
-                        <div id="user-avatar-guest" class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-bold">
+                        <div id="user-avatar-guest" class="h-8 w-8 rounded-full opacity-0 bg-gray-200 flex items-center justify-center text-gray-600 font-bold">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                 <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
                             </svg>
                         </div>
-                        <div id="user-avatar-logged" class="hidden h-8 w-8 rounded-full bg-[#f2e8e5] flex items-center justify-center text-[#5c3a18] font-bold">
+                        <div id="user-avatar-logged" class="hidden opacity-0 h-8 w-8 rounded-full bg-[#f2e8e5] flex items-center justify-center text-[#5c3a18] font-bold">
                             A
                         </div>
                     </button>
@@ -1108,6 +1108,10 @@
                 const nameEl = document.getElementById('user-display-name');
                 const guestAv = document.getElementById('user-avatar-guest');
                 const logAv = document.getElementById('user-avatar-logged');
+                // Reveal the account area only after auth/profile state has been resolved.
+                nameEl.classList.remove('opacity-0');
+                guestAv.classList.remove('opacity-0');
+                logAv.classList.remove('opacity-0');
                 const btnManage = document.getElementById('btn-manage-site');
                 const btnMySchool = document.getElementById('btn-my-school');
 
