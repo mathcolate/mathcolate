@@ -732,6 +732,10 @@
             },
 
             async init() {
+                try {
+                    const savedLanguage = localStorage.getItem('mathcolate_language');
+                    if (savedLanguage === 'en' || savedLanguage === 'zh') this.lang = savedLanguage;
+                } catch (err) { /* use English default if storage is unavailable */ }
                 await this.loadTranslations();
                 this.applyTranslations();
 
@@ -969,6 +973,7 @@
 
             toggleLanguage() {
                 this.lang = this.lang === 'en' ? 'zh' : 'en';
+                try { localStorage.setItem('mathcolate_language', this.lang); } catch (err) { /* ignore unavailable storage */ }
                 this.applyTranslations();
                 if (this.manageMode === 'teacher' || this.manageMode === 'admin') {
                     // Rebuild dynamic filter options so labels such as All Schools,
