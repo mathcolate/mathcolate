@@ -75,6 +75,7 @@ const SUPABASE_URL='https://stguzuvmnfjxuygbuuij.supabase.co';
 const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0Z3V6dXZtbmZqeHV5Z2J1dWlqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk2MDM5NzAsImV4cCI6MjEwNTE3OTk3MH0.M5In8uBXMnApSBRSayiCY6UpoZf3lzebIjpa_tOw12A";
 const zhText={"title":"線上測驗","subtitle":"進入老師安排的測驗；學生作答進度監察及成績顯示會喺之後開發階段接駁。","sectionTitle":"計劃中的功能","sectionSub":"線上測驗工作區計劃提供的主要功能。","card1Title":"可參與測驗","card1Body":"查看老師安排的測驗。","card2Title":"回答題目","card2Body":"按測驗的時間及作答次數限制完成測驗。","card3Title":"成績及進度","card3Body":"測驗流程完成後可查看成績及進度。","noticeTitle":"開發備註","noticeBody":"呢個係初步頁面框架，暫時未係完整可用嘅測驗系統。"};
 let pageLanguage='en', currentProfile=null, currentRole='', headerReady=false;
+try { const savedLanguage=localStorage.getItem('mathcolate_language'); if(savedLanguage==='en'||savedLanguage==='zh') pageLanguage=savedLanguage; } catch(err) { /* use English default if storage is unavailable */ }
 const headerText={langBtn:'中文/ENG',loginHeader:'Login',subViewProfile:'View Profile',subManageWebsite:'Manage Website',subMySchool:'My School',subLogout:'Log Out'};
 function getPageName(p){if(!p)return '';return pageLanguage==='zh'?(p.chi_name||p.eng_name||p.username):(p.eng_name||p.chi_name||p.username)||'';}
 function refreshHeader(){
@@ -96,7 +97,7 @@ function applyPageLanguage(){
  Object.entries(zhText).forEach(([key,value])=>{const el=document.querySelector('[data-i18n="'+key+'"]');if(el){if(!el.dataset.enText)el.dataset.enText=el.textContent;el.textContent=pageLanguage==='zh'?value:el.dataset.enText;}});
  refreshHeader();
 }
-function togglePageLanguage(){pageLanguage=pageLanguage==='en'?'zh':'en';applyPageLanguage();}
+function togglePageLanguage(){pageLanguage=pageLanguage==='en'?'zh':'en';try{localStorage.setItem('mathcolate_language',pageLanguage);}catch(err){/* ignore unavailable storage */}applyPageLanguage();}
 function togglePageUserMenu(){document.getElementById('user-dropdown').classList.toggle('hidden');}
 function goToHomeProfile(){location.href='index.html#profile';}
 function goToHomeManage(){location.href='index.html#manage';}
