@@ -32,11 +32,11 @@
       <button onclick="togglePageLanguage()" class="text-sm font-semibold text-gray-500 hover:text-[#6f4822] transition-colors focus:outline-none px-2 py-1 rounded-md hover:bg-gray-100" data-i18n="langBtn">中文/ENG</button>
       <div class="relative inline-block text-left" id="user-menu-container">
         <button id="user-btn" onclick="togglePageUserMenu()" class="flex items-center space-x-4 hover:bg-gray-100 p-2 -mr-2 rounded-xl transition-colors focus:outline-none cursor-pointer">
-          <span id="user-display-name" class="text-sm font-medium text-gray-500">Login</span>
-          <div id="user-avatar-guest" class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-bold">
+          <span id="user-display-name" class="text-sm font-medium text-gray-500 opacity-0">Login</span>
+          <div id="user-avatar-guest" class="h-8 w-8 rounded-full opacity-0 bg-gray-200 flex items-center justify-center text-gray-600 font-bold">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
           </div>
-          <div id="user-avatar-logged" class="hidden h-8 w-8 rounded-full bg-[#f2e8e5] flex items-center justify-center text-[#5c3a18] font-bold">A</div>
+          <div id="user-avatar-logged" class="hidden opacity-0 h-8 w-8 rounded-full bg-[#f2e8e5] flex items-center justify-center text-[#5c3a18] font-bold">A</div>
         </button>
         <div id="user-dropdown" class="hidden origin-top-right absolute right-0 mt-2 w-48 rounded-xl shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 z-50">
           <div class="py-1">
@@ -79,6 +79,9 @@ const headerText={langBtn:'中文/ENG',loginHeader:'Login',subViewProfile:'View 
 function getPageName(p){if(!p)return '';return pageLanguage==='zh'?(p.chi_name||p.eng_name||p.username):(p.eng_name||p.chi_name||p.username)||'';}
 function refreshHeader(){
  const name=getPageName(currentProfile);
+ document.getElementById('user-display-name').classList.remove('opacity-0');
+ document.getElementById('user-avatar-guest').classList.remove('opacity-0');
+ document.getElementById('user-avatar-logged').classList.remove('opacity-0');
  document.getElementById('user-display-name').textContent=currentProfile?(name||currentProfile.username||''):(pageLanguage==='zh'?'登入':'Login');
  document.getElementById('user-avatar-guest').classList.toggle('hidden',!!currentProfile);
  document.getElementById('user-avatar-logged').classList.toggle('hidden',!currentProfile);
@@ -94,9 +97,9 @@ function applyPageLanguage(){
 }
 function togglePageLanguage(){pageLanguage=pageLanguage==='en'?'zh':'en';applyPageLanguage();}
 function togglePageUserMenu(){document.getElementById('user-dropdown').classList.toggle('hidden');}
-function goToHomeProfile(){location.href='index.html';}
-function goToHomeManage(){location.href='index.html';}
-function goToHomeSchool(){location.href='index.html';}
+function goToHomeProfile(){location.href='index.html#profile';}
+function goToHomeManage(){location.href='index.html#manage';}
+function goToHomeSchool(){location.href='index.html#my-school';}
 async function pageLogout(){try{const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);await client.auth.signOut();}finally{location.href='index.html';}}
 document.addEventListener('click',e=>{const c=document.getElementById('user-menu-container');if(c&&!c.contains(e.target))document.getElementById('user-dropdown').classList.add('hidden');});
 (async function initPageHeader(){try{const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);const {data:{session}}=await client.auth.getSession();if(session){const {data:row}=await client.from('users_acc_info').select('username,eng_name,chi_name,role').eq('id',session.user.id).maybeSingle();const m=session.user.user_metadata||{};currentProfile=row?{username:row.username||'',eng_name:row.eng_name||'',chi_name:row.chi_name||''}:{username:m.username||'',eng_name:m.eng_name||m.engName||'',chi_name:m.chi_name||m.chiName||''};currentRole=row?.role||'';client.auth.onAuthStateChange(async(_event,next)=>{if(!next){currentProfile=null;currentRole='';refreshHeader();return;}const {data:p}=await client.from('users_acc_info').select('username,eng_name,chi_name,role').eq('id',next.user.id).maybeSingle();currentProfile=p||null;currentRole=p?.role||'';refreshHeader();});}refreshHeader();}catch(e){console.error('Header auth initialization failed',e);refreshHeader();}})();
