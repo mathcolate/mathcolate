@@ -89,50 +89,58 @@
 const SUPABASE_URL='https://stguzuvmnfjxuygbuuij.supabase.co';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhbGciOiJIUzI1NiIsInR5cCI6InN0Z3V6dXZtbmZqeHV5Z2J1dWlqIiwicm9sZSI6ImFub24iLCJpYXQiMTc4OTYwMzk3MCwiZXhwIjoyMTA1MTc5OTcwfQ.M5In8uBXMnApSBRSayiCY6UpoZf3lzebIjpa_tOw12A';
 const zhText={"title":"複習","subtitle":"按數學課題進行練習，鞏固所學概念。","sectionTitle":"此頁面的主要功能","sectionSub":"此工作區計劃提供的主要功能。","card1Title":"選擇課題","card1Body":"選擇想溫習的數學課題。","card2Title":"練習題目","card2Body":"透過課題練習加深理解。","card3Title":"重溫解題說明","card3Body":"透過答案及解釋了解錯誤。","noticeTitle":"開發備註","noticeBody":"呢個係初步頁面框架，暫時未係完整可用嘅複習系統。"};
-let pageLanguage='en';
-let currentProfile=null;
+let pageLanguage='en', currentProfile=null;
+function getUserDisplayName(profile){
+ if(!profile)return '';
+ const chi=profile.chi_name||profile.chiName||'';
+ const eng=profile.eng_name||profile.engName||'';
+ const username=profile.username||'';
+ return pageLanguage==='zh'?(chi||eng||username):(eng||chi||username);
+}
 function refreshHeaderName(){
- const n=document.getElementById('page-user-name'),a=document.getElementById('page-user-avatar');
- if(!currentProfile){n.textContent='Login';a.textContent='?';return;}
- const name=(pageLanguage==='zh'?(currentProfile.chi_name||currentProfile.eng_name||currentProfile.username):(currentProfile.eng_name||currentProfile.chi_name||currentProfile.username))||'';
- n.textContent=name||currentProfile.username||'';
- a.textContent=((name||currentProfile.username||'?').trim().charAt(0)||'?').toUpperCase();
+ const nameEl=document.getElementById('page-user-name'),avatarEl=document.getElementById('page-user-avatar');
+ const name=getUserDisplayName(currentProfile);
+ if(!currentProfile){nameEl.textContent='Login';avatarEl.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>';avatarEl.classList.remove('bg-[#f2e8e5]','text-[#5c3a18]');avatarEl.classList.add('bg-gray-200','text-gray-600');return;}
+ nameEl.textContent=name;
+ avatarEl.textContent=(name.trim().charAt(0)||'').toUpperCase();
+ avatarEl.classList.remove('bg-gray-200','text-gray-600');avatarEl.classList.add('bg-[#f2e8e5]','text-[#5c3a18]');
 }
 function setPageLanguage(lang){
  pageLanguage=lang;
  document.documentElement.lang=lang==='zh'?'zh-HK':'en';
- document.getElementById('page-language-toggle').textContent='中文/ENG';
- Object.entries(zhText).forEach(([key,value])=>{
-  const el=document.querySelector('[data-i18n="'+key+'"]');
-  if(el){if(!el.dataset.enText)el.dataset.enText=el.textContent;el.textContent=lang==='zh'?value:el.dataset.enText;}
- });
+ Object.entries(zhText).forEach(([key,value])=>{const el=document.querySelector('[data-i18n="'+key+'"]');if(el){if(!el.dataset.enText)el.dataset.enText=el.textContent;el.textContent=lang==='zh'?value:el.dataset.enText;}});
  refreshHeaderName();
 }
 document.getElementById('page-language-toggle').addEventListener('click',()=>setPageLanguage(pageLanguage==='en'?'zh':'en'));
 (async function initHeader(){
- const n=document.getElementById('page-user-name'),a=document.getElementById('page-user-avatar');
+ const nameEl=document.getElementById('page-user-name'),avatarEl=document.getElementById('page-user-avatar');
  try{
   const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-  let {data:{session}}=await client.auth.getSession();
-  if(!session){n.textContent='Login';a.textContent='?';return;}
-  let profile=null;
-  for(let attempt=0;attempt<2&&!profile;attempt++){
-   const result=await client.from('users_acc_info').select('username,eng_name,chi_name').eq('id',session.user.id).maybeSingle();
-   if(result.error) throw result.error;
-   profile=result.data;
-   if(!profile&&attempt===0) await new Promise(resolve=>setTimeout(resolve,400));
+  const {data:{session},error:sessionError}=await client.auth.getSession();
+  if(sessionError)throw sessionError;
+  if(!session){currentProfile=null;refreshHeaderName();return;}
+  const {data:row,error}=await client.from('users_acc_info').select('id, username, eng_name, chi_name, role, school, class_codes, class_number').eq('id',session.user.id).maybeSingle();
+  if(error)throw error;
+  if(row){currentProfile={username:row.username||'',eng_name:row.eng_name||'',chi_name:row.chi_name||''};}
+  else {
+   const metadata=session.user.user_metadata||{};
+   currentProfile={username:metadata.username||'',eng_name:metadata.eng_name||metadata.engName||'',chi_name:metadata.chi_name||metadata.chiName||''};
   }
-  currentProfile=profile||{username:session.user.user_metadata?.username||''};
   refreshHeaderName();
   client.auth.onAuthStateChange(async(_event,nextSession)=>{
    if(!nextSession){currentProfile=null;refreshHeaderName();return;}
-   const result=await client.from('users_acc_info').select('username,eng_name,chi_name').eq('id',nextSession.user.id).maybeSingle();
-   currentProfile=result.data||{username:nextSession.user.user_metadata?.username||''};
+   try{
+    const {data:nextRow,error:nextError}=await client.from('users_acc_info').select('id, username, eng_name, chi_name, role, school, class_codes, class_number').eq('id',nextSession.user.id).maybeSingle();
+    if(nextError)throw nextError;
+    const metadata=nextSession.user.user_metadata||{};
+    currentProfile=nextRow?{username:nextRow.username||'',eng_name:nextRow.eng_name||'',chi_name:nextRow.chi_name||''}:{username:metadata.username||'',eng_name:metadata.eng_name||metadata.engName||'',chi_name:metadata.chi_name||metadata.chiName||''};
+   }catch(e){console.error('Could not refresh Mathcolate profile',e);}
    refreshHeaderName();
   });
  }catch(e){
-  n.textContent='';a.textContent='?';
   console.error('Could not load Mathcolate profile name',e);
+  nameEl.textContent='';avatarEl.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>';
+  avatarEl.classList.remove('bg-[#f2e8e5]','text-[#5c3a18]');avatarEl.classList.add('bg-gray-200','text-gray-600');
  }
 })();
 </script>
