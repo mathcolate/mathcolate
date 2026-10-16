@@ -711,6 +711,7 @@
         const app = {
             idleFallbackActivityAt: {},
             isLoggingOut: false,
+            authReady: false,
 
             lang: 'en',
             view: 'main',
@@ -776,6 +777,7 @@
 
                     dbClient.auth.onAuthStateChange(async (event, session) => {
                         if (event === 'SIGNED_OUT') {
+                            this.authReady = true;
                             this.currentUser = null;
                             this.usersRegistry = {};
                             this.isLoggingOut = false;
@@ -785,11 +787,18 @@
                         } else if (event === 'SIGNED_IN' && session?.user && !this.currentUser) {
                             await this.hydrateFromSession(session.user);
                             this.ensureActivityRecord(session.user.id);
+                            this.authReady = true;
+                            this.updateHeaderDisplay();
                             this.refreshIdleTimer?.();
                         }
                     });
                 }
 
+                this.authReady = true;
+                // Reveal the account area only after session/profile initialization is complete.
+                document.getElementById('user-display-name')?.classList.remove('opacity-0');
+                document.getElementById('user-avatar-guest')?.classList.remove('opacity-0');
+                document.getElementById('user-avatar-logged')?.classList.remove('opacity-0');
                 this.updateHeaderDisplay();
                 const initialView = window.location.hash.replace('#', '') || 'main';
                 this.setView(initialView, false);
@@ -1105,13 +1114,11 @@
             },
 
             updateHeaderDisplay() {
+                // Keep the account area hidden until the initial Supabase session check finishes.
+                if (!this.authReady) return;
                 const nameEl = document.getElementById('user-display-name');
                 const guestAv = document.getElementById('user-avatar-guest');
                 const logAv = document.getElementById('user-avatar-logged');
-                // Reveal the account area only after auth/profile state has been resolved.
-                nameEl.classList.remove('opacity-0');
-                guestAv.classList.remove('opacity-0');
-                logAv.classList.remove('opacity-0');
                 const btnManage = document.getElementById('btn-manage-site');
                 const btnMySchool = document.getElementById('btn-my-school');
 
