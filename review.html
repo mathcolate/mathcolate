@@ -102,10 +102,11 @@
 const SUPABASE_URL='https://stguzuvmnfjxuygbuuij.supabase.co';
 const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0Z3V6dXZtbmZqeHV5Z2J1dWlqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk2MDM5NzAsImV4cCI6MjEwNTE3OTk3MH0.M5In8uBXMnApSBRSayiCY6UpoZf3lzebIjpa_tOw12A";
 const zhText={"title":"複習","subtitle":"按數學課題進行練習，鞏固所學概念。","sectionTitle":"此頁面的主要功能","sectionSub":"此工作區計劃提供的主要功能。","card1Title":"選擇課題","card1Body":"選擇想溫習的數學課題。","card2Title":"練習題目","card2Body":"透過課題練習加深理解。","card3Title":"重溫解題說明","card3Body":"透過答案及解釋了解錯誤。","noticeTitle":"開發備註","noticeBody":"呢個係初步頁面框架，暫時未係完整可用嘅複習系統。"};
-let pageLanguage='en', currentProfile=null, currentRole='';
+let pageLanguage='en', currentProfile=null, currentRole='', headerReady=false;
 const headerText={langBtn:'中文/ENG',loginHeader:'Login',subViewProfile:'View Profile',subManageWebsite:'Manage Website',subMySchool:'My School',subLogout:'Log Out'};
 function getPageName(p){if(!p)return '';return pageLanguage==='zh'?(p.chi_name||p.eng_name||p.username):(p.eng_name||p.chi_name||p.username)||'';}
 function refreshHeader(){
+ if(!headerReady) return;
  const name=getPageName(currentProfile);
  document.getElementById('user-display-name').classList.remove('opacity-0');
  document.getElementById('user-avatar-guest').classList.remove('opacity-0');
@@ -130,7 +131,7 @@ function goToHomeManage(){location.href='index.html#manage';}
 function goToHomeSchool(){location.href='index.html#my-school';}
 async function pageLogout(){try{const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);await client.auth.signOut();}finally{location.href='index.html';}}
 document.addEventListener('click',e=>{const c=document.getElementById('user-menu-container');if(c&&!c.contains(e.target))document.getElementById('user-dropdown').classList.add('hidden');});
-(async function initPageHeader(){try{const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);const {data:{session}}=await client.auth.getSession();if(session){const {data:row}=await client.from('users_acc_info').select('username,eng_name,chi_name,role').eq('id',session.user.id).maybeSingle();const m=session.user.user_metadata||{};currentProfile=row?{username:row.username||'',eng_name:row.eng_name||'',chi_name:row.chi_name||''}:{username:m.username||'',eng_name:m.eng_name||m.engName||'',chi_name:m.chi_name||m.chiName||''};currentRole=row?.role||'';client.auth.onAuthStateChange(async(_event,next)=>{if(!next){currentProfile=null;currentRole='';refreshHeader();return;}const {data:p}=await client.from('users_acc_info').select('username,eng_name,chi_name,role').eq('id',next.user.id).maybeSingle();currentProfile=p||null;currentRole=p?.role||'';refreshHeader();});}refreshHeader();}catch(e){console.error('Header auth initialization failed',e);refreshHeader();}})();
+(async function initPageHeader(){try{const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);const {data:{session}}=await client.auth.getSession();if(session){const {data:row}=await client.from('users_acc_info').select('username,eng_name,chi_name,role').eq('id',session.user.id).maybeSingle();const m=session.user.user_metadata||{};currentProfile=row?{username:row.username||'',eng_name:row.eng_name||'',chi_name:row.chi_name||''}:{username:m.username||'',eng_name:m.eng_name||m.engName||'',chi_name:m.chi_name||m.chiName||''};currentRole=row?.role||'';client.auth.onAuthStateChange(async(_event,next)=>{if(!next){currentProfile=null;currentRole='';refreshHeader();return;}const {data:p}=await client.from('users_acc_info').select('username,eng_name,chi_name,role').eq('id',next.user.id).maybeSingle();currentProfile=p||null;currentRole=p?.role||'';refreshHeader();});}headerReady=true;refreshHeader();}catch(e){console.error('Header auth initialization failed',e);headerReady=true;refreshHeader();}})();
 applyPageLanguage();
 </script>
 </body>
