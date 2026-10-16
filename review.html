@@ -88,34 +88,52 @@
   <script>
 const SUPABASE_URL='https://stguzuvmnfjxuygbuuij.supabase.co';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhbGciOiJIUzI1NiIsInR5cCI6InN0Z3V6dXZtbmZqeHV5Z2J1dWlqIiwicm9sZSI6ImFub24iLCJpYXQiMTc4OTYwMzk3MCwiZXhwIjoyMTA1MTc5OTcwfQ.M5In8uBXMnApSBRSayiCY6UpoZf3lzebIjpa_tOw12A';
-const zhText={"title":"複習","subtitle":"按數學課題進行練習，鞏固所學概念。","eyebrow":"複習工作區","back":"返回首頁","foundation":"已建立頁面框架","overviewTitle":"工作區概覽","overviewSub":"你的數學學習空間","overviewBody":"呢個頁面係初步框架；題目資料及實際操作流程會喺之後嘅開發階段接駁。","progressNote":"目前只有頁面框架，尚未接駁資料","sectionTitle":"此頁面的主要功能","sectionSub":"此工作區計劃提供的主要功能。","card1Title":"選擇課題","card1Body":"選擇想溫習的數學課題。","card2Title":"練習題目","card2Body":"透過課題練習加深理解。","card3Title":"重溫解題說明","card3Body":"透過答案及解釋了解錯誤。","noticeTitle":"開發備註","noticeBody":"呢個係初步頁面框架，暫時未係完整可用嘅複習系統。現有登入及首頁程式碼並無修改。確認頁面結構後，我哋再接駁資料及權限控制。"};
+const zhText={"title":"複習","subtitle":"按數學課題進行練習，鞏固所學概念。","sectionTitle":"此頁面的主要功能","sectionSub":"此工作區計劃提供的主要功能。","card1Title":"選擇課題","card1Body":"選擇想溫習的數學課題。","card2Title":"練習題目","card2Body":"透過課題練習加深理解。","card3Title":"重溫解題說明","card3Body":"透過答案及解釋了解錯誤。","noticeTitle":"開發備註","noticeBody":"呢個係初步頁面框架，暫時未係完整可用嘅複習系統。"};
 let pageLanguage='en';
-function setPageLanguage(lang){
- pageLanguage=lang;document.documentElement.lang=lang==='zh'?'zh-HK':'en';
- document.getElementById('page-language-toggle').textContent='中文/ENG';
- Object.entries(zhText).forEach(([key,value])=>{const el=document.querySelector('[data-i18n="'+key+'"]');if(el){if(!el.dataset.enText)el.dataset.enText=el.textContent;el.textContent=lang==='zh'?value:el.dataset.enText;}});
- refreshHeaderName();
-}
-document.getElementById('page-language-toggle').addEventListener('click',()=>setPageLanguage(pageLanguage==='en'?'zh':'en'));
 let currentProfile=null;
 function refreshHeaderName(){
  const n=document.getElementById('page-user-name'),a=document.getElementById('page-user-avatar');
- if(!currentProfile){n.textContent='';a.textContent='?';return;}
+ if(!currentProfile){n.textContent='Login';a.textContent='?';return;}
  const name=(pageLanguage==='zh'?(currentProfile.chi_name||currentProfile.eng_name||currentProfile.username):(currentProfile.eng_name||currentProfile.chi_name||currentProfile.username))||'';
- n.textContent=name;
- a.textContent=(name.trim().charAt(0)||'?').toUpperCase();
+ n.textContent=name||currentProfile.username||'';
+ a.textContent=((name||currentProfile.username||'?').trim().charAt(0)||'?').toUpperCase();
 }
+function setPageLanguage(lang){
+ pageLanguage=lang;
+ document.documentElement.lang=lang==='zh'?'zh-HK':'en';
+ document.getElementById('page-language-toggle').textContent='中文/ENG';
+ Object.entries(zhText).forEach(([key,value])=>{
+  const el=document.querySelector('[data-i18n="'+key+'"]');
+  if(el){if(!el.dataset.enText)el.dataset.enText=el.textContent;el.textContent=lang==='zh'?value:el.dataset.enText;}
+ });
+ refreshHeaderName();
+}
+document.getElementById('page-language-toggle').addEventListener('click',()=>setPageLanguage(pageLanguage==='en'?'zh':'en'));
 (async function initHeader(){
  const n=document.getElementById('page-user-name'),a=document.getElementById('page-user-avatar');
  try{
   const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-  const {data:{session}}=await client.auth.getSession();
-  if(!session){n.textContent='';a.textContent='?';return;}
-  const {data:profile,error}=await client.from('users_acc_info').select('username,eng_name,chi_name').eq('id',session.user.id).maybeSingle();
-  if(error) throw error;
+  let {data:{session}}=await client.auth.getSession();
+  if(!session){n.textContent='Login';a.textContent='?';return;}
+  let profile=null;
+  for(let attempt=0;attempt<2&&!profile;attempt++){
+   const result=await client.from('users_acc_info').select('username,eng_name,chi_name').eq('id',session.user.id).maybeSingle();
+   if(result.error) throw result.error;
+   profile=result.data;
+   if(!profile&&attempt===0) await new Promise(resolve=>setTimeout(resolve,400));
+  }
   currentProfile=profile||{username:session.user.user_metadata?.username||''};
   refreshHeaderName();
- }catch(e){n.textContent='';a.textContent='?';console.error('Could not load Mathcolate profile name',e);}
+  client.auth.onAuthStateChange(async(_event,nextSession)=>{
+   if(!nextSession){currentProfile=null;refreshHeaderName();return;}
+   const result=await client.from('users_acc_info').select('username,eng_name,chi_name').eq('id',nextSession.user.id).maybeSingle();
+   currentProfile=result.data||{username:nextSession.user.user_metadata?.username||''};
+   refreshHeaderName();
+  });
+ }catch(e){
+  n.textContent='';a.textContent='?';
+  console.error('Could not load Mathcolate profile name',e);
+ }
 })();
 </script>
 </body>
