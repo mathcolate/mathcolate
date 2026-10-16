@@ -49,34 +49,52 @@
 <script>
 const SUPABASE_URL='https://stguzuvmnfjxuygbuuij.supabase.co';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhbGciOiJIUzI1NiIsInR5cCI6InN0Z3V6dXZtbmZqeHV5Z2J1dWlqIiwicm9sZSI6ImFub24iLCJpYXQiMTc4OTYwMzk3MCwiZXhwIjoyMTA1MTc5OTcwfQ.M5In8uBXMnApSBRSayiCY6UpoZf3lzebIjpa_tOw12A';
-const zhText={"title":"線上測驗","subtitle":"進入老師安排的測驗；學生作答進度監察及成績顯示會喺之後開發階段接駁。","sectionTitle":"計劃中的功能","card1Title":"可參與測驗","card1Body":"查看老師安排的測驗。","card2Title":"回答題目","card2Body":"按測驗的時間及作答次數限制完成測驗。","card3Title":"成績及進度","card3Body":"測驗流程完成後可查看成績及進度。","noticeTitle":"開發備註","noticeBody":"呢個係初步頁面框架，暫時未係完整可用嘅測驗系統。現有登入及首頁程式碼並無修改。之後會接駁登入狀態、測驗資料、即時監察及成績分佈。"};
+const zhText={"title":"線上測驗","subtitle":"進入老師安排的測驗；學生作答進度監察及成績顯示會喺之後開發階段接駁。","sectionTitle":"計劃中的功能","sectionSub":"線上測驗工作區計劃提供的主要功能。","card1Title":"可參與測驗","card1Body":"查看老師安排的測驗。","card2Title":"回答題目","card2Body":"按測驗的時間及作答次數限制完成測驗。","card3Title":"成績及進度","card3Body":"測驗流程完成後可查看成績及進度。","noticeTitle":"開發備註","noticeBody":"呢個係初步頁面框架，暫時未係完整可用嘅測驗系統。"};
 let pageLanguage='en';
-function setPageLanguage(lang){
- pageLanguage=lang;document.documentElement.lang=lang==='zh'?'zh-HK':'en';
- document.getElementById('page-language-toggle').textContent='中文/ENG';
- Object.entries(zhText).forEach(([key,value])=>{const el=document.querySelector('[data-i18n="'+key+'"]');if(el){if(!el.dataset.enText)el.dataset.enText=el.textContent;el.textContent=lang==='zh'?value:el.dataset.enText;}});
- refreshHeaderName();
-}
-document.getElementById('page-language-toggle').addEventListener('click',()=>setPageLanguage(pageLanguage==='en'?'zh':'en'));
 let currentProfile=null;
 function refreshHeaderName(){
  const n=document.getElementById('page-user-name'),a=document.getElementById('page-user-avatar');
- if(!currentProfile){n.textContent='';a.textContent='?';return;}
+ if(!currentProfile){n.textContent='Login';a.textContent='?';return;}
  const name=(pageLanguage==='zh'?(currentProfile.chi_name||currentProfile.eng_name||currentProfile.username):(currentProfile.eng_name||currentProfile.chi_name||currentProfile.username))||'';
- n.textContent=name;
- a.textContent=(name.trim().charAt(0)||'?').toUpperCase();
+ n.textContent=name||currentProfile.username||'';
+ a.textContent=((name||currentProfile.username||'?').trim().charAt(0)||'?').toUpperCase();
 }
+function setPageLanguage(lang){
+ pageLanguage=lang;
+ document.documentElement.lang=lang==='zh'?'zh-HK':'en';
+ document.getElementById('page-language-toggle').textContent='中文/ENG';
+ Object.entries(zhText).forEach(([key,value])=>{
+  const el=document.querySelector('[data-i18n="'+key+'"]');
+  if(el){if(!el.dataset.enText)el.dataset.enText=el.textContent;el.textContent=lang==='zh'?value:el.dataset.enText;}
+ });
+ refreshHeaderName();
+}
+document.getElementById('page-language-toggle').addEventListener('click',()=>setPageLanguage(pageLanguage==='en'?'zh':'en'));
 (async function initHeader(){
  const n=document.getElementById('page-user-name'),a=document.getElementById('page-user-avatar');
  try{
   const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-  const {data:{session}}=await client.auth.getSession();
-  if(!session){n.textContent='';a.textContent='?';return;}
-  const {data:profile,error}=await client.from('users_acc_info').select('username,eng_name,chi_name').eq('id',session.user.id).maybeSingle();
-  if(error) throw error;
+  let {data:{session}}=await client.auth.getSession();
+  if(!session){n.textContent='Login';a.textContent='?';return;}
+  let profile=null;
+  for(let attempt=0;attempt<2&&!profile;attempt++){
+   const result=await client.from('users_acc_info').select('username,eng_name,chi_name').eq('id',session.user.id).maybeSingle();
+   if(result.error) throw result.error;
+   profile=result.data;
+   if(!profile&&attempt===0) await new Promise(resolve=>setTimeout(resolve,400));
+  }
   currentProfile=profile||{username:session.user.user_metadata?.username||''};
   refreshHeaderName();
- }catch(e){n.textContent='';a.textContent='?';console.error('Could not load Mathcolate profile name',e);}
+  client.auth.onAuthStateChange(async(_event,nextSession)=>{
+   if(!nextSession){currentProfile=null;refreshHeaderName();return;}
+   const result=await client.from('users_acc_info').select('username,eng_name,chi_name').eq('id',nextSession.user.id).maybeSingle();
+   currentProfile=result.data||{username:nextSession.user.user_metadata?.username||''};
+   refreshHeaderName();
+  });
+ }catch(e){
+  n.textContent='';a.textContent='?';
+  console.error('Could not load Mathcolate profile name',e);
+ }
 })();
 </script>
 </body>
