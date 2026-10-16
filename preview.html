@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#8b5a2b">
+  <title>Preview | Mathcolate</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    .brand-text { color: #5c3a18; }
+    .brand-bg { background: #8b5a2b; }
+    .brand-border { border-color: #f2e8e5; }
+    .soft-panel { background: #fdf8f6; border: 1px solid #f2e8e5; }
+    .feature-card { transition: transform .18s ease, box-shadow .18s ease; }
+    .feature-card:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(92,58,24,.08); }
+  </style>
+</head>
+<body class="min-h-screen bg-gray-50 font-sans text-gray-800 flex flex-col">
+  <header class="sticky top-0 z-20 border-b brand-border bg-white/95 backdrop-blur">
+    <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
+      <a href="index.html" class="flex items-center gap-3 no-underline" aria-label="Mathcolate home">
+        <span class="brand-bg flex h-10 w-10 items-center justify-center rounded-xl text-lg font-bold text-white">M</span>
+        <span><span class="block text-xl font-bold brand-text">Mathcolate</span><span class="block text-xs text-gray-500" data-i18n="portal">Math Learning Portal</span></span>
+      </a>
+      <div class="flex items-center gap-3">
+        <span id="session-status" class="hidden text-sm text-gray-500 sm:inline" data-i18n="checking">Checking session…</span>
+        <button id="language-toggle" type="button" class="rounded-lg px-3 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100" aria-label="Toggle language">中文</button>
+        <a href="index.html" class="rounded-lg border border-[#e6d5ce] px-3 py-2 text-sm font-semibold brand-text hover:bg-[#fdf8f6]" data-i18n="home">Home</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+    <section class="mb-8 overflow-hidden rounded-3xl bg-white shadow-sm border brand-border">
+      <div class="grid gap-8 p-6 sm:p-10 lg:grid-cols-[1.5fr_1fr] lg:items-center">
+        <div>
+          <div class="mb-4 inline-flex items-center gap-2 rounded-full bg-[#fdf8f6] px-3 py-1.5 text-sm font-semibold brand-text">
+            <span aria-hidden="true">📘</span><span data-i18n="eyebrow">Preview Workspace</span>
+          </div>
+          <h1 class="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl" data-i18n="title">Preview</h1>
+          <p class="mt-4 max-w-2xl text-base leading-7 text-gray-600 sm:text-lg" data-i18n="subtitle">Complete preview assignments from your teacher and prepare for upcoming lessons.</p>
+          <div class="mt-6 flex flex-wrap gap-3">
+            <a href="index.html" class="brand-bg rounded-xl px-5 py-3 text-sm font-semibold text-white shadow-sm hover:opacity-90" data-i18n="back">Back to Home</a>
+            <span class="inline-flex items-center rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-500" data-i18n="foundation">Page foundation created</span>
+          </div>
+        </div>
+        <div class="soft-panel rounded-2xl p-6">
+          <div class="mb-3 flex items-center gap-3">
+            <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-white text-2xl shadow-sm">📘</div>
+            <div><h2 class="font-bold text-gray-900" data-i18n="overviewTitle">Workspace overview</h2><p class="text-sm text-gray-500" data-i18n="overviewSub">Your learning space</p></div>
+          </div>
+          <p class="text-sm leading-6 text-gray-600" data-i18n="overviewBody">This page is the starting structure. Question data and activity workflows will be connected in a later development step.</p>
+          <div class="mt-5 h-2 overflow-hidden rounded-full bg-white"><div class="h-full w-1/4 rounded-full brand-bg"></div></div>
+          <p class="mt-2 text-xs text-gray-500" data-i18n="progressNote">Structure only · data connection not yet enabled</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="mb-5">
+        <h2 class="text-xl font-bold text-gray-900" data-i18n="sectionTitle">What you can do here</h2>
+        <p class="mt-1 text-sm text-gray-500" data-i18n="sectionSub">The main areas planned for this workspace.</p>
+      </div>
+      <div class="grid gap-4 md:grid-cols-3">
+        <article class="feature-card rounded-2xl border brand-border bg-white p-5 shadow-sm"><div class="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-[#fdf8f6] text-lg font-bold brand-text">1</div><h3 class="font-bold text-gray-900" data-i18n="card1Title">Assigned preview</h3><p class="mt-2 text-sm leading-6 text-gray-600" data-i18n="card1Body">View preview tasks assigned by your teacher.</p><div class="mt-4 text-xs font-semibold uppercase tracking-wide text-gray-400">Planned feature</div></article><article class="feature-card rounded-2xl border brand-border bg-white p-5 shadow-sm"><div class="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-[#fdf8f6] text-lg font-bold brand-text">2</div><h3 class="font-bold text-gray-900" data-i18n="card2Title">Complete activities</h3><p class="mt-2 text-sm leading-6 text-gray-600" data-i18n="card2Body">Work through the questions and submit your responses.</p><div class="mt-4 text-xs font-semibold uppercase tracking-wide text-gray-400">Planned feature</div></article><article class="feature-card rounded-2xl border brand-border bg-white p-5 shadow-sm"><div class="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-[#fdf8f6] text-lg font-bold brand-text">3</div><h3 class="font-bold text-gray-900" data-i18n="card3Title">Check feedback</h3><p class="mt-2 text-sm leading-6 text-gray-600" data-i18n="card3Body">Review feedback once the assignment workflow is connected.</p><div class="mt-4 text-xs font-semibold uppercase tracking-wide text-gray-400">Planned feature</div></article>
+      </div>
+    </section>
+
+    <section class="mt-8 rounded-2xl border border-dashed border-[#d8c0b4] bg-white p-5 sm:p-6">
+      <div class="flex items-start gap-3">
+        <span class="mt-0.5 text-xl" aria-hidden="true">ℹ️</span>
+        <div><h2 class="font-semibold text-gray-900" data-i18n="noticeTitle">Development note</h2><p class="mt-1 text-sm leading-6 text-gray-600" data-i18n="noticeBody">This is an initial page shell, not a working assignment or test system yet. Existing login and home-page code has not been changed. We will connect the data and permissions after the page structure is reviewed.</p></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="mt-10 border-t brand-border bg-white">
+    <div class="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-5 text-xs text-gray-500 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+      <span>© Mathcolate</span><span data-i18n="footer">Learn mathematics, one step at a time.</span>
+    </div>
+  </footer>
+
+  <script>
+    const SUPABASE_URL = 'https://stguzuvmnfjxuygbuuij.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhbGciOiJIUzI1NiIsInR5cCI6InN0Z3V6dXZtbmZqeHV5Z2J1dWlqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk2MDM5NzAsImV4cCI6MjEwNTE3OTk3MH0.M5In8uBXMnApSBRSayiCY6UpoZf3lzebIjpa_tOw12A';
+    const copy = {
+      en: {
+        portal: 'Math Learning Portal', checking: 'Checking session…', home: 'Home',
+        eyebrow: 'Preview Workspace', title: 'Preview', subtitle: 'Complete preview assignments from your teacher and prepare for upcoming lessons.',
+        back: 'Back to Home', foundation: 'Page foundation created',
+        overviewTitle: 'Workspace overview', overviewSub: 'Your learning space',
+        overviewBody: 'This page is the starting structure. Question data and activity workflows will be connected in a later development step.',
+        progressNote: 'Structure only · data connection not yet enabled',
+        sectionTitle: 'What you can do here', sectionSub: 'The main areas planned for this workspace.',
+        noticeTitle: 'Development note',
+        noticeBody: 'This is an initial page shell, not a working assignment or test system yet. Existing login and home-page code has not been changed. We will connect the data and permissions after the page structure is reviewed.',
+        footer: 'Learn mathematics, one step at a time.',
+        signedIn: 'Signed in', guest: 'No active session detected', sessionError: 'Session check unavailable',
+        card1Title: 'Assigned preview',
+        card1Body: 'View preview tasks assigned by your teacher.',
+        card2Title: 'Complete activities',
+        card2Body: 'Work through the questions and submit your responses.',
+        card3Title: 'Check feedback',
+        card3Body: 'Review feedback once the assignment workflow is connected.'
+      },
+      zh: {
+        portal: '數學學習平台', checking: '正在檢查登入狀態…', home: '首頁',
+        eyebrow: 'Preview 工作區', title: '預習', subtitle: '完成老師派發的預習作業，為課堂做好準備。',
+        back: '返回首頁', foundation: '已建立頁面框架',
+        overviewTitle: '工作區概覽', overviewSub: '你的數學學習空間',
+        overviewBody: '呢個頁面係初步框架；題目資料及實際操作流程會喺之後嘅開發階段接駁。',
+        progressNote: '目前只有頁面框架，尚未接駁資料',
+        sectionTitle: '此頁面的主要功能', sectionSub: '此工作區計劃提供的主要功能。',
+        noticeTitle: '開發備註',
+        noticeBody: '呢個係初步頁面框架，暫時未係完整可用嘅作業或測驗系統。現有登入及首頁程式碼並無修改。確認頁面結構後，我哋再接駁資料及權限控制。',
+        footer: '一步一步，學好數學。',
+        signedIn: '已登入', guest: '未偵測到有效登入狀態', sessionError: '暫時無法檢查登入狀態',
+        card1Title: '已派發預習',
+        card1Body: '查看老師派發的預習作業。',
+        card2Title: '完成活動',
+        card2Body: '逐題完成問題並提交答案。',
+        card3Title: '查看回饋',
+        card3Body: '接駁作業流程後可查看老師回饋。'
+      }
+    };
+    let language = 'en';
+    function applyLanguage() {
+      document.documentElement.lang = language === 'zh' ? 'zh-HK' : 'en';
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const value = copy[language][el.dataset.i18n];
+        if (value) el.textContent = value;
+      });
+      document.getElementById('language-toggle').textContent = language === 'en' ? '中文' : 'English';
+    }
+    document.getElementById('language-toggle').addEventListener('click', () => {
+      language = language === 'en' ? 'zh' : 'en';
+      applyLanguage();
+    });
+    (async function checkSession() {
+      const status = document.getElementById('session-status');
+      try {
+        const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const { data, error } = await client.auth.getSession();
+        if (error) throw error;
+        status.textContent = data.session ? copy[language].signedIn : copy[language].guest;
+      } catch (e) {
+        status.textContent = copy[language].sessionError;
+      }
+    })();
+    applyLanguage();
+  </script>
+</body>
+</html>
