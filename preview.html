@@ -23,17 +23,30 @@
 <body class="min-h-screen bg-gray-50 font-sans text-gray-800">
   <header class="bg-white shadow-sm border-b border-[#f2e8e5] sticky top-0 z-40">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-    <a href="index.html" class="flex items-center space-x-3 no-underline">
-      <span class="bg-[#8b5a2b] text-white p-2 rounded-lg flex items-center justify-center">
+    <a href="index.html" class="flex items-center space-x-3 cursor-pointer no-underline">
+      <div class="bg-[#8b5a2b] text-white p-2 rounded-lg">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-      </span>
-      <span class="text-2xl font-bold text-[#5c3a18] tracking-tight">Mathcolate</span>
+      </div>
+      <h1 class="text-2xl font-bold text-[#5c3a18] tracking-tight">Mathcolate</h1>
     </a>
     <div class="flex items-center space-x-2 sm:space-x-4">
-      <button id="page-language-toggle" type="button" class="text-sm font-semibold text-gray-500 hover:text-[#6f4822] transition-colors px-2 py-1 rounded-md hover:bg-gray-100">中文/ENG</button>
-      <div class="flex items-center gap-3 p-2">
-        <span id="page-user-name" class="text-sm font-medium text-gray-500">...</span>
-        <span id="page-user-avatar" class="h-8 w-8 rounded-full bg-[#f2e8e5] flex items-center justify-center text-[#5c3a18] font-bold">?</span>
+      <button onclick="togglePageLanguage()" class="text-sm font-semibold text-gray-500 hover:text-[#6f4822] transition-colors focus:outline-none px-2 py-1 rounded-md hover:bg-gray-100" data-i18n="langBtn">中文/ENG</button>
+      <div class="relative inline-block text-left" id="user-menu-container">
+        <button id="user-btn" onclick="togglePageUserMenu()" class="flex items-center space-x-4 hover:bg-gray-100 p-2 -mr-2 rounded-xl transition-colors focus:outline-none cursor-pointer">
+          <span id="user-display-name" class="text-sm font-medium text-gray-500">Login</span>
+          <div id="user-avatar-guest" class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-bold">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+          </div>
+          <div id="user-avatar-logged" class="hidden h-8 w-8 rounded-full bg-[#f2e8e5] flex items-center justify-center text-[#5c3a18] font-bold">A</div>
+        </button>
+        <div id="user-dropdown" class="hidden origin-top-right absolute right-0 mt-2 w-48 rounded-xl shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 z-50">
+          <div class="py-1">
+            <button onclick="goToHomeProfile()" class="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"><span data-i18n="subViewProfile">View Profile</span></button>
+            <button id="btn-manage-site" onclick="goToHomeManage()" class="hidden w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"><span data-i18n="subManageWebsite">Manage Website</span></button>
+            <button id="btn-my-school" onclick="goToHomeSchool()" class="hidden w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"><span data-i18n="subMySchool">My School</span></button>
+            <button onclick="pageLogout()" class="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center space-x-2"><span data-i18n="subLogout">Log Out</span></button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -87,62 +100,35 @@
 
   <script>
 const SUPABASE_URL='https://stguzuvmnfjxuygbuuij.supabase.co';
-const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhbGciOiJIUzI1NiIsInR5cCI6InN0Z3V6dXZtbmZqeHV5Z2J1dWlqIiwicm9sZSI6ImFub24iLCJpYXQiMTc4OTYwMzk3MCwiZXhwIjoyMTA1MTc5OTcwfQ.M5In8uBXMnApSBRSayiCY6UpoZf3lzebIjpa_tOw12A';
+const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhbGciOiJIUzI1NiIsInR5cCI6InN0Z3V6dXZtbmZqeHV5Z2J1dWlqIiwicm9sZSI6IjxSECRET>eyJzdWIiOiIifQ';
 const zhText={"title":"預習","subtitle":"完成老師派發的預習作業，為課堂做好準備。","sectionTitle":"此頁面的主要功能","sectionSub":"此工作區計劃提供的主要功能。","card1Title":"已派發預習","card1Body":"查看老師派發的預習作業。","card2Title":"完成活動","card2Body":"逐題完成問題並提交答案。","card3Title":"查看回饋","card3Body":"接駁作業流程後可查看老師回饋。","noticeTitle":"開發備註","noticeBody":"呢個係初步頁面框架，暫時未係完整可用嘅作業系統。"};
-let pageLanguage='en', currentProfile=null;
-function getUserDisplayName(profile){
- if(!profile)return '';
- const chi=profile.chi_name||profile.chiName||'';
- const eng=profile.eng_name||profile.engName||'';
- const username=profile.username||'';
- return pageLanguage==='zh'?(chi||eng||username):(eng||chi||username);
+let pageLanguage='en', currentProfile=null, currentRole='';
+const headerText={langBtn:'中文/ENG',loginHeader:'Login',subViewProfile:'View Profile',subManageWebsite:'Manage Website',subMySchool:'My School',subLogout:'Log Out'};
+function getPageName(p){if(!p)return '';return pageLanguage==='zh'?(p.chi_name||p.eng_name||p.username):(p.eng_name||p.chi_name||p.username)||'';}
+function refreshHeader(){
+ const name=getPageName(currentProfile);
+ document.getElementById('user-display-name').textContent=currentProfile?(name||currentProfile.username||''):(pageLanguage==='zh'?'登入':'Login');
+ document.getElementById('user-avatar-guest').classList.toggle('hidden',!!currentProfile);
+ document.getElementById('user-avatar-logged').classList.toggle('hidden',!currentProfile);
+ document.getElementById('user-avatar-logged').textContent=currentProfile?((name||currentProfile.username||'').trim().charAt(0)||'').toUpperCase():'';
+ document.getElementById('btn-manage-site').classList.toggle('hidden',currentRole!=='admin');
+ document.getElementById('btn-my-school').classList.toggle('hidden',!['teacher','admin'].includes(currentRole));
 }
-function refreshHeaderName(){
- const nameEl=document.getElementById('page-user-name'),avatarEl=document.getElementById('page-user-avatar');
- const name=getUserDisplayName(currentProfile);
- if(!currentProfile){nameEl.textContent='Login';avatarEl.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>';avatarEl.classList.remove('bg-[#f2e8e5]','text-[#5c3a18]');avatarEl.classList.add('bg-gray-200','text-gray-600');return;}
- nameEl.textContent=name;
- avatarEl.textContent=(name.trim().charAt(0)||'').toUpperCase();
- avatarEl.classList.remove('bg-gray-200','text-gray-600');avatarEl.classList.add('bg-[#f2e8e5]','text-[#5c3a18]');
+function applyPageLanguage(){
+ document.documentElement.lang=pageLanguage==='zh'?'zh-HK':'en';
+ document.querySelectorAll('[data-i18n]').forEach(el=>{const key=el.dataset.i18n;if(headerText[key])el.textContent=pageLanguage==='zh'?({'langBtn':'中文/ENG','loginHeader':'登入','subViewProfile':'查看個人資料','subManageWebsite':'管理網站','subMySchool':'我的學校','subLogout':'登出'}[key]):headerText[key];});
+ Object.entries(zhText).forEach(([key,value])=>{const el=document.querySelector('[data-i18n="'+key+'"]');if(el){if(!el.dataset.enText)el.dataset.enText=el.textContent;el.textContent=pageLanguage==='zh'?value:el.dataset.enText;}});
+ refreshHeader();
 }
-function setPageLanguage(lang){
- pageLanguage=lang;
- document.documentElement.lang=lang==='zh'?'zh-HK':'en';
- Object.entries(zhText).forEach(([key,value])=>{const el=document.querySelector('[data-i18n="'+key+'"]');if(el){if(!el.dataset.enText)el.dataset.enText=el.textContent;el.textContent=lang==='zh'?value:el.dataset.enText;}});
- refreshHeaderName();
-}
-document.getElementById('page-language-toggle').addEventListener('click',()=>setPageLanguage(pageLanguage==='en'?'zh':'en'));
-(async function initHeader(){
- const nameEl=document.getElementById('page-user-name'),avatarEl=document.getElementById('page-user-avatar');
- try{
-  const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-  const {data:{session},error:sessionError}=await client.auth.getSession();
-  if(sessionError)throw sessionError;
-  if(!session){currentProfile=null;refreshHeaderName();return;}
-  const {data:row,error}=await client.from('users_acc_info').select('id, username, eng_name, chi_name, role, school, class_codes, class_number').eq('id',session.user.id).maybeSingle();
-  if(error)throw error;
-  if(row){currentProfile={username:row.username||'',eng_name:row.eng_name||'',chi_name:row.chi_name||''};}
-  else {
-   const metadata=session.user.user_metadata||{};
-   currentProfile={username:metadata.username||'',eng_name:metadata.eng_name||metadata.engName||'',chi_name:metadata.chi_name||metadata.chiName||''};
-  }
-  refreshHeaderName();
-  client.auth.onAuthStateChange(async(_event,nextSession)=>{
-   if(!nextSession){currentProfile=null;refreshHeaderName();return;}
-   try{
-    const {data:nextRow,error:nextError}=await client.from('users_acc_info').select('id, username, eng_name, chi_name, role, school, class_codes, class_number').eq('id',nextSession.user.id).maybeSingle();
-    if(nextError)throw nextError;
-    const metadata=nextSession.user.user_metadata||{};
-    currentProfile=nextRow?{username:nextRow.username||'',eng_name:nextRow.eng_name||'',chi_name:nextRow.chi_name||''}:{username:metadata.username||'',eng_name:metadata.eng_name||metadata.engName||'',chi_name:metadata.chi_name||metadata.chiName||''};
-   }catch(e){console.error('Could not refresh Mathcolate profile',e);}
-   refreshHeaderName();
-  });
- }catch(e){
-  console.error('Could not load Mathcolate profile name',e);
-  nameEl.textContent='';avatarEl.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>';
-  avatarEl.classList.remove('bg-[#f2e8e5]','text-[#5c3a18]');avatarEl.classList.add('bg-gray-200','text-gray-600');
- }
-})();
+function togglePageLanguage(){pageLanguage=pageLanguage==='en'?'zh':'en';applyPageLanguage();}
+function togglePageUserMenu(){document.getElementById('user-dropdown').classList.toggle('hidden');}
+function goToHomeProfile(){location.href='index.html';}
+function goToHomeManage(){location.href='index.html';}
+function goToHomeSchool(){location.href='index.html';}
+async function pageLogout(){try{const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);await client.auth.signOut();}finally{location.href='index.html';}}
+document.addEventListener('click',e=>{const c=document.getElementById('user-menu-container');if(c&&!c.contains(e.target))document.getElementById('user-dropdown').classList.add('hidden');});
+(async function initPageHeader(){try{const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);const {data:{session}}=await client.auth.getSession();if(session){const {data:row}=await client.from('users_acc_info').select('username,eng_name,chi_name,role').eq('id',session.user.id).maybeSingle();const m=session.user.user_metadata||{};currentProfile=row?{username:row.username||'',eng_name:row.eng_name||'',chi_name:row.chi_name||''}:{username:m.username||'',eng_name:m.eng_name||m.engName||'',chi_name:m.chi_name||m.chiName||''};currentRole=row?.role||'';client.auth.onAuthStateChange(async(_event,next)=>{if(!next){currentProfile=null;currentRole='';refreshHeader();return;}const {data:p}=await client.from('users_acc_info').select('username,eng_name,chi_name,role').eq('id',next.user.id).maybeSingle();currentProfile=p||null;currentRole=p?.role||'';refreshHeader();});}refreshHeader();}catch(e){console.error('Header auth initialization failed',e);refreshHeader();}})();
+applyPageLanguage();
 </script>
 </body>
 </html>
