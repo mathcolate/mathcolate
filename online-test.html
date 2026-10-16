@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Online Test | Mathcolate</title>
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     .brand-text { color: #5c3a18; }
@@ -20,68 +21,11 @@
 </head>
 <body class="min-h-screen bg-gray-50 font-sans text-gray-800">
 <header class="bg-white shadow-sm border-b border-[#f2e8e5] sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-            <div class="flex items-center space-x-3 cursor-pointer" onclick="app.setView('main')">
-                <div class="bg-[#8b5a2b] text-white p-2 rounded-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                    </svg>
-                </div>
-                <h1 class="text-2xl font-bold text-[#5c3a18] tracking-tight">Mathcolate</h1>
-            </div>
-            
-            <div class="flex items-center space-x-2 sm:space-x-4">
-                <button onclick="app.toggleLanguage()" class="text-sm font-semibold text-gray-500 hover:text-[#6f4822] transition-colors focus:outline-none px-2 py-1 rounded-md hover:bg-gray-100" data-i18n="langBtn">
-                    中文/ENG
-                </button>
-                
-                <div class="relative inline-block text-left" id="user-menu-container">
-                    <button id="user-btn" onclick="app.toggleUserMenu()" class="flex items-center space-x-4 hover:bg-gray-100 p-2 -mr-2 rounded-xl transition-colors focus:outline-none cursor-pointer">
-                        <span id="user-display-name" class="text-sm font-medium text-gray-500" data-i18n="loginHeader"> Login</span>
-                        
-                        <div id="user-avatar-guest" class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-bold">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                        <div id="user-avatar-logged" class="hidden h-8 w-8 rounded-full bg-[#f2e8e5] flex items-center justify-center text-[#5c3a18] font-bold">
-                            A
-                        </div>
-                    </button>
-                    
-                    <div id="user-dropdown" class="hidden origin-top-right absolute right-0 mt-2 w-48 rounded-xl shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 z-50">
-                        <div class="py-1">
-                            <button onclick="app.handleViewProfile()" class="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                </svg>
-                                <span data-i18n="subViewProfile">View Profile</span>
-                            </button>
-                            <button id="btn-manage-site" onclick="app.setView('manage')" class="hidden w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                </svg>
-                                <span data-i18n="subManageWebsite">Manage Website</span>
-                            </button>
-                            <button id="btn-my-school" onclick="app.setView('my-school')" class="hidden w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0h4m-4 0v-4a1 1 0 011-1h2a1 1 0 011 1v4m-4 0h4" />
-                                </svg>
-                                <span data-i18n="subMySchool">My School</span>
-                            </button>
-                            <button onclick="app.handleLogout()" class="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center space-x-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                                </svg>
-                                <span data-i18n="subLogout">Log Out</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+    <a href="index.html" class="flex items-center space-x-3 no-underline"><span class="bg-[#8b5a2b] text-white p-2 rounded-lg flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg></span><span class="text-2xl font-bold text-[#5c3a18] tracking-tight">Mathcolate</span></a>
+    <div class="flex items-center space-x-2 sm:space-x-4"><button id="page-language-toggle" type="button" class="text-sm font-semibold text-gray-500 hover:text-[#6f4822] transition-colors px-2 py-1 rounded-md hover:bg-gray-100">中文/ENG</button><div class="flex items-center gap-3 p-2"><span id="page-user-name" class="text-sm font-medium text-gray-500">...</span><span id="page-user-avatar" class="h-8 w-8 rounded-full bg-[#f2e8e5] flex items-center justify-center text-[#5c3a18] font-bold">?</span></div></div>
+  </div>
+</header>
 <main class="max-w-6xl mx-auto p-6 md:p-10">
 <section class="bg-white rounded-2xl border border-gray-200 p-8">
 <p class="text-sm font-semibold brand">ONLINE TEST WORKSPACE</p>
@@ -102,5 +46,13 @@
 <p class="text-sm text-gray-600 mt-2">This is a page scaffold, not a working test system. Existing home-page and login code has not been changed. Session integration and data permissions will be added after review.</p>
 </section>
 </main>
+<script>
+const SUPABASE_URL='https://stguzuvmnfjxuygbuuij.supabase.co';
+const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhbGciOiJIUzI1NiIsInR5cCI6InN0Z3V6dXZtbmZqeHV5Z2J1dWlqIiwicm9sZSI6ImFub24iLCJpYXQiMTc4OTYwMzk3MCwiZXhwIjoyMTA1MTc5OTcwfQ.M5In8uBXMnApSBRSayiCY6UpoZf3lzebIjpa_tOw12A';
+const zhText={"title":"線上測驗","subtitle":"進入老師安排的測驗；學生作答進度監察及成績顯示會喺之後開發階段接駁。","sectionTitle":"計劃中的功能","card1Title":"可參與測驗","card1Body":"查看老師安排的測驗。","card2Title":"回答題目","card2Body":"按測驗的時間及作答次數限制完成測驗。","card3Title":"成績及進度","card3Body":"測驗流程完成後可查看成績及進度。","noticeTitle":"開發備註","noticeBody":"呢個係初步頁面框架，暫時未係完整可用嘅測驗系統。現有登入及首頁程式碼並無修改。之後會接駁登入狀態、測驗資料、即時監察及成績分佈。"};let pageLanguage='en';
+function setPageLanguage(lang){pageLanguage=lang;document.documentElement.lang=lang==='zh'?'zh-HK':'en';document.getElementById('page-language-toggle').textContent=lang==='en'?'中文/ENG':'ENG/中文';Object.entries(zhText).forEach(([key,value])=>{const el=document.querySelector('[data-i18n="'+key+'"]');if(el){if(!el.dataset.enText)el.dataset.enText=el.textContent;el.textContent=lang==='zh'?value:el.dataset.enText;}});}
+document.getElementById('page-language-toggle').addEventListener('click',()=>setPageLanguage(pageLanguage==='en'?'zh':'en'));
+(async()=>{const n=document.getElementById('page-user-name'),a=document.getElementById('page-user-avatar');try{const c=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);const {data:{session}}=await c.auth.getSession();if(!session){n.textContent='Login';a.textContent='?';return;}const {data:p}=await c.from('users_acc_info').select('username,eng_name,chi_name').eq('id',session.user.id).maybeSingle();const name=(p&&(p.eng_name||p.chi_name||p.username))||session.user.email||'User';n.textContent=name;a.textContent=name.trim().charAt(0).toUpperCase();}catch(e){n.textContent='User';a.textContent='U';}})();
+</script>
 </body>
 </html>
