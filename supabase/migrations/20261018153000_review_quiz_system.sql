@@ -284,8 +284,8 @@ begin
     join public.review_attempt_questions aq on aq.attempt_id=p_attempt_id and aq.question_id=x.question_id
     where x.selected_option is not null
       and not exists (
-        select 1 from jsonb_array_elements(aq.options_snapshot) opt
-        where coalesce(opt->>'key', opt->>'value') = x.selected_option
+        select 1 from jsonb_array_elements(aq.options_snapshot) with ordinality as opt(value, ordinality)
+        where coalesce(opt.value->>'key', opt.value->>'value', chr(64 + opt.ordinality::integer)) = x.selected_option
       )
   ) then raise exception 'Invalid option selected'; end if;
 
