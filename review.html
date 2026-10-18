@@ -52,53 +52,52 @@
   </div>
 </header>
 
-  <main class="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
-    <section class="mb-8 overflow-hidden rounded-3xl bg-white shadow-sm border brand-border">
-      <div class="grid gap-8 p-6 sm:p-10 lg:grid-cols-[1.5fr_1fr] lg:items-center">
-        <div>
-          <div class="mb-4 inline-flex items-center gap-2 rounded-full bg-[#fdf8f6] px-3 py-1.5 text-sm font-semibold brand-text">
-            <span aria-hidden="true">🔁</span><span data-i18n="eyebrow">Review Workspace</span>
-          </div>
-          <h1 class="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl" data-i18n="title">Review</h1>
-          <p class="mt-4 max-w-2xl text-base leading-7 text-gray-600 sm:text-lg" data-i18n="subtitle">Complete review assignments from your teacher and prepare for upcoming lessons.</p>
-          <div class="mt-6 flex flex-wrap gap-3">
-            <a href="index.html" class="brand-bg rounded-xl px-5 py-3 text-sm font-semibold text-white shadow-sm hover:opacity-90" data-i18n="back">Back to Home</a>
-            <span class="inline-flex items-center rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-500" data-i18n="foundation">Page foundation created</span>
+  <main class="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+    <section class="mb-8 rounded-3xl border brand-border bg-white p-6 shadow-sm sm:p-8">
+      <div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+        <div><div class="mb-2 inline-flex rounded-full bg-[#fdf8f6] px-3 py-1 text-sm font-semibold brand-text">🔁 <span>Review Workspace</span></div>
+          <h1 class="text-3xl font-extrabold tracking-tight text-gray-900" data-i18n="title">Review</h1>
+          <p class="mt-2 max-w-2xl text-gray-600" data-i18n="subtitle">Practise mathematics topics, check your performance, and learn from explanations.</p></div>
+        <a href="index.html" class="inline-flex shrink-0 justify-center rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50" data-i18n="back">Back to Home</a>
+      </div>
+    </section>
+    <div class="grid gap-8 lg:grid-cols-[minmax(0,1.65fr)_minmax(280px,0.85fr)]">
+      <section class="space-y-6">
+        <div class="rounded-2xl border brand-border bg-white p-5 shadow-sm sm:p-6">
+          <div class="mb-4 flex items-center justify-between gap-3"><div><p class="text-xs font-bold uppercase tracking-widest text-gray-400">01</p><h2 class="mt-1 text-xl font-bold text-gray-900" data-i18n="chooseType">Choose question type</h2></div><span class="rounded-full bg-green-50 px-3 py-1 text-xs font-semibold text-green-700" data-i18n="availableNow">Available now</span></div>
+          <div class="grid gap-3 sm:grid-cols-2">
+            <button type="button" id="type-mc" class="rounded-xl border-2 border-[#8b5a2b] bg-[#fdf8f6] p-4 text-left" aria-pressed="true"><span class="block font-bold text-gray-900">MC</span><span class="mt-1 block text-sm text-gray-600" data-i18n="mcDesc">Multiple Choice Questions</span><span class="mt-3 inline-flex rounded-full bg-white px-2.5 py-1 text-xs font-semibold brand-text" data-i18n="selected">Selected</span></button>
+            <button type="button" class="cursor-not-allowed rounded-xl border border-gray-200 bg-gray-50 p-4 text-left opacity-65" disabled><span class="block font-bold text-gray-500">SQ</span><span class="mt-1 block text-sm text-gray-500" data-i18n="sqDesc">Structural Questions</span><span class="mt-3 inline-flex rounded-full bg-gray-200 px-2.5 py-1 text-xs font-semibold text-gray-500" data-i18n="comingLater">Coming later</span></button>
           </div>
         </div>
-        <div class="soft-panel rounded-2xl p-6">
-          <div class="mb-3 flex items-center gap-3">
-            <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-white text-2xl shadow-sm">🔁</div>
-            <div><h2 class="font-bold text-gray-900" data-i18n="overviewTitle">Workspace overview</h2><p class="text-sm text-gray-500" data-i18n="overviewSub">Your learning space</p></div>
-          </div>
-          <p class="text-sm leading-6 text-gray-600" data-i18n="overviewBody">This page is the starting structure. Question data and activity workflows will be connected in a later development step.</p>
-          <div class="mt-5 h-2 overflow-hidden rounded-full bg-white"><div class="h-full w-1/4 rounded-full brand-bg"></div></div>
-          <p class="mt-2 text-xs text-gray-500" data-i18n="progressNote">Structure only · data connection not yet enabled</p>
+        <div class="rounded-2xl border brand-border bg-white p-5 shadow-sm sm:p-6">
+          <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><p class="text-xs font-bold uppercase tracking-widest text-gray-400">02</p><h2 class="mt-1 text-xl font-bold text-gray-900" data-i18n="chooseTopics">Choose topics</h2><p class="mt-1 text-sm text-gray-500" data-i18n="topicsHint">Open any topic and pick as many subtopics as you like.</p></div><button id="clear-topics" type="button" class="text-sm font-semibold brand-text hover:underline" data-i18n="clearAll">Clear all</button></div>
+          <div class="mb-4 flex flex-wrap items-center gap-2"><span id="selected-count" class="rounded-full bg-[#fdf8f6] px-3 py-1.5 text-sm font-semibold brand-text">0 selected</span><span class="text-xs text-gray-500" data-i18n="topicCountNote">Subtopics can be mixed across main topics.</span></div>
+          <div id="topic-menu" class="space-y-2"><p class="text-sm text-gray-500">Loading topics…</p></div><div id="selected-topic-chips" class="mt-4 flex flex-wrap gap-2"></div>
         </div>
-      </div>
-    </section>
-
-    <section>
-      <div class="mb-5">
-        <h2 class="text-xl font-bold text-gray-900" data-i18n="sectionTitle">What you can do here</h2>
-        <p class="mt-1 text-sm text-gray-500" data-i18n="sectionSub">The main areas planned for this workspace.</p>
-      </div>
-      <div class="grid gap-4 md:grid-cols-3">
-        <article class="feature-card rounded-2xl border brand-border bg-white p-5 shadow-sm"><div class="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-[#fdf8f6] text-lg font-bold brand-text">1</div><h3 class="font-bold text-gray-900" data-i18n="card1Title">Choose a topic</h3><p class="mt-2 text-sm leading-6 text-gray-600" data-i18n="card1Body">Choose a mathematics topic to practise.</p><div class="mt-4 text-xs font-semibold uppercase tracking-wide text-gray-400">Planned feature</div></article><article class="feature-card rounded-2xl border brand-border bg-white p-5 shadow-sm"><div class="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-[#fdf8f6] text-lg font-bold brand-text">2</div><h3 class="font-bold text-gray-900" data-i18n="card2Title">Practise questions</h3><p class="mt-2 text-sm leading-6 text-gray-600" data-i18n="card2Body">Build confidence through topic-based practice.</p><div class="mt-4 text-xs font-semibold uppercase tracking-wide text-gray-400">Planned feature</div></article><article class="feature-card rounded-2xl border brand-border bg-white p-5 shadow-sm"><div class="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-[#fdf8f6] text-lg font-bold brand-text">3</div><h3 class="font-bold text-gray-900" data-i18n="card3Title">Review explanations</h3><p class="mt-2 text-sm leading-6 text-gray-600" data-i18n="card3Body">Use answers and explanations to learn from mistakes.</p><div class="mt-4 text-xs font-semibold uppercase tracking-wide text-gray-400">Planned feature</div></article>
-      </div>
-    </section>
-
-    <section class="mt-8 rounded-2xl border border-dashed border-[#d8c0b4] bg-white p-5 sm:p-6">
-      <div class="flex items-start gap-3">
-        <span class="mt-0.5 text-xl" aria-hidden="true">ℹ️</span>
-        <div><h2 class="font-semibold text-gray-900" data-i18n="noticeTitle">Development note</h2><p class="mt-1 text-sm leading-6 text-gray-600" data-i18n="noticeBody">This is an initial page shell, not a working assignment or test system yet. Existing login and home-page code has not been changed. We will connect the data and permissions after the page structure is reviewed.</p></div>
-      </div>
-    </section>
+        <div class="rounded-2xl border brand-border bg-white p-5 shadow-sm sm:p-6">
+          <div class="mb-4"><p class="text-xs font-bold uppercase tracking-widest text-gray-400">03</p><h2 class="mt-1 text-xl font-bold text-gray-900" data-i18n="chooseLevel">Choose level</h2><p class="mt-1 text-sm text-gray-500" data-i18n="levelHint">Choose one level for each quiz.</p></div>
+          <div class="grid gap-3 sm:grid-cols-2"><label class="flex cursor-pointer gap-3 rounded-xl border-2 border-[#8b5a2b] bg-[#fdf8f6] p-4" id="level1-card"><input class="mt-1 accent-[#8b5a2b]" type="radio" name="review-level" value="1" checked><span><span class="block font-bold">Level 1</span><span class="mt-1 block text-sm text-gray-600" data-i18n="level1Desc">Basic Questions</span></span></label><label class="flex cursor-pointer gap-3 rounded-xl border border-gray-200 p-4" id="level2-card"><input class="mt-1 accent-[#8b5a2b]" type="radio" name="review-level" value="2"><span><span class="block font-bold">Level 2</span><span class="mt-1 block text-sm text-gray-600" data-i18n="level2Desc">Public Exam Questions</span></span></label></div>
+        </div>
+        <div class="rounded-2xl border brand-border bg-white p-5 shadow-sm sm:p-6">
+          <div class="mb-4"><p class="text-xs font-bold uppercase tracking-widest text-gray-400">04</p><h2 class="mt-1 text-xl font-bold text-gray-900" data-i18n="chooseCount">Choose number of questions</h2><p class="mt-1 text-sm text-gray-500" data-i18n="countHint">Choose your practice length.</p></div>
+          <div id="question-counts" class="grid grid-cols-4 gap-2 sm:grid-cols-8"></div>
+          <div class="mt-6 flex flex-col gap-3 border-t border-gray-100 pt-5 sm:flex-row sm:items-center sm:justify-between"><p id="start-hint" class="text-sm text-gray-500" data-i18n="startHint">Select at least one subtopic to continue.</p><button id="start-quiz" type="button" class="brand-bg rounded-xl px-6 py-3 font-semibold text-white shadow-sm transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40" disabled data-i18n="startQuiz">Start Quiz</button></div>
+          <div id="start-message" class="mt-4 hidden rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900" role="status"></div>
+        </div>
+      </section>
+      <aside class="space-y-6">
+        <section class="rounded-2xl border brand-border bg-white p-5 shadow-sm sm:p-6"><div class="flex items-center justify-between gap-3"><div><h2 class="text-lg font-bold text-gray-900" data-i18n="recentTitle">Recent quizzes</h2><p class="mt-1 text-sm text-gray-500" data-i18n="recentHint">Review your previous attempts.</p></div><span class="text-xl" aria-hidden="true">🕘</span></div>
+          <label for="recent-limit" class="mt-5 block text-sm font-medium text-gray-700" data-i18n="showRecent">Show recent</label><select id="recent-limit" class="mt-2 w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm"><option value="5">5 quizzes</option><option value="10">10 quizzes</option><option value="15">15 quizzes</option><option value="20">20 quizzes</option></select>
+          <div id="recent-list" class="mt-4 space-y-3"><p class="text-sm text-gray-500">Loading…</p></div><p class="mt-4 text-xs leading-5 text-gray-400" data-i18n="recentNote">Only submitted quizzes will appear here. Each retry is saved as a separate attempt.</p>
+        </section>
+        <section class="rounded-2xl border border-dashed border-[#d8c0b4] bg-[#fdf8f6] p-5"><h3 class="font-bold brand-text" data-i18n="afterQuizTitle">After your quiz</h3><ul class="mt-3 space-y-2 text-sm leading-6 text-gray-700"><li class="flex gap-2"><span>✓</span><span data-i18n="after1">See your score, such as 8/10.</span></li><li class="flex gap-2"><span>✓</span><span data-i18n="after2">Review your answer and the correct answer.</span></li><li class="flex gap-2"><span>✓</span><span data-i18n="after3">Read AI-generated explanations for each question.</span></li></ul></section>
+      </aside>
+    </div>
+    <div id="quiz-stage" class="mt-8 hidden"></div>
   </main>
 
-  
-
-  <script>
+    <script>
 const SUPABASE_URL='https://stguzuvmnfjxuygbuuij.supabase.co';
 const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0Z3V6dXZtbmZqeHV5Z2J1dWlqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk2MDM5NzAsImV4cCI6MjEwNTE3OTk3MH0.M5In8uBXMnApSBRSayiCY6UpoZf3lzebIjpa_tOw12A";
 const zhText={"title":"複習","subtitle":"按數學課題進行練習，鞏固所學概念。","sectionTitle":"此頁面的主要功能","sectionSub":"此工作區計劃提供的主要功能。","card1Title":"選擇課題","card1Body":"選擇想溫習的數學課題。","card2Title":"練習題目","card2Body":"透過課題練習加深理解。","card3Title":"重溫解題說明","card3Body":"透過答案及解釋了解錯誤。","noticeTitle":"開發備註","noticeBody":"呢個係初步頁面框架，暫時未係完整可用嘅複習系統。"};
@@ -134,6 +133,119 @@ async function pageLogout(){try{const client=window.supabase.createClient(SUPABA
 document.addEventListener('click',e=>{const c=document.getElementById('user-menu-container');if(c&&!c.contains(e.target))document.getElementById('user-dropdown').classList.add('hidden');});
 (async function initPageHeader(){try{const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);const {data:{session}}=await client.auth.getSession();if(session){const {data:row}=await client.from('users_acc_info').select('username,eng_name,chi_name,role').eq('id',session.user.id).maybeSingle();const m=session.user.user_metadata||{};currentProfile=row?{username:row.username||'',eng_name:row.eng_name||'',chi_name:row.chi_name||''}:{username:m.username||'',eng_name:m.eng_name||m.engName||'',chi_name:m.chi_name||m.chiName||''};currentRole=row?.role||'';client.auth.onAuthStateChange(async(_event,next)=>{if(!next){currentProfile=null;currentRole='';refreshHeader();return;}const {data:p}=await client.from('users_acc_info').select('username,eng_name,chi_name,role').eq('id',next.user.id).maybeSingle();currentProfile=p||null;currentRole=p?.role||'';refreshHeader();});}headerReady=true;refreshHeader();}catch(e){console.error('Header auth initialization failed',e);headerReady=true;refreshHeader();}})();
 applyPageLanguage();
+
+const reviewI18n = {
+en:{chooseType:'Choose question type',availableNow:'Available now',mcDesc:'Multiple Choice Questions',selected:'Selected',sqDesc:'Structural Questions',comingLater:'Coming later',chooseTopics:'Choose topics',topicsHint:'Open any topic and pick as many subtopics as you like.',clearAll:'Clear all',topicCountNote:'Subtopics can be mixed across main topics.',chooseLevel:'Choose level',levelHint:'Choose one level for each quiz.',level1Desc:'Basic Questions',level2Desc:'Public Exam Questions',chooseCount:'Choose number of questions',countHint:'Choose your practice length.',startHint:'Select at least one subtopic to continue.',startQuiz:'Start Quiz',recentTitle:'Recent quizzes',recentHint:'Review your previous attempts.',showRecent:'Show recent',recentNote:'Only submitted quizzes will appear here. Each retry is saved as a separate attempt.',afterQuizTitle:'After your quiz',after1:'See your score, such as 8/10.',after2:'Review your answer and the correct answer.',after3:'Read AI-generated explanations for each question.',noneRecent:'No submitted quizzes yet.',topicSelected:'subtopics selected',chooseBeforeStart:'Please select at least one subtopic.',notLoggedIn:'Please log in to start a quiz and save your results.',loading:'Loading…',startFailed:'Unable to start quiz. Please try again.',insufficient:'Not enough questions for this selection. Available: ',questionsSuffix:'. Select more topics or reduce the question count.',submit:'Submit Quiz',submitting:'Submitting…',question:'Question',previous:'Previous',next:'Next',finish:'Finish quiz',score:'Your score',backSetup:'Back to Review',details:'View details',correct:'Correct',incorrect:'Incorrect',yourAnswer:'Your answer',correctAnswer:'Correct answer',explanation:'Explanation',unanswered:'Not answered',level:'Level',reviewAgain:'Review details',completed:'Completed',noQuestions:'No available questions were returned.',submitError:'Unable to submit. Please check your connection and try again.',exitConfirm:'Leave this quiz? Your answers will not be saved.',noExplanation:'No explanation has been added yet.',attempt:'Quiz',date:'Date',view:'View results'},
+zh:{chooseType:'選擇題型',availableNow:'現階段可用',mcDesc:'選擇題（Multiple Choices Questions）',selected:'已選擇',sqDesc:'結構題（Structural Questions）',comingLater:'稍後推出',chooseTopics:'選擇課題',topicsHint:'展開主課題，再按需要勾選子課題；可以跨主課題選擇。',clearAll:'全部清除',topicCountNote:'可以混合選擇不同主課題下的子課題。',chooseLevel:'選擇程度',levelHint:'每次測驗只可選擇一個程度。',level1Desc:'基礎題目',level2Desc:'公開考試題目',chooseCount:'選擇題數',countHint:'選擇今次練習的題數。',startHint:'請至少選擇一個子課題。',startQuiz:'開始測驗',recentTitle:'最近測驗',recentHint:'翻查之前完成的練習。',showRecent:'顯示最近',recentNote:'只會顯示已提交的測驗；每次重做都會獨立保存。',afterQuizTitle:'完成測驗後',after1:'查看成績，例如 8/10。',after2:'逐題查看你的答案及正確答案。',after3:'閱讀 AI 生成的題解。',noneRecent:'暫時未有已提交的測驗。',topicSelected:'個子課題已選',chooseBeforeStart:'請至少選擇一個子課題。',notLoggedIn:'請先登入，才能開始測驗及保存成績。',loading:'載入中…',startFailed:'未能開始測驗，請稍後再試。',insufficient:'題目不足。現有題數：',questionsSuffix:'。請選擇更多課題或減少題數。',submit:'提交測驗',submitting:'提交中…',question:'第',previous:'上一題',next:'下一題',finish:'完成測驗',score:'你的成績',backSetup:'返回 Review',details:'查看詳情',correct:'正確',incorrect:'錯誤',yourAnswer:'你的答案',correctAnswer:'正確答案',explanation:'題解',unanswered:'未作答',level:'程度',reviewAgain:'重看詳細表現',completed:'已完成',noQuestions:'未能取得可用題目。',submitError:'未能提交，請檢查網絡後再試。',exitConfirm:'離開測驗？今次答案將不會保存。',noExplanation:'暫時未有題解。',attempt:'測驗',date:'日期',view:'查看成績'}
+};
+function rt(k){return (reviewI18n[pageLanguage]||reviewI18n.en)[k]||k;}
+function applyReviewTranslations(){document.querySelectorAll('[data-i18n]').forEach(function(el){const k=el.dataset.i18n;const dict=reviewI18n[pageLanguage]||reviewI18n.en;if(Object.prototype.hasOwnProperty.call(dict,k))el.textContent=dict[k];});}
+
+
+const reviewSelected = new Set();
+let reviewQuestionCount=10, reviewLevel=1, reviewTopics=[], currentAttempt=null, currentQuestions=[], currentAnswers={}, currentQuestionIndex=0, reviewBusy=false;
+const reviewClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function slug(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');}
+function allTopicNames(){return reviewTopics.filter(t=>t.parent_id).map(t=>t.name);}
+function renderTopics(){
+ const menu=document.getElementById('topic-menu');
+ const mains=reviewTopics.filter(t=>!t.parent_id).sort((a,b)=>a.sort_order-b.sort_order);
+ if(!mains.length){menu.innerHTML='<p class="text-sm text-gray-500">No topics found.</p>';return;}
+ menu.innerHTML=mains.map(function(g){const subs=reviewTopics.filter(t=>t.parent_id===g.id).sort((a,b)=>a.sort_order-b.sort_order);const n=subs.filter(t=>reviewSelected.has(t.name)).length;return '<details class="group rounded-xl border border-gray-200" '+(n?'open':'')+'><summary class="flex cursor-pointer list-none items-center justify-between gap-3 rounded-xl px-4 py-3.5 font-semibold text-gray-800 hover:bg-gray-50"><span>'+esc(g.name)+'</span><span class="flex items-center gap-3"><span class="text-xs font-normal text-gray-400">'+n+'/'+subs.length+'</span><span class="text-gray-400">⌄</span></span></summary><div class="grid gap-1 border-t border-gray-100 p-2 sm:grid-cols-2">'+subs.map(function(t){return '<label class="flex cursor-pointer items-start gap-3 rounded-lg px-3 py-2.5 text-sm hover:bg-[#fdf8f6]"><input type="checkbox" class="topic-check mt-0.5 h-4 w-4 rounded border-gray-300 accent-[#8b5a2b]" value="'+esc(t.name)+'" '+(reviewSelected.has(t.name)?'checked':'')+'><span class="leading-5 text-gray-700">'+esc(t.name)+'</span></label>';}).join('')+'</div></details>';}).join('');
+ document.getElementById('selected-count').textContent=reviewSelected.size+' '+rt('topicSelected');
+ document.getElementById('selected-topic-chips').innerHTML=Array.from(reviewSelected).map(function(t){return '<button type="button" data-remove-topic="'+esc(t)+'" class="inline-flex items-center gap-2 rounded-full border border-[#e7d4c9] bg-[#fdf8f6] px-3 py-1.5 text-xs font-medium brand-text">'+esc(t)+' ×</button>';}).join('');
+ document.getElementById('start-quiz').disabled=reviewSelected.size===0||reviewBusy;
+ document.getElementById('start-hint').textContent=reviewSelected.size?reviewSelected.size+' '+rt('topicSelected')+' · '+reviewQuestionCount+' questions':rt('startHint');
+}
+function renderCounts(){document.getElementById('question-counts').innerHTML=[5,10,15,20,25,30,35,40].map(function(n){return '<button type="button" data-count="'+n+'" aria-pressed="'+(reviewQuestionCount===n)+'" class="rounded-xl border px-2 py-3 text-sm font-bold transition '+(reviewQuestionCount===n?'border-[#8b5a2b] bg-[#8b5a2b] text-white shadow-sm':'border-gray-200 bg-white text-gray-700 hover:border-[#c5a58e]')+'">'+n+'</button>';}).join('');}
+function showMessage(text,kind){const box=document.getElementById('start-message');box.textContent=text;box.classList.remove('hidden','border-amber-200','bg-amber-50','text-amber-900','border-red-200','bg-red-50','text-red-900');if(kind==='error')box.classList.add('border-red-200','bg-red-50','text-red-900');else box.classList.add('border-amber-200','bg-amber-50','text-amber-900');}
+function hideMessage(){document.getElementById('start-message').classList.add('hidden');}
+function optionLabel(o){if(typeof o==='string')return o;return (o.label||o.text||o.value||o.key||'');}
+function optionKey(o,i){if(typeof o==='string')return String.fromCharCode(65+i);return String(o.key||o.value||String.fromCharCode(65+i));}
+function renderQuiz(){
+ const stage=document.getElementById('quiz-stage');stage.classList.remove('hidden');
+ if(!currentQuestions.length){stage.innerHTML='<div class="rounded-2xl border bg-white p-6">'+esc(rt('noQuestions'))+' <button class="ml-3 underline" id="back-setup">'+esc(rt('backSetup'))+'</button></div>';return;}
+ const q=currentQuestions[currentQuestionIndex];const opts=Array.isArray(q.options)?q.options:[];
+ stage.innerHTML='<section class="rounded-3xl border brand-border bg-white p-5 shadow-sm sm:p-8"><div class="flex flex-wrap items-center justify-between gap-3"><span class="rounded-full bg-[#fdf8f6] px-3 py-1.5 text-sm font-semibold brand-text">'+esc(rt('question'))+' '+(currentQuestionIndex+1)+' / '+currentQuestions.length+'</span><span class="text-sm text-gray-500">'+Math.round((currentQuestionIndex+1)/currentQuestions.length*100)+'%</span></div><div class="mt-3 h-2 overflow-hidden rounded-full bg-gray-100"><div class="h-full brand-bg" style="width:'+((currentQuestionIndex+1)/currentQuestions.length*100)+'%"></div></div><h2 class="mt-7 whitespace-pre-wrap text-xl font-semibold leading-8 text-gray-900">'+esc(q.question_text)+'</h2><div class="mt-6 space-y-3">'+opts.map(function(o,i){const key=optionKey(o,i);return '<label class="flex cursor-pointer items-start gap-3 rounded-xl border p-4 hover:border-[#c5a58e] '+(currentAnswers[q.question_id]===key?'border-[#8b5a2b] bg-[#fdf8f6]':'border-gray-200')+'"><input type="radio" name="current-answer" value="'+esc(key)+'" class="mt-1 accent-[#8b5a2b]" '+(currentAnswers[q.question_id]===key?'checked':'')+'><span class="font-semibold">'+esc(key)+'.</span><span class="whitespace-pre-wrap">'+esc(optionLabel(o))+'</span></label>';}).join('')+'</div><div class="mt-8 flex flex-wrap justify-between gap-3 border-t border-gray-100 pt-5"><button id="quiz-prev" type="button" class="rounded-xl border px-4 py-2.5 text-sm font-semibold '+(currentQuestionIndex===0?'opacity-40':'')+'" '+(currentQuestionIndex===0?'disabled':'')+'>'+esc(rt('previous'))+'</button><button id="quiz-next" type="button" class="brand-bg rounded-xl px-5 py-2.5 text-sm font-semibold text-white">'+esc(currentQuestionIndex===currentQuestions.length-1?rt('finish'):rt('next'))+'</button></div></section>';
+ stage.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function renderResults(result){
+ currentAttempt=result;const stage=document.getElementById('quiz-stage');stage.classList.remove('hidden');
+ const pct=result.question_count?Math.round(result.correct_count/result.question_count*100):0;
+ stage.innerHTML='<section class="rounded-3xl border brand-border bg-white p-5 shadow-sm sm:p-8"><div class="text-center"><p class="text-sm font-semibold uppercase tracking-widest text-gray-400">'+esc(rt('completed'))+'</p><h2 class="mt-2 text-3xl font-extrabold text-gray-900">'+esc(rt('score'))+'</h2><p class="mt-3 text-5xl font-extrabold brand-text">'+result.correct_count+'/'+result.question_count+'</p><p class="mt-2 text-gray-500">'+pct+'%</p></div><div class="mt-7 flex flex-wrap justify-center gap-3"><button id="show-result-details" class="brand-bg rounded-xl px-5 py-3 font-semibold text-white">'+esc(rt('details'))+'</button><button id="back-setup" class="rounded-xl border px-5 py-3 font-semibold">'+esc(rt('backSetup'))+'</button></div></section><div id="result-detail-list" class="mt-6 space-y-4"></div>';
+ renderDetailList(result);
+ stage.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function renderDetailList(result){
+ const container=document.getElementById('result-detail-list');if(!container)return;
+ const answers=result.answers||[];
+ container.innerHTML=answers.map(function(a,i){const opts=Array.isArray(a.options)?a.options:[];const picked=opts.find(function(o,j){return optionKey(o,j)===a.selected_option;});const correct=opts.find(function(o,j){return optionKey(o,j)===a.correct_option;});return '<article class="rounded-2xl border '+(a.is_correct?'border-green-200':'border-red-200')+' bg-white p-5"><div class="flex flex-wrap items-center justify-between gap-2"><h3 class="font-bold text-gray-900">'+esc(rt('question'))+' '+(i+1)+'</h3><span class="rounded-full px-3 py-1 text-xs font-semibold '+(a.is_correct?'bg-green-50 text-green-700':'bg-red-50 text-red-700')+'">'+esc(a.is_correct?rt('correct'):rt('incorrect'))+'</span></div><p class="mt-3 whitespace-pre-wrap leading-7 text-gray-800">'+esc(a.question_text)+'</p><div class="mt-4 grid gap-3 sm:grid-cols-2"><div class="rounded-xl bg-gray-50 p-3"><p class="text-xs font-semibold uppercase tracking-wide text-gray-500">'+esc(rt('yourAnswer'))+'</p><p class="mt-1 font-medium">'+esc(a.selected_option?(a.selected_option+'. '+(picked?optionLabel(picked):'')):rt('unanswered'))+'</p></div><div class="rounded-xl bg-green-50 p-3"><p class="text-xs font-semibold uppercase tracking-wide text-green-700">'+esc(rt('correctAnswer'))+'</p><p class="mt-1 font-medium text-green-900">'+esc(a.correct_option+(correct?'. '+optionLabel(correct):''))+'</p></div></div><div class="mt-4 rounded-xl border border-[#f2e8e5] p-4"><h4 class="font-semibold brand-text">'+esc(rt('explanation'))+'</h4><p class="mt-2 whitespace-pre-wrap text-sm leading-6 text-gray-700">'+esc(a.explanation||rt('noExplanation'))+'</p></div></article>';}).join('');
+}
+async function startQuiz(){
+ hideMessage();const {data:{session}}=await reviewClient.auth.getSession();if(!session){showMessage(rt('notLoggedIn'),'error');return;}
+ if(!reviewSelected.size){showMessage(rt('chooseBeforeStart'),'error');return;}
+ reviewBusy=true;document.getElementById('start-quiz').disabled=true;document.getElementById('start-quiz').textContent=rt('loading');
+ const {data,error}=await reviewClient.rpc('review_start_quiz',{p_topic_names:Array.from(reviewSelected),p_level:reviewLevel,p_question_count:reviewQuestionCount});
+ reviewBusy=false;document.getElementById('start-quiz').textContent=rt('startQuiz');renderTopics();
+ if(error){showMessage(rt('startFailed')+' '+error.message,'error');return;}
+ if(!data||!data.ok){if(data&&data.code==='insufficient_questions'){showMessage(rt('insufficient')+data.available_count+rt('questionsSuffix'),'warn');}else showMessage(data&&data.message?data.message:rt('startFailed'),'error');return;}
+ currentAttempt={attempt_id:data.attempt_id};currentQuestions=data.questions||[];currentAnswers={};currentQuestionIndex=0;
+ if(!currentQuestions.length){showMessage(rt('noQuestions'),'error');return;}
+ document.querySelectorAll('#topic-menu input,#question-counts button,#clear-topics,#start-quiz').forEach(function(el){el.disabled=true;});
+ renderQuiz();
+}
+async function submitQuiz(){
+ if(!currentAttempt||!currentAttempt.attempt_id)return;
+ const btn=document.getElementById('quiz-next');if(btn){btn.disabled=true;btn.textContent=rt('submitting');}
+ const payload=currentQuestions.map(function(q){return {question_id:q.question_id,selected_option:currentAnswers[q.question_id]||null};});
+ const {data,error}=await reviewClient.rpc('review_submit_quiz',{p_attempt_id:currentAttempt.attempt_id,p_answers:payload});
+ if(error){if(btn){btn.disabled=false;btn.textContent=rt('finish');}alert(rt('submitError')+' '+error.message);return;}
+ renderResults(data);loadRecent();
+}
+async function loadRecent(){
+ const limit=Number(document.getElementById('recent-limit').value||5);
+ const list=document.getElementById('recent-list');
+ const {data:{session}}=await reviewClient.auth.getSession();if(!session){list.innerHTML='<p class="text-sm text-gray-500">'+esc(rt('notLoggedIn'))+'</p>';return;}
+ const {data,error}=await reviewClient.from('review_attempts').select('id,selected_topics,level,question_count,correct_count,created_at,submitted_at').eq('user_id',session.user.id).not('submitted_at','is',null).order('submitted_at',{ascending:false}).limit(limit);
+ if(error){list.innerHTML='<p class="text-sm text-red-600">'+esc(error.message)+'</p>';return;}
+ if(!data||!data.length){list.innerHTML='<div class="rounded-xl border border-dashed border-gray-200 px-4 py-7 text-center"><div class="text-2xl">📝</div><p class="mt-2 text-sm font-medium text-gray-600">'+esc(rt('noneRecent'))+'</p></div>';return;}
+ list.innerHTML=data.map(function(a){const date=new Date(a.submitted_at).toLocaleString(pageLanguage==='zh'?'zh-HK':'en-GB',{dateStyle:'medium',timeStyle:'short'});return '<button type="button" data-open-attempt="'+a.id+'" class="block w-full rounded-xl border border-gray-200 p-4 text-left hover:border-[#c5a58e] hover:bg-[#fdf8f6]"><div class="flex items-center justify-between gap-2"><span class="font-semibold text-gray-900">'+esc(a.correct_count+'/'+a.question_count)+'</span><span class="text-xs text-gray-500">'+esc(date)+'</span></div><p class="mt-2 text-xs text-gray-500">'+esc('Level '+a.level+' · '+a.selected_topics.length+' topics')+'</p><span class="mt-2 inline-block text-xs font-semibold brand-text">'+esc(rt('view'))+' →</span></button>';}).join('');
+}
+async function openAttempt(id){
+ const {data,error}=await reviewClient.rpc('review_get_attempt_details',{p_attempt_id:id});
+ if(error){alert(error.message);return;}renderResults(data);
+}
+async function loadReviewTopics(){
+ const {data,error}=await reviewClient.from('review_topics').select('id,name,parent_id,sort_order').order('sort_order',{ascending:true});
+ if(error){document.getElementById('topic-menu').innerHTML='<p class="text-sm text-red-600">Unable to load topics: '+esc(error.message)+'</p>';return;}
+ reviewTopics=data||[];renderTopics();renderCounts();
+}
+function updateLevelCards(){document.getElementById('level1-card').className='flex cursor-pointer gap-3 rounded-xl border-2 p-4 '+(reviewLevel===1?'border-[#8b5a2b] bg-[#fdf8f6]':'border-gray-200');document.getElementById('level2-card').className='flex cursor-pointer gap-3 rounded-xl border-2 p-4 '+(reviewLevel===2?'border-[#8b5a2b] bg-[#fdf8f6]':'border-gray-200');}
+document.addEventListener('change',function(e){
+ if(e.target.matches('.topic-check')){if(e.target.checked)reviewSelected.add(e.target.value);else reviewSelected.delete(e.target.value);renderTopics();}
+ if(e.target.matches('input[name="review-level"]')){reviewLevel=Number(e.target.value);updateLevelCards();}
+ if(e.target.matches('input[name="current-answer"]')){const q=currentQuestions[currentQuestionIndex];if(q)currentAnswers[q.question_id]=e.target.value;renderQuiz();}
+ if(e.target.id==='recent-limit')loadRecent();
+});
+document.addEventListener('click',function(e){
+ const count=e.target.closest('[data-count]');if(count){reviewQuestionCount=Number(count.dataset.count);renderCounts();renderTopics();return;}
+ const remove=e.target.closest('[data-remove-topic]');if(remove){reviewSelected.delete(remove.dataset.removeTopic);renderTopics();return;}
+ const attempt=e.target.closest('[data-open-attempt]');if(attempt){openAttempt(attempt.dataset.openAttempt);return;}
+ if(e.target.id==='clear-topics'){reviewSelected.clear();renderTopics();return;}
+ if(e.target.id==='start-quiz'){startQuiz();return;}
+ if(e.target.id==='quiz-prev'){if(currentQuestionIndex>0){currentQuestionIndex--;renderQuiz();}return;}
+ if(e.target.id==='quiz-next'){if(currentQuestionIndex<currentQuestions.length-1){currentQuestionIndex++;renderQuiz();}else if(confirm(rt('submit')+'?'))submitQuiz();return;}
+ if(e.target.id==='show-result-details'){const el=document.getElementById('result-detail-list');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});return;}
+ if(e.target.id==='back-setup'){currentAttempt=null;currentQuestions=[];currentAnswers={};const stage=document.getElementById('quiz-stage');stage.classList.add('hidden');document.querySelectorAll('#topic-menu input,#question-counts button,#clear-topics').forEach(function(el){el.disabled=false;});renderTopics();renderCounts();return;}
+});
+window.addEventListener('beforeunload',function(e){if(currentQuestions.length&&currentAttempt&&currentAttempt.attempt_id&&!currentAttempt.submitted_at){e.preventDefault();e.returnValue='';}});
+function renderReview(){renderTopics();renderCounts();loadRecent();}
+const oldTogglePageLanguage=togglePageLanguage;
+togglePageLanguage=function(){oldTogglePageLanguage();applyReviewTranslations();renderReview();};
+applyReviewTranslations();
+renderReview();
+
 </script>
 </body>
 </html>
