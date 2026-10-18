@@ -241,7 +241,7 @@ document.addEventListener('click',function(e){
  if(e.target.id==='back-setup'){currentAttempt=null;currentQuestions=[];currentAnswers={};const stage=document.getElementById('quiz-stage');stage.classList.add('hidden');document.querySelectorAll('#topic-menu input,#question-counts button,#clear-topics').forEach(function(el){el.disabled=false;});renderTopics();renderCounts();return;}
 });
 window.addEventListener('beforeunload',function(e){if(currentQuestions.length&&currentAttempt&&currentAttempt.attempt_id&&!currentAttempt.submitted_at){e.preventDefault();e.returnValue='';}});
-function renderReview(){applyReviewTranslations();renderTopics();renderCounts();}
+function renderReview(){applyReviewTranslations();loadReviewTopics();}
 const oldTogglePageLanguage=togglePageLanguage;
 togglePageLanguage=function(){oldTogglePageLanguage();applyReviewTranslations();renderReview();};
 applyReviewTranslations();
