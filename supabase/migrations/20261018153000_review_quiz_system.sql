@@ -83,17 +83,23 @@ alter table public.review_attempts enable row level security;
 alter table public.review_attempt_questions enable row level security;
 alter table public.review_attempt_answers enable row level security;
 
-grant select on public.review_topics to authenticated;
-grant select on public.review_questions to authenticated;
-grant select on public.review_question_topics to authenticated;
+grant select, insert, update, delete on public.review_topics to authenticated;
+grant select, insert, update, delete on public.review_questions to authenticated;
+grant select, insert, update, delete on public.review_question_topics to authenticated;
 grant select on public.review_attempts to authenticated;
 grant select on public.review_attempt_answers to authenticated;
 grant select on public.review_attempt_questions to authenticated;
+grant select, insert, update, delete on public.review_answer_keys to authenticated;
 
 drop policy if exists "review topics read authenticated" on public.review_topics;
 create policy "review topics read authenticated" on public.review_topics for select to authenticated using (true);
 drop policy if exists "review topics admin manage" on public.review_topics;
 create policy "review topics admin manage" on public.review_topics for all to authenticated
+using (exists (select 1 from public.users_acc_info u where u.id = (select auth.uid()) and u.role = 'admin'))
+with check (exists (select 1 from public.users_acc_info u where u.id = (select auth.uid()) and u.role = 'admin'));
+
+drop policy if exists "review answer keys admin manage" on public.review_answer_keys;
+create policy "review answer keys admin manage" on public.review_answer_keys for all to authenticated
 using (exists (select 1 from public.users_acc_info u where u.id = (select auth.uid()) and u.role = 'admin'))
 with check (exists (select 1 from public.users_acc_info u where u.id = (select auth.uid()) and u.role = 'admin'));
 
@@ -148,7 +154,15 @@ with topic_seed(main_slug, main_name, subtopics) as (
   ('counting-and-probability','Counting and Probability',array['Basic probabilities','Expected values','Permutations and combinations','Probabilities with nPr and nCr']::text[])
 )
 insert into public.review_topics(slug,name,parent_id,sort_order)
-select main_slug,main_name,null,row_number() over(order by main_slug)::integer from topic_seed
+select main_slug,main_name,null,
+  case main_slug
+    when 'numbers-and-estimation' then 1 when 'polynomials' then 2 when 'exponentials-and-logarithms' then 3
+    when 'functions-and-graphs' then 4 when 'transformation-and-symmetry' then 5 when 'coordinate-geometry' then 6
+    when 'formulae-and-identities' then 7 when 'sequences' then 8 when 'inequalities' then 9 when 'mensuration' then 10
+    when 'rectilinear-figures' then 11 when 'statistics' then 12 when 'equations' then 13 when 'percentages' then 14
+    when 'rates-ratios-and-variations' then 15 when 'trigonometry' then 16 when 'circles-and-tangents' then 17
+    when 'counting-and-probability' then 18 end
+from topic_seed
 on conflict (slug) do update set name = excluded.name;
 
 with topic_seed(main_slug, main_name, subtopics) as (
@@ -201,6 +215,7 @@ begin
   from public.review_questions q
   join public.review_question_topics qt on qt.question_id = q.id
   join public.review_topics t on t.id = qt.topic_id and t.parent_id is not null
+  join public.review_answer_keys k on k.question_id = q.id
   where q.is_active and q.level = p_level and t.name = any(p_topic_names);
 
   if v_available < p_question_count then
@@ -217,6 +232,7 @@ begin
     from public.review_questions q0
     join public.review_question_topics qt on qt.question_id = q0.id
     join public.review_topics t on t.id = qt.topic_id and t.parent_id is not null
+    join public.review_answer_keys k on k.question_id = q0.id
     where q0.is_active and q0.level = p_level and t.name = any(p_topic_names)
   ) q
   order by random()
@@ -266,11 +282,11 @@ begin
     select 1
     from jsonb_to_recordset(coalesce(p_answers,'[]'::jsonb)) as x(question_id uuid, selected_option text)
     join public.review_attempt_questions aq on aq.attempt_id=p_attempt_id and aq.question_id=x.question_id
-    cross join lateral jsonb_array_elements(aq.options_snapshot) opt
-    where x.selected_option is not null and opt->>'key' = x.selected_option
-  ) is false and exists (
-    select 1 from jsonb_to_recordset(coalesce(p_answers,'[]'::jsonb)) as x(question_id uuid, selected_option text)
     where x.selected_option is not null
+      and not exists (
+        select 1 from jsonb_array_elements(aq.options_snapshot) opt
+        where coalesce(opt->>'key', opt->>'value') = x.selected_option
+      )
   ) then raise exception 'Invalid option selected'; end if;
 
   insert into public.review_attempt_answers(attempt_id,question_id,selected_option,is_correct,correct_option,explanation_snapshot)
