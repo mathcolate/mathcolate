@@ -1,12 +1,12 @@
 # Mathcolate implementation plan (based on approved requirements)
 
-This plan is being developed on `feature/preview-review-online-test`. It does not apply migrations or change the production database.
+This work must modify the existing Mathcolate project and its existing pages/code, not create a separate product or duplicate implementation. Use `feature/preview-review-online-test` as the working branch in the same `mathcolate/mathcolate` repository, then review changes before merging to the repository's main branch. Do not treat `mathcolate-test` as the main development target. Any separate test environment is supplementary only; it must not replace fixing the actual Mathcolate project. Database changes to the main project must be handled deliberately and reviewed before execution.
 
 ## Existing architecture observed
 - Static HTML pages use Supabase JS v2 from CDN and share the existing header/auth/language pattern.
 - `users_acc_info` supplies the authenticated user's role, school and class codes.
 - Review already has `review_topics`, `review_questions`, `review_answer_keys`, `review_question_topics`, `review_attempts`, `review_attempt_questions` and `review_attempt_answers`. Keep and extend this system rather than creating duplicate Review tables.
-- The Review tables currently have no content/attempt data, so feature tests need seeded fixtures in an isolated test project, not production.
+- Keep the existing Review implementation and data model as the starting point. Do not create duplicate Review tables or a parallel feature implementation. Prefer static/unit checks first; if database integration testing is needed, it is supplementary and must not divert implementation away from the existing Mathcolate project.
 
 ## Data model approach
 1. Central Question Bank:
@@ -37,12 +37,12 @@ This plan is being developed on `feature/preview-review-online-test`. It does no
    - Simulations must not save student interaction or personal learning history.
 
 ## Implementation order
-1. Build schema migration(s) and database-level authorization tests, without applying them to production.
+1. Inspect the existing project and Review flow; make changes directly in the existing HTML/JavaScript/CSS and reuse existing schema wherever possible. Draft any necessary schema changes and authorization checks for review before execution.
 2. Implement bilingual Question Bank teacher form, moderation queue and suggestion workflow.
 3. Implement Preview draft/publish/student attempt/autosave/retry/deadline/score correction.
 4. Complete Review with question-bank compatibility, exact SQ parsing and one-submit enforcement.
 5. Implement Online Test waiting/start/single deadline/autosave/teacher progress/submit status/histogram/CSV+Excel export.
-6. Run static checks and tests against an isolated Supabase project; review the migration plan before any production apply.
+6. Run static checks and regression tests against the actual code changes. Use a separate Supabase project only if a database integration test genuinely requires it; it is not the development target and must not become a substitute for fixing the main project.
 
 ## Required tests
 - RLS role/owner/target-class matrix for student, teacher and admin.
@@ -56,4 +56,4 @@ This plan is being developed on `feature/preview-review-online-test`. It does no
 - UI regression: auth hydration, language persistence, navigation, narrow/mobile layout.
 
 ## Deployment boundary
-No migration is executed by this branch work. Do not merge to main or apply schema changes to production until the code and migration are reviewed and the isolated-project test matrix passes.
+Implementation must remain focused on the existing Mathcolate repository and its current product. Do not merge code or apply production schema changes without the appropriate review/authorization. A test project is optional supporting infrastructure, not the place where the main feature is implemented.
