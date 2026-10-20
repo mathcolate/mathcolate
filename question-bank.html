@@ -41,8 +41,8 @@
             <button onclick="pageLogout()" class="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center space-x-2"><span data-i18n="subLogout">Log Out</span></button>
           </div>
         </div>
-      </div>
-    <span id="profile-label" class="hidden"></span>
+      <span id="profile-label" class="hidden"></span>
+    </div>
   </div>
 </header>
 <main class="mx-auto max-w-7xl px-4 py-7 sm:px-6 sm:py-10">
@@ -169,6 +169,7 @@ async function init(){
  $('topic-ids').size=Math.min(9,Math.max(4,topics.length));setTab('submit');
 }
 applyLanguage();
+function togglePageLanguage(){const b=document.getElementById('lang')||document.getElementById('language-toggle');if(b)b.click();}
 function togglePageUserMenu(){document.getElementById('user-dropdown')?.classList.toggle('hidden');}
 function goToHomeProfile(){location.href='index.html#profile';}
 function goToHomeManage(){location.href='index.html#manage';}
