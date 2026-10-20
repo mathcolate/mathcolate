@@ -142,7 +142,7 @@ function applyReviewTranslations(){document.querySelectorAll('[data-i18n]').forE
 
 
 const reviewSelected = new Set();
-let reviewQuestionCount=10, reviewLevel=1, reviewTopics=[], currentAttempt=null, currentQuestions=[], currentAnswers={}, savedAnswers={}, currentQuestionIndex=0, reviewBusy=false, pendingAnswerSave=Promise.resolve(), answerSaveError=null;
+let reviewQuestionCount=10, reviewLevel=1, reviewTopics=[], currentAttempt=null, currentQuestions=[], currentAnswers={}, savedAnswers={}, currentQuestionIndex=0, reviewBusy=false, pendingAnswerSave=Promise.resolve(), answerSaveError=null, submissionRetryPending=false;
 const reviewClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 function slug(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');}
@@ -230,7 +230,7 @@ async function startQuiz(){
   } else showMessage(data&&data.message?data.message:rt('startFailed'),'error');
   return;
  }
- currentAttempt={attempt_id:data.attempt_id};currentQuestions=data.questions||[];currentAnswers={};savedAnswers={};pendingAnswerSave=Promise.resolve();answerSaveError=null;currentQuestionIndex=0;
+ currentAttempt={attempt_id:data.attempt_id};currentQuestions=data.questions||[];currentAnswers={};savedAnswers={};pendingAnswerSave=Promise.resolve();answerSaveError=null;submissionRetryPending=false;currentQuestionIndex=0;
  if(!currentQuestions.length){showMessage(rt('noQuestions'),'error');return;}
  document.querySelectorAll('#topic-menu input,#question-counts button,#clear-topics,#start-quiz').forEach(function(el){el.disabled=true;});
  // Keep the request key until the quiz is safely initialized in this page.
@@ -245,6 +245,9 @@ async function saveReviewAnswer(questionId,selectedOption){
 }
 async function navigateQuiz(direction){
  if(!currentAttempt||!currentAttempt.attempt_id)return;
+ // If the previous submit response was lost, retry the same idempotent submission directly.
+ // Saving again first would be rejected if the server had already marked the attempt submitted.
+ if(direction===1&&currentQuestionIndex===currentQuestions.length-1&&submissionRetryPending){await submitQuiz();return;}
  const q=currentQuestions[currentQuestionIndex];
  const btn=document.getElementById('quiz-next'),prev=document.getElementById('quiz-prev');
  if(btn){btn.disabled=true;btn.textContent=rt('savingAnswer');}if(prev)prev.disabled=true;
@@ -259,6 +262,7 @@ async function navigateQuiz(direction){
 }
 async function submitQuiz(){
  if(!currentAttempt||!currentAttempt.attempt_id)return;
+ submissionRetryPending=true;
  const btn=document.getElementById('quiz-next');if(btn){btn.disabled=true;btn.textContent=rt('submitting');}
  const payload=currentQuestions.map(function(q){return {question_id:q.question_id,selected_option:currentAnswers[q.question_id]||null};});
  let response;
@@ -269,6 +273,7 @@ async function submitQuiz(){
  const {data,error}=response||{};
  if(error){if(btn){btn.disabled=false;btn.textContent=rt('finish');}const status=document.getElementById('answer-save-status');if(status){status.textContent=rt('submitError')+' '+(error.message||'Please retry.');status.className='mt-4 text-sm text-red-600';}return;}
  if(!data||!data.attempt_id||!Array.isArray(data.answers)){if(btn){btn.disabled=false;btn.textContent=rt('finish');}const status=document.getElementById('answer-save-status');if(status){status.textContent=rt('submitError');status.className='mt-4 text-sm text-red-600';}return;}
+ submissionRetryPending=false;
  renderResults(data);loadRecent();
 }
 async function loadRecent(){
