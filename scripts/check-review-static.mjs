@@ -49,4 +49,9 @@ assert.ok(activitySql.includes('mc_parse_exact_number'),'SQ grading must use exa
 assert.ok(activitySql.includes('revoke all on public.mc_activities,public.mc_activity_questions,public.mc_activity_attempts,public.mc_attempt_answers from public,anon,authenticated'),'Attempt answers must not be directly exposed');
 const validation=read('supabase/migrations/20261020170000_question_answer_validation.sql');
 assert.ok(validation.includes('sum of SQ subpart points'),'SQ point total validation is required');
-console.log('Static checks passed: four page scripts, Review safeguards, Question Bank role/locale checks, Preview/Online Test RPC wiring, deadline auto-submit and schema safeguards.');
+const exactSql=read('supabase/migrations/20261020180000_exact_rational_sq_grading.sql');
+assert.ok(exactSql.includes('mc_exact_numeric_equal'),'SQ grading must compare exact rationals');
+assert.ok(exactSql.includes('ln*rd=rn*ld'),'SQ grading must use cross multiplication, not rounded division');
+assert.ok(exactSql.includes("v_correct:=public.mc_exact_numeric_equal"),'SQ score calculation must use exact comparison');
+console.log('Static checks passed: four page scripts, Review safeguards, Question Bank role/locale checks, Preview/Online Test RPC wiring, deadline auto-submit and exact-rational SQ grading.');
+
