@@ -32,8 +32,9 @@ for(const key of ['questionBankTitle','questionBankDesc']){
  assert.ok(JSON.parse(read('locales/en.json'))[key]&&JSON.parse(read('locales/zh.json'))[key],'Missing locale key '+key);
 }
 const home=read('index.html');
-assert.ok(home.includes("app.navigateToFeature('question-bank.html')"),'Dashboard must link to Question Bank');
-assert.ok(home.includes("questionBankCard.classList.toggle('hidden', !this.isAdminOrTeacher())"),'Question Bank link must be role-gated');
+assert.ok(!home.includes('id="question-bank-card"'),'Homepage must not show a standalone Question Bank card');
+assert.ok(home.includes('id="view-manage"')&&home.includes('data-i18n="btnUpdateQb"')&&home.includes("app.navigateToFeature('question-bank.html')"),'Admin Manage Website must link to Question Bank');
+assert.ok(home.includes('id="view-my-school"')&&home.includes('data-i18n="btnUpdateQb"')&&home.includes("app.navigateToFeature('question-bank.html')"),'Teacher My School must link to Question Bank');
 for(const path of ['preview.html','online-test.html']){
  const html=pages.get(path);
  for(const needle of ["rpc('mc_create_activity'","rpc('mc_publish_activity'","rpc('mc_start_activity_attempt'","rpc('mc_save_activity_answer'","rpc('mc_submit_activity'","rpc('mc_teacher_activity_overview'"]){
