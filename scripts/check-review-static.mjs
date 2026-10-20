@@ -53,5 +53,13 @@ const exactSql=read('supabase/migrations/20261020180000_exact_rational_sq_gradin
 assert.ok(exactSql.includes('mc_exact_numeric_equal'),'SQ grading must compare exact rationals');
 assert.ok(exactSql.includes('ln*rd=rn*ld'),'SQ grading must use cross multiplication, not rounded division');
 assert.ok(exactSql.includes("v_correct:=public.mc_exact_numeric_equal"),'SQ score calculation must use exact comparison');
-console.log('Static checks passed: four page scripts, Review safeguards, Question Bank role/locale checks, Preview/Online Test RPC wiring, deadline auto-submit and exact-rational SQ grading.');
+const specSql=read('supabase/migrations/20261020191000_spec_alignment_workflows.sql');
+assert.ok(specSql.includes("'not_submitted'::public.mc_attempt_state"),'Online Test non-submitters must remain not submitted');
+assert.ok(specSql.includes('Preview already completed with full marks'),'Preview must stop retrying at full marks');
+assert.ok(specSql.includes("where state='approved'::public.mc_question_state"),'Question IDs are unique when approved, not while pending');
+assert.ok(specSql.includes("lp then ld:=ld*100"),'SQ percentage answers must be normalized exactly');
+assert.ok(pages.get('question-bank.html').includes("data-decision=\"returned\""),'Moderation UI must support return for revision');
+assert.ok(pages.get('question-bank.html').includes("['A','B','C','D','E','F']"),'MC Question Bank must support 2–6 choices');
+assert.ok(read('supabase/migrations/20261020192000_question_moderation_return.sql').includes("'returned'::public.mc_question_state"),'Moderation RPC must accept returned state');
+console.log('Static checks passed: four page scripts, Review/Question Bank safeguards, Preview/Online Test workflows, exact rational/percentage grading, not-submitted state, full-mark retry rule and moderation return.');
 
