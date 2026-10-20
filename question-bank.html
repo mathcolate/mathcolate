@@ -110,7 +110,40 @@ $('refresh-bank').addEventListener('click',loadBank);$('refresh-moderation').add
 $('question-form').addEventListener('submit',async e=>{e.preventDefault();$('submit-status').textContent=t('loading');try{const kind=$('question-kind').value;const topicIds=selectedTopics();if(!topicIds.length)throw new Error(t('selectTopic'));const choices=[];let answerPayload={};let subparts=[];if(kind==='MC'){const correct=Array.from(document.querySelectorAll('[data-correct]:checked')).map(x=>x.dataset.correct);if(!correct.length)throw new Error(t('mcAnswer'));for(const key of ['A','B','C','D','E','F']){const en=document.querySelector('[data-choice-en="'+key+'"]').value.trim();const zh=document.querySelector('[data-choice-zh="'+key+'"]').value.trim();if(en&&zh)choices.push({key,text:{en,zh}});else if(en||zh)throw new Error(t('mcChoices'));}if(choices.length<2)throw new Error(t('mcChoices'));if(correct.some(k=>!choices.some(c=>c.key===k)))throw new Error(t('mcAnswer'));answerPayload={correct_options:correct};}else{try{subparts=JSON.parse($('subparts-json').value);answerPayload=JSON.parse($('sq-answer-json').value);}catch(_){throw new Error(t('sqInvalid'));}if(!Array.isArray(subparts)||!subparts.length||!answerPayload||typeof answerPayload!=='object'||Array.isArray(answerPayload))throw new Error(t('sqInvalid'));}
 let assets;try{assets=JSON.parse($('assets-json').value);}catch(_){throw new Error(t('needJson'));}if(!Array.isArray(assets))throw new Error(t('needJson'));const question={question_code:$('question-code').value.trim(),kind,stem:{en:$('stem-en').value.trim(),zh:$('stem-zh').value.trim()},choices,subparts,shared_assets:assets,points:Number($('question-points').value)};const answerKey={answer_payload:answerPayload,explanation:{en:$('explain-en').value.trim(),zh:$('explain-zh').value.trim()}};const {data,error}=await client.rpc('mc_submit_question',{p_question:question,p_answer_key:answerKey,p_topic_ids:topicIds});if(error)throw error;$('question-form').reset();$('question-points').value='1';$('assets-json').value='[]';$('subparts-json').value='[{"key":"a","prompt":{"en":"","zh":""},"points":1,"unit_required":false}]';$('sq-answer-json').value='{"parts":{"a":{"value":"0","unit":""}}}';renderChoices();$('submit-status').textContent=t('saved');showStatus(t('saved'));setTab('bank');}catch(err){$('submit-status').textContent=(err.message||String(err));$('submit-status').classList.add('text-red-600');}});
 document.addEventListener('click',async e=>{const b=e.target.closest('button');if(!b)return;try{if(b.dataset.moderate){if(!confirm(t('confirm')))return;const reason=prompt(t('reasonPrompt'))||null;const {error}=await client.rpc('mc_moderate_question',{p_question_id:b.dataset.moderate,p_decision:b.dataset.decision,p_reason:reason});if(error)throw error;await loadModeration();showStatus(t('saved'));}else if(b.dataset.changeId){const code=prompt(t('idPrompt'),b.dataset.code);if(!code||code.trim()===b.dataset.code)return;const {error}=await client.rpc('mc_update_question_id',{p_question_id:b.dataset.changeId,p_new_question_code:code.trim()});if(error)throw error;await loadModeration();showStatus(t('saved'));}else if(b.dataset.suggest){const area=document.querySelector('[data-suggest-text="'+b.dataset.suggest+'"]');let changes;try{changes=JSON.parse(area.value);}catch(_){throw new Error(t('needJson'));}const {error}=await client.rpc('mc_suggest_question_changes',{p_question_id:b.dataset.suggest,p_suggested_changes:changes});if(error)throw error;area.value='';showStatus(t('suggested'));}else if(b.dataset.rejectSuggestion){if(!confirm(t('confirm')))return;const reason=prompt(t('reasonPrompt'))||null;const {error}=await client.rpc('mc_review_question_suggestion',{p_suggestion_id:b.dataset.rejectSuggestion,p_decision:'rejected',p_reason:reason});if(error)throw error;await loadSuggestions();showStatus(t('saved'));}}catch(err){showStatus(t('error')+(err.message||String(err)),true);}});
-async function init(){client=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);const {data:{session},error}=await client.auth.getSession();if(error||!session){$('profile-label').textContent=t('signIn');$('access-denied').classList.remove('hidden');return;}user=session.user;const {data:row,error:profileError}=await client.from('users_acc_info').select('username,eng_name,chi_name,role').eq('id',user.id).maybeSingle();if(profileError||!row){$('profile-label').textContent=t('roleError');$('access-denied').classList.remove('hidden');return;}role=row.role;profile=row;$('profile-label').textContent=lang==='zh'?(row.chi_name||row.eng_name||row.username):(row.eng_name||row.chi_name||row.username);if(!['teacher','admin'].includes(role)){$('access-denied').classList.remove('hidden');return;}$('workspace').classList.remove('hidden');if(role==='admin'){$('moderation-tab').classList.remove('hidden');$('suggestion-tab').classList.remove('hidden');}try{await loadTopics();}catch(err){showStatus(t('error')+(err.message||String(err)),true);}$('topic-ids').size=Math.min(9,Math.max(4,topics.length));setTab('submit');}
+async function init(){
+ client=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+ const {data:sessionData,error:sessionError}=await client.auth.getSession();
+ if(sessionError){$('profile-label').textContent=t('error')+sessionError.message;$('access-denied').classList.remove('hidden');return;}
+ let session=sessionData?.session;
+ if(!session){
+  const {data:userData,error:userError}=await client.auth.getUser();
+  if(userError||!userData?.user){$('profile-label').textContent=t('signIn');$('access-denied').classList.remove('hidden');return;}
+  user=userData.user;
+ }else user=session.user;
+ async function readProfile(){
+  return await client.from('users_acc_info')
+   .select('id,username,eng_name,chi_name,role,school,class_codes,class_number')
+   .eq('id',user.id).maybeSingle();
+ }
+ let {data:row,error:profileError}=await readProfile();
+ if(!row&&!profileError){
+  await new Promise(resolve=>setTimeout(resolve,400));
+  const retry=await readProfile();row=retry.data;profileError=retry.error;
+ }
+ if(profileError||!row){
+  $('profile-label').textContent=t('roleError');
+  $('access-denied').classList.remove('hidden');
+  showStatus(t('error')+(profileError?.message||'No profile row matched the signed-in account.'),true);
+  return;
+ }
+ role=String(row.role||'').trim().toLowerCase();profile=row;
+ $('profile-label').textContent=lang==='zh'?(row.chi_name||row.eng_name||row.username):(row.eng_name||row.chi_name||row.username);
+ if(!['teacher','admin'].includes(role)){$('access-denied').classList.remove('hidden');return;}
+ $('workspace').classList.remove('hidden');
+ if(role==='admin'){$('moderation-tab').classList.remove('hidden');$('suggestion-tab').classList.remove('hidden');}
+ try{await loadTopics();}catch(err){showStatus(t('error')+(err.message||String(err)),true);}
+ $('topic-ids').size=Math.min(9,Math.max(4,topics.length));setTab('submit');
+}
 applyLanguage();init().catch(err=>showStatus(t('error')+(err.message||String(err)),true));
 </script>
 </body>
