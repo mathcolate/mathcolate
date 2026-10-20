@@ -93,6 +93,17 @@
     }).catch(() => {});
   }
 
+  function insertTemplate(input, template) {
+    const start = input.selectionStart == null ? input.value.length : input.selectionStart;
+    const end = input.selectionEnd == null ? start : input.selectionEnd;
+    const wrapped = '\\\\(' + template + '\\\\)';
+    input.setRangeText(wrapped, start, end, 'end');
+    const brace = input.value.indexOf('{}', start);
+    if (brace >= 0 && brace < start + wrapped.length) input.setSelectionRange(brace + 1, brace + 1);
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.focus();
+  }
+
   function enhance(input) {
     if (!input || input.dataset.mathEditorReady === '1' || input.disabled || input.readOnly) return;
     if (input.type === 'hidden' || input.type === 'file' || input.type === 'checkbox' || input.type === 'radio') return;
@@ -108,7 +119,7 @@
       '<button type="button" data-math-insert="inline" title="Insert inline formula">ƒ(x)</button>' +
       '<button type="button" data-math-insert="display" title="Insert display formula">∑</button>' +
       '<button type="button" data-math-template="\\frac{}{}" title="Insert fraction">a⁄b</button>' +
-      '<button type="button" data-math-template="^{}" title="Insert power">xⁿ</button>' +
+      '<button type="button" data-math-template="x^{}" title="Insert power">xⁿ</button>' +
       '<button type="button" data-math-template="\\sqrt{}" title="Insert square root">√x</button>';
     const output = document.createElement('div');
     output.className = 'math-editor-preview';
@@ -123,11 +134,7 @@
       if (button.dataset.mathInsert === 'inline') insertAtCursor(input, '\\(', '\\)');
       else if (button.dataset.mathInsert === 'display') insertAtCursor(input, '\\[', '\\]');
       else if (button.dataset.mathTemplate) {
-        const template = button.dataset.mathTemplate;
-        insertAtCursor(input, template, '');
-        const pos = input.selectionStart;
-        const open = input.value.lastIndexOf('{', pos);
-        if (open >= 0) { input.setSelectionRange(open + 1, pos); input.focus(); }
+        insertTemplate(input, button.dataset.mathTemplate);
       }
     });
     input.addEventListener('input', () => preview(input, previewHost));
