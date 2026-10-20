@@ -7,9 +7,9 @@ begin
  if (l !~ '^[+-]?[0-9]+([.][0-9]+)?$' and l !~ '^[+-]?[0-9]+/[0-9]+$')
  or (r !~ '^[+-]?[0-9]+([.][0-9]+)?$' and r !~ '^[+-]?[0-9]+/[0-9]+$') then return false; end if;
  if position('/' in l)>0 then ln:=split_part(l,'/',1)::numeric; ld:=split_part(l,'/',2)::numeric; if ld=0 then return false; end if;
- else ln:=l::numeric; dotpos:=position('.' in l); if dotpos>0 then ld:=power(10,length(l)-dotpos); end if; end if;
+ else ln:=l::numeric; dotpos:=position('.' in l); if dotpos>0 then ld:=power(10,length(l)-dotpos); ln:=ln*ld; end if; end if;
  if position('/' in r)>0 then rn:=split_part(r,'/',1)::numeric; rd:=split_part(r,'/',2)::numeric; if rd=0 then return false; end if;
- else rn:=r::numeric; dotpos:=position('.' in r); if dotpos>0 then rd:=power(10,length(r)-dotpos); end if; end if;
+ else rn:=r::numeric; dotpos:=position('.' in r); if dotpos>0 then rd:=power(10,length(r)-dotpos); rn:=rn*rd; end if; end if;
  return ln*rd=rn*ld;
 exception when others then return false;
 end;
