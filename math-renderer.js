@@ -40,8 +40,8 @@
   function render(root) {
     if (!window.renderMathInElement || !root) return;
     const targets = [];
-    if (root.nodeType === 1 && root.matches && root.matches('[data-math-render]')) targets.push(root);
-    if (root.querySelectorAll) targets.push(...root.querySelectorAll('[data-math-render]'));
+    if (root.nodeType === 1 && root.matches && root.matches('[data-math-render], .math-content')) targets.push(root);
+    if (root.querySelectorAll) targets.push(...root.querySelectorAll('[data-math-render], .math-content'));
     if (!targets.length && root === document) targets.push(document.body);
     targets.forEach(el => {
       if (el.dataset.mathRendered === '1') delete el.dataset.mathRendered;
@@ -153,7 +153,7 @@
     .math-editor-preview-label { display:block; margin-bottom:.25rem; }
     .math-editor-preview-content { white-space:normal; overflow-wrap:anywhere; min-height:.8rem; }
     .math-editor-preview-content .katex-display { margin:.35rem 0; text-align:left; }
-    [data-math-render] .katex-display { overflow-x:auto; overflow-y:hidden; padding:.15rem 0; }
+    [data-math-render] .katex-display, .math-content .katex-display { overflow-x:auto; overflow-y:hidden; padding:.15rem 0; }
   `;
   document.head.appendChild(style);
 
