@@ -67,7 +67,7 @@ try{const v=localStorage.getItem('mathcolate_language');if(v==='en'||v==='zh')la
 const $=id=>document.getElementById(id);const t=k=>(STRINGS[lang]&&STRINGS[lang][k])||STRINGS.en[k]||k;
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function msg(s,err=false){const e=$('notice');e.textContent=s;e.classList.remove('hidden','bg-red-50','text-red-800','bg-green-50','text-green-800');e.classList.add(err?'bg-red-50':'bg-green-50',err?'text-red-800':'text-green-800');}
-function applyLang(){document.documentElement.lang=lang==='zh'?'zh-HK':'en';document.querySelectorAll('[data-t]').forEach(e=>e.textContent=t(e.dataset.t));$('lang').textContent='中文/ENG';$('class-help').textContent=t('classHelp').replace('__CLASSES__',profile?.class_codes||'—');}
+function applyLang(){document.documentElement.lang=lang==='zh'?'zh-HK':'en';document.querySelectorAll('[data-t]').forEach(e=>e.textContent=t(e.dataset.t));$('lang').textContent=lang==='zh'?'ENG/中文':'中文/ENG';$('class-help').textContent=t('classHelp').replace('__CLASSES__',profile?.class_codes||'—');if(profile)refreshSharedHeader(profile,role);}
 function stateText(s){return ({draft:t('draft'),published:t('publishedState'),waiting:t('waiting'),in_progress:t('inProgress'),ended:t('ended'),cancelled:t('cancelled'),active:t('active'),submitted:t('submitted'),auto_submitted:t('auto_submitted'),pending:t('pending')})[s]||s||'—';}
 function closePanels(){['attempt-panel','monitor-panel','result-panel'].forEach(x=>$(x).classList.add('hidden'));if(monitorTimer){clearInterval(monitorTimer);monitorTimer=null;}if(clockTimer){clearInterval(clockTimer);clockTimer=null;}}
 async function rpc(name,args){const {data,error}=await db.rpc(name,args);if(error)throw error;return data;}
@@ -123,6 +123,12 @@ function refreshSharedHeader(profileRow,roleValue){
  if(logged){logged.classList.remove('opacity-0');logged.classList.toggle('hidden',!row);logged.textContent=row?String(name||row.username||'').trim().charAt(0).toUpperCase():'';}
  document.getElementById('btn-manage-site')?.classList.toggle('hidden',roleValue!=='admin');
  document.getElementById('btn-my-school')?.classList.toggle('hidden',!['teacher','admin'].includes(roleValue));
+ const menuLabels=langValue==='zh'?{profile:'查看個人資料',manage:'管理網站',school:'我的學校',logout:'登出'}:{profile:'View Profile',manage:'Manage Website',school:'My School',logout:'Log Out'};
+ const menu=document.getElementById('user-dropdown');
+ if(menu){
+  const labels=[['goToHomeProfile()',menuLabels.profile],['goToHomeManage()',menuLabels.manage],['goToHomeSchool()',menuLabels.school],['pageLogout()',menuLabels.logout]];
+  for(const [action,label] of labels){const button=menu.querySelector('button[onclick="'+action+'"]');if(button){const span=button.querySelector('span');if(span)span.textContent=label;else button.textContent=label;}}
+ }
  const langBtn=document.getElementById('lang')||document.getElementById('language-toggle');
  if(langBtn)langBtn.textContent=langValue==='zh'?'ENG/中文':'中文/ENG';
 }
