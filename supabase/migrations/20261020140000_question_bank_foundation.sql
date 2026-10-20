@@ -147,7 +147,7 @@ declare
 begin
   if v_uid is null then raise exception 'Authentication required' using errcode = '28000'; end if;
   select u.role into v_role from public.users_acc_info u where u.id = v_uid;
-  if v_role not in ('teacher'::public.user_role, 'admin'::public.user_role) then
+  if v_role is null or v_role not in ('teacher'::public.user_role, 'admin'::public.user_role) then
     raise exception 'Teacher or admin role required' using errcode = '42501';
   end if;
   if jsonb_typeof(p_question) <> 'object' or jsonb_typeof(p_answer_key) <> 'object' then
@@ -210,7 +210,7 @@ begin
          or coalesce((part.value->>'points')::integer, 0) < 1
          or jsonb_typeof(part.value->'unit_required') <> 'boolean'
     ) then raise exception 'Every SQ subpart needs a key, bilingual prompt, positive integer points and unit_required boolean'; end if;
-    if jsonb_typeof(p_answer_key->'answer_payload'->'parts') <> 'object' then
+    if jsonb_typeof(p_answer_key->'answer_payload'->'parts') is distinct from 'object' then
       raise exception 'SQ answer payload must contain a parts object';
     end if;
   end if;
@@ -283,7 +283,7 @@ declare
 begin
   if v_uid is null then raise exception 'Authentication required' using errcode = '28000'; end if;
   select u.role into v_role from public.users_acc_info u where u.id = v_uid;
-  if v_role not in ('teacher'::public.user_role, 'admin'::public.user_role) then raise exception 'Teacher or admin role required' using errcode = '42501'; end if;
+  if v_role is null or v_role not in ('teacher'::public.user_role, 'admin'::public.user_role) then raise exception 'Teacher or admin role required' using errcode = '42501'; end if;
   if jsonb_typeof(p_suggested_changes) <> 'object' or p_suggested_changes = '{}'::jsonb then
     raise exception 'Suggested changes must be a non-empty JSON object';
   end if;
