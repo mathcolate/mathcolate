@@ -14,6 +14,8 @@ on:
       - 'supabase/migrations/*activity_workflows*'
       - 'supabase/migrations/*question_answer_validation*'
       - 'supabase/migrations/*exact_rational_sq_grading*'
+      - 'supabase/migrations/*spec_alignment*'
+      - 'supabase/migrations/*question_moderation_return*'
       - 'scripts/check-review-static.mjs'
       - '.github/workflows/review-static-checks.yml'
   push:
@@ -23,6 +25,7 @@ on:
       - feature/question-bank-preview-online-test
       - feature/preview-online-test-activities
       - feature/exact-sq-grading
+      - feature/spec-alignment
     paths:
       - 'review.html'
       - 'question-bank.html'
