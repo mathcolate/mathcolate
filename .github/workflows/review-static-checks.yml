@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'review.html'
+      - 'math-renderer.js'
       - 'question-bank.html'
       - 'preview.html'
       - 'online-test.html'
@@ -54,5 +55,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Validate shared math renderer syntax
+        run: node --check math-renderer.js
       - name: Validate Review JavaScript and safeguards
         run: node scripts/check-review-static.mjs
