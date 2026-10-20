@@ -169,10 +169,26 @@ begin
   end if;
   if v_points < 1 then raise exception 'Points must be a positive integer'; end if;
   if v_kind = 'MC' and jsonb_array_length(v_choices) < 2 then raise exception 'MC questions need at least two choices'; end if;
-  if v_kind = 'MC' and (p_answer_key->'answer_payload' is null or jsonb_typeof(p_answer_key->'answer_payload') <> 'object') then
-    raise exception 'MC answer payload is required';
+  if p_answer_key->'answer_payload' is null or jsonb_typeof(p_answer_key->'answer_payload') <> 'object' or p_answer_key->'answer_payload' = '{}'::jsonb then
+    raise exception 'A non-empty answer payload is required';
+  end if;
+  if v_kind = 'MC' then
+    if jsonb_array_length(v_choices) < 2 then raise exception 'MC questions need at least two choices'; end if;
+    if jsonb_typeof(p_answer_key->'answer_payload'->'correct_options') <> 'array'
+       or jsonb_array_length(p_answer_key->'answer_payload'->'correct_options') = 0 then
+      raise exception 'MC answer payload must contain correct_options';
+    end if;
+    if exists (
+      select 1
+      from jsonb_array_elements_text(p_answer_key->'answer_payload'->'correct_options') c(answer_key)
+      where not exists (
+        select 1 from jsonb_array_elements(v_choices) choice(value)
+        where choice.value->>'key' = c.answer_key
+      )
+    ) then raise exception 'Correct option must match a choice key'; end if;
   end if;
   if v_kind = 'SQ' and jsonb_array_length(v_subparts) = 0 then raise exception 'SQ questions need at least one subpart'; end if;
+  if coalesce(array_length(p_topic_ids, 1), 0) = 0 then raise exception 'Select at least one topic'; end if;
 
   insert into public.mc_question_bank(question_code, kind, stem, choices, subparts, shared_assets, points, state, submitted_by)
   values (v_code, v_kind, v_stem, v_choices, v_subparts, v_assets, v_points,
@@ -255,6 +271,30 @@ begin
 end;
 $$;
 
+create or replace function public.mc_update_question_id(
+  p_question_id uuid,
+  p_new_question_code text
+)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $
+declare
+  v_uid uuid := (select auth.uid());
+  v_role public.user_role;
+begin
+  if v_uid is null then raise exception 'Authentication required' using errcode = '28000'; end if;
+  select u.role into v_role from public.users_acc_info u where u.id = v_uid;
+  if v_role is distinct from 'admin'::public.user_role then raise exception 'Admin role required' using errcode = '42501'; end if;
+  if nullif(trim(p_new_question_code), '') is null then raise exception 'Question ID is required'; end if;
+  update public.mc_question_bank set question_code=trim(p_new_question_code) where id=p_question_id;
+  if not found then raise exception 'Question not found'; end if;
+exception
+  when unique_violation then raise exception 'Question ID already exists';
+end;
+$;
+
 create or replace function public.mc_review_question_suggestion(
   p_suggestion_id uuid,
   p_decision text,
@@ -333,9 +373,11 @@ revoke all on function public.mc_submit_question(jsonb,jsonb,uuid[]) from public
 revoke all on function public.mc_moderate_question(uuid,public.mc_question_state,text) from public, anon;
 revoke all on function public.mc_suggest_question_changes(uuid,jsonb) from public, anon;
 revoke all on function public.mc_review_question_suggestion(uuid,text,text) from public, anon;
+revoke all on function public.mc_update_question_id(uuid,text) from public, anon;
 grant execute on function public.mc_submit_question(jsonb,jsonb,uuid[]) to authenticated;
 grant execute on function public.mc_moderate_question(uuid,public.mc_question_state,text) to authenticated;
 grant execute on function public.mc_suggest_question_changes(uuid,jsonb) to authenticated;
 grant execute on function public.mc_review_question_suggestion(uuid,text,text) to authenticated;
+grant execute on function public.mc_update_question_id(uuid,text) to authenticated;
 
 commit;
