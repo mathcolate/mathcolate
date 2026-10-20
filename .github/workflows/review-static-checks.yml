@@ -15,6 +15,7 @@ on:
     branches:
       - main
       - fix/review-submit-retry
+      - feature/question-bank-preview-online-test
     paths:
       - 'review.html'
       - 'question-bank.html'
