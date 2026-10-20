@@ -305,7 +305,7 @@ returns void
 language plpgsql
 security definer
 set search_path = ''
-as $
+as $$
 declare
   v_uid uuid := (select auth.uid());
   v_role public.user_role;
@@ -319,7 +319,7 @@ begin
 exception
   when unique_violation then raise exception 'Question ID already exists';
 end;
-$;
+$$;
 
 create or replace function public.mc_review_question_suggestion(
   p_suggestion_id uuid,
