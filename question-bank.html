@@ -65,7 +65,7 @@
 (() => {
   const SUPABASE_URL = 'https://stguzuvmnfjxuygbuuij.supabase.co';
   // Public anon key is intentionally read from the existing project configuration pattern.
-  const SUPABASE_ANON_KEY = 'REPLACE_WITH_EXISTING_PUBLIC_ANON_KEY';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdGd1enV2bW5manh1eWdidXVpaiIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzg5NjAzOTcwLCJleHAiOjIxMDUxNzk5NzB9.M5In8uBXMnApSBRSayiCY6UpoZf3lzebIjpa_tOw12A';
   const db = window.supabase?.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   const $ = id => document.getElementById(id);
   let lang = (() => { try { return localStorage.getItem('mathcolate_language') || 'en'; } catch (_) { return 'en'; } })();
