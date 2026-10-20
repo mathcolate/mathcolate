@@ -1,0 +1,12 @@
+begin;
+revoke all on table public.mc_question_bank from public, anon, authenticated;
+revoke all on table public.mc_question_answer_keys from public, anon, authenticated;
+revoke all on table public.mc_question_topics from public, anon, authenticated;
+revoke all on table public.mc_question_id_changes from public, anon, authenticated;
+revoke all on table public.mc_question_suggestions from public, anon, authenticated;
+grant select on table public.mc_question_bank to authenticated;
+grant select on table public.mc_question_answer_keys to authenticated;
+grant select on table public.mc_question_topics to authenticated;
+grant select on table public.mc_question_id_changes to authenticated;
+grant select on table public.mc_question_suggestions to authenticated;
+commit;
