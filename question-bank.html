@@ -24,7 +24,7 @@
       <h1 class="text-2xl font-bold text-[#5c3a18] tracking-tight">Mathcolate</h1>
     </a>
     <div class="flex items-center space-x-2 sm:space-x-4">
-      <button id="language-toggle" onclick="togglePageLanguage()" class="text-sm font-semibold text-gray-500 hover:text-[#6f4822] transition-colors focus:outline-none px-2 py-1 rounded-md hover:bg-gray-100" data-i18n="langBtn">中文/ENG</button>
+      <button id="language-toggle" class="text-sm font-semibold text-gray-500 hover:text-[#6f4822] transition-colors focus:outline-none px-2 py-1 rounded-md hover:bg-gray-100" data-i18n="langBtn">中文/ENG</button>
       <div class="relative inline-block text-left" id="user-menu-container">
         <button id="user-btn" onclick="togglePageUserMenu()" class="flex items-center space-x-4 hover:bg-gray-100 p-2 -mr-2 rounded-xl transition-colors focus:outline-none cursor-pointer">
           <span id="user-display-name" class="text-sm font-medium text-gray-500 opacity-0">Login</span>
@@ -113,6 +113,7 @@ const i18n={
  zh:{title:'中央題庫',subtitle:'提交中英雙語 MC／SQ 題目、管理自己的提交，並為已核准題目提出修訂建議。',back:'返回首頁',accessDenied:'請使用老師或管理員帳戶登入以使用題庫。',tabSubmit:'提交題目',tabBank:'瀏覽題庫',tabModeration:'審核隊列',tabSuggestions:'修訂建議',formHeading:'提交題目',formNote:'老師提交的題目須經管理員核准，才會供活動使用。',questionId:'題目編號',kind:'題目類型',points:'分數（整數）',stemEn:'題目（英文）',stemZh:'題目（繁體中文）',choicesHeading:'選項',multiHint:'勾選所有正確答案，支援多項選擇。',sqHeading:'短題目分題（JSON）',sqHint:'每個分題應包括 key、中英雙語題目、整數分數及是否必須填單位。以下只係格式範本，唔係真實題目。',sqAnswer:'答案資料（JSON 物件）',explainEn:'解釋（英文）',explainZh:'解釋（繁體中文）',topics:'課題',topicsHint:'可使用 Ctrl／Cmd 選取多個子課題。',assets:'共用圖片／LaTeX 參考（選填 JSON 陣列）',submitBtn:'提交題目',bankHeading:'題庫',bankNote:'已核准題目及你自己提交的題目。',refresh:'重新整理',moderationHeading:'待審核題目',moderationNote:'只有管理員可以核准、拒絕或停用題目。',suggestionsHeading:'題目修訂建議',suggestionsNote:'同一題目可以有多個修訂建議。',loading:'載入中…',none:'暫時沒有資料。',noTopics:'找不到課題。',saved:'題目已提交。',error:'操作失敗：',pending:'待審核',approved:'已核准',rejected:'已拒絕',disabled:'已停用',returned:'退回修改',return:'退回修改',approve:'核准',reject:'拒絕',disable:'停用',changeId:'更改題目編號',suggest:'提出修訂',suggestPlaceholder:'以 JSON 物件輸入修訂內容',sendSuggestion:'提交建議',suggested:'修訂建議已提交。',needJson:'請輸入有效 JSON。',confirm:'確定要繼續？',idPrompt:'輸入新題目編號',reasonPrompt:'選填原因',suggestion:'建議',submittedBy:'提交者',type:'類型',pointsLabel:'分數',en:'英文',zh:'中文',signIn:'請先登入。',roleError:'此頁面只供老師及管理員使用。',mcAnswer:'請選擇所有正確答案。',mcChoices:'至少需要兩個完整選項。',sqInvalid:'SQ 分題及答案必須係有效 JSON。',selectTopic:'請至少選擇一個課題。'}
 };
 let lang='en',client=null,user=null,role='',profile=null,topics=[];
+try{const savedLanguage=localStorage.getItem('mathcolate_language');if(savedLanguage==='zh'||savedLanguage==='en')lang=savedLanguage;}catch(_){}
 try{const saved=localStorage.getItem('mathcolate_language');if(saved==='en'||saved==='zh')lang=saved;}catch(_){}
 try{const stored=localStorage.getItem('mathcolate_language');if(stored==='zh'||stored==='en')lang=stored;}catch(_){}
 const $=id=>document.getElementById(id);
@@ -163,7 +164,7 @@ async function init(){
   return;
  }
  role=String(row.role||'').trim().toLowerCase();profile=row;
- $('profile-label').textContent=lang==='zh'?(row.chi_name||row.eng_name||row.username):(row.eng_name||row.chi_name||row.username);
+ $('profile-label').textContent=lang==='zh'?(row.chi_name||row.eng_name||row.username):(row.eng_name||row.chi_name||row.username);refreshSharedHeader(row,role);
  if(!['teacher','admin'].includes(role)){$('access-denied').classList.remove('hidden');return;}
  $('workspace').classList.remove('hidden');
  if(role==='admin'){$('moderation-tab').classList.remove('hidden');$('suggestion-tab').classList.remove('hidden');}
@@ -171,7 +172,7 @@ async function init(){
  $('topic-ids').size=Math.min(9,Math.max(4,topics.length));setTab('submit');
 }
 applyLanguage();
-function togglePageLanguage(){lang=lang==='en'?'zh':'en';try{localStorage.setItem('mathcolate_language',lang);}catch(_){}applyLanguage();}
+function togglePageLanguage(){lang=lang==='en'?'zh':'en';try{localStorage.setItem('mathcolate_language',lang);}catch(_){}applyLanguage();refreshSharedHeader(profile,role);}
 function togglePageUserMenu(){document.getElementById('user-dropdown')?.classList.toggle('hidden');}
 function goToHomeProfile(){location.href='index.html#profile';}
 function goToHomeManage(){location.href='index.html#manage';}
