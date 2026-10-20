@@ -134,7 +134,7 @@ document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()
 $('question-kind').addEventListener('change',()=>{const sq=$('question-kind').value==='SQ';$('mc-fields').classList.toggle('hidden',sq);$('sq-fields').classList.toggle('hidden',!sq);});
 $('refresh-bank').addEventListener('click',loadBank);$('refresh-moderation').addEventListener('click',loadModeration);$('refresh-suggestions').addEventListener('click',loadSuggestions);
 $('question-form').addEventListener('submit',async e=>{e.preventDefault();$('submit-status').textContent=t('loading');try{const kind=$('question-kind').value;const topicIds=selectedTopics();if(!topicIds.length)throw new Error(t('selectTopic'));const choices=[];let answerPayload={};let subparts=[];if(kind==='MC'){const correct=Array.from(document.querySelectorAll('[data-correct]:checked')).map(x=>x.dataset.correct);if(!correct.length)throw new Error(t('mcAnswer'));for(const key of ['A','B','C','D','E','F']){const en=document.querySelector('[data-choice-en="'+key+'"]').value.trim();const zh=document.querySelector('[data-choice-zh="'+key+'"]').value.trim();if(en&&zh)choices.push({key,text:{en,zh}});else if(en||zh)throw new Error(t('mcChoices'));}if(choices.length<2)throw new Error(t('mcChoices'));if(correct.some(k=>!choices.some(c=>c.key===k)))throw new Error(t('mcAnswer'));answerPayload={correct_options:correct};}else{try{subparts=JSON.parse($('subparts-json').value);answerPayload=JSON.parse($('sq-answer-json').value);}catch(_){throw new Error(t('sqInvalid'));}if(!Array.isArray(subparts)||!subparts.length||!answerPayload||typeof answerPayload!=='object'||Array.isArray(answerPayload))throw new Error(t('sqInvalid'));}
-let assets;try{assets=JSON.parse($('assets-json').value);}catch(_){throw new Error(t('needJson'));}if(!Array.isArray(assets))throw new Error(t('needJson'));const question={question_code:$('question-code').value.trim(),kind,stem:{en:$('stem-en').value.trim(),zh:$('stem-zh').value.trim()},choices,subparts,shared_assets:assets,points:Number($('question-points').value)};const answerKey={answer_payload:answerPayload,explanation:{en:$('explain-en').value.trim(),zh:$('explain-zh').value.trim()}};const {data,error}=await client.rpc('mc_submit_question',{p_question:question,p_answer_key:answerKey,p_topic_ids:topicIds});if(error)throw error;$('question-form').reset();$('question-points').value='1';$('assets-json').value='[]';$('subparts-json').value='[{"key":"a","prompt":{"en":"","zh":""},"points":1,"unit_required":false}]';$('sq-answer-json').value='{"parts":{"a":{"value":"0","unit":""}}}';renderChoices();$('submit-status').textContent=t('saved');showStatus(t('saved'));setTab('bank');}catch(err){$('submit-status').textContent=(err.message||String(err));$('submit-status').classList.add('text-red-600');}});
+let assets;try{assets=JSON.parse($('assets-json').value);}catch(_){throw new Error(t('needJson'));}if(!Array.isArray(assets))throw new Error(t('needJson'));const question={question_code:$('question-code').value.trim(),kind,stem:{en:$('stem-en').value.trim(),zh:$('stem-zh').value.trim()},choices,subparts,shared_assets:assets,points:Number($('question-points').value)};const answerKey={answer_payload:answerPayload,explanation:{en:$('explain-en').value.trim(),zh:$('explain-zh').value.trim()}};const {data,error}=await client.rpc('mc_submit_question',{p_question:question,p_answer_key:answerKey,p_topic_ids:topicIds});if(error)throw error;$('question-form').reset();$('question-points').value='1';$('assets-json').value='[]';$('subparts-json').value='[{"key":"a","prompt":{"en":"","zh":""},"points":1,"unit_required":false}]';$('sq-answer-json').value='{"parts":{"a":{"value":"0","unit":""}}}';renderChoices();$('submit-status').textContent=t('saved');showStatus(t('saved'));setTab('bank');}catch(err){$('submit-status').textContent=(err.message||String(err));$('submit-status').classList.add('text-red-600');}finally{if(submitButton){submitButton.disabled=false;submitButton.removeAttribute('aria-busy');}}});
 document.addEventListener('click',async e=>{const b=e.target.closest('button');if(!b)return;try{if(b.dataset.moderate){if(!confirm(t('confirm')))return;const reason=prompt(t('reasonPrompt'))||null;const {error}=await client.rpc('mc_moderate_question',{p_question_id:b.dataset.moderate,p_decision:b.dataset.decision,p_reason:reason});if(error)throw error;await loadModeration();showStatus(t('saved'));}else if(b.dataset.changeId){const code=prompt(t('idPrompt'),b.dataset.code);if(!code||code.trim()===b.dataset.code)return;const {error}=await client.rpc('mc_update_question_id',{p_question_id:b.dataset.changeId,p_new_question_code:code.trim()});if(error)throw error;await loadModeration();showStatus(t('saved'));}else if(b.dataset.suggest){const area=document.querySelector('[data-suggest-text="'+b.dataset.suggest+'"]');let changes;try{changes=JSON.parse(area.value);}catch(_){throw new Error(t('needJson'));}const {error}=await client.rpc('mc_suggest_question_changes',{p_question_id:b.dataset.suggest,p_suggested_changes:changes});if(error)throw error;area.value='';showStatus(t('suggested'));}else if(b.dataset.rejectSuggestion){if(!confirm(t('confirm')))return;const reason=prompt(t('reasonPrompt'))||null;const {error}=await client.rpc('mc_review_question_suggestion',{p_suggestion_id:b.dataset.rejectSuggestion,p_decision:'rejected',p_reason:reason});if(error)throw error;await loadSuggestions();showStatus(t('saved'));}}catch(err){showStatus(t('error')+(err.message||String(err)),true);}});
 async function init(){
  client=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
@@ -171,7 +171,7 @@ async function init(){
  $('topic-ids').size=Math.min(9,Math.max(4,topics.length));setTab('submit');
 }
 applyLanguage();
-function togglePageLanguage(){const b=document.getElementById('lang')||document.getElementById('language-toggle');if(b)b.click();}
+function togglePageLanguage(){lang=lang==='en'?'zh':'en';try{localStorage.setItem('mathcolate_language',lang);}catch(_){}applyLanguage();}
 function togglePageUserMenu(){document.getElementById('user-dropdown')?.classList.toggle('hidden');}
 function goToHomeProfile(){location.href='index.html#profile';}
 function goToHomeManage(){location.href='index.html#manage';}
@@ -193,22 +193,7 @@ function refreshSharedHeader(profileRow,roleValue){
  const langBtn=document.getElementById('lang')||document.getElementById('language-toggle');
  if(langBtn)langBtn.textContent=langValue==='zh'?'ENG/中文':'中文/ENG';
 }
-(async function initSharedHeader(){
- try{
-  const c=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-  async function loadHeader(session){
-   if(!session){refreshSharedHeader(null,'');return;}
-   const {data:row}=await c.from('users_acc_info').select('username,eng_name,chi_name,role').eq('id',session.user.id).maybeSingle();
-   const m=session.user.user_metadata||{};
-   const p=row||{username:m.username||'',eng_name:m.eng_name||m.engName||'',chi_name:m.chi_name||m.chiName||''};
-   refreshSharedHeader(p,row?.role||'');
-  }
-  const {data:{session}}=await c.auth.getSession();
-  await loadHeader(session);
-  c.auth.onAuthStateChange((_event,next)=>{loadHeader(next).catch(console.error);});
- }catch(e){console.error('Shared header initialization failed',e);}
-})();
-document.addEventListener('click',e=>{const c=document.getElementById('user-menu-container');if(c&&!c.contains(e.target))document.getElementById('user-dropdown')?.classList.add('hidden');});
+
 
 init().catch(err=>showStatus(t('error')+(err.message||String(err)),true));
 </script>
