@@ -3,7 +3,36 @@
 <script src="https://cdn.tailwindcss.com"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>.brand{color:#5c3a18}.btn{border-radius:.65rem;padding:.65rem 1rem;font-weight:600}.primary{background:#8b5a2b;color:#fff}.secondary{background:#f2e8e5;color:#5c3a18}.field{width:100%;border:1px solid #d1d5db;border-radius:.6rem;padding:.65rem .75rem;background:#fff}.panel{border:1px solid #e5e7eb;border-radius:1rem;background:#fff;padding:1.25rem}.bar{height:.55rem;border-radius:999px;background:#e5e7eb;overflow:hidden}.bar>span{display:block;height:100%;background:#8b5a2b}</style></head>
 <body class="min-h-screen bg-gray-50 text-gray-800">
-<header class="sticky top-0 z-30 border-b border-[#f2e8e5] bg-white shadow-sm"><div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6"><a href="index.html" class="text-xl font-bold brand">Mathcolate</a><div class="flex items-center gap-3"><button id="lang" class="btn secondary">中文/ENG</button><span id="profile" class="max-w-48 truncate text-sm text-gray-600">Loading…</span></div></div></header>
+<header class="bg-white shadow-sm border-b border-[#f2e8e5] sticky top-0 z-40">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+    <a href="index.html" class="flex items-center space-x-3 cursor-pointer no-underline">
+      <div class="bg-[#8b5a2b] text-white p-2 rounded-lg">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+      </div>
+      <h1 class="text-2xl font-bold text-[#5c3a18] tracking-tight">Mathcolate</h1>
+    </a>
+    <div class="flex items-center space-x-2 sm:space-x-4">
+      <button onclick="togglePageLanguage()" class="text-sm font-semibold text-gray-500 hover:text-[#6f4822] transition-colors focus:outline-none px-2 py-1 rounded-md hover:bg-gray-100" data-i18n="langBtn">中文/ENG</button>
+      <div class="relative inline-block text-left" id="user-menu-container">
+        <button id="user-btn" onclick="togglePageUserMenu()" class="flex items-center space-x-4 hover:bg-gray-100 p-2 -mr-2 rounded-xl transition-colors focus:outline-none cursor-pointer">
+          <span id="user-display-name" class="text-sm font-medium text-gray-500 opacity-0">Login</span>
+          <div id="user-avatar-guest" class="h-8 w-8 rounded-full opacity-0 bg-gray-200 flex items-center justify-center text-gray-600 font-bold">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+          </div>
+          <div id="user-avatar-logged" class="hidden opacity-0 h-8 w-8 rounded-full bg-[#f2e8e5] flex items-center justify-center text-[#5c3a18] font-bold">A</div>
+        </button>
+        <div id="user-dropdown" class="hidden origin-top-right absolute right-0 mt-2 w-48 rounded-xl shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 z-50">
+          <div class="py-1">
+            <button onclick="goToHomeProfile()" class="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"><span data-i18n="subViewProfile">View Profile</span></button>
+            <button id="btn-manage-site" onclick="goToHomeManage()" class="hidden w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"><span data-i18n="subManageWebsite">Manage Website</span></button>
+            <button id="btn-my-school" onclick="goToHomeSchool()" class="hidden w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"><span data-i18n="subMySchool">My School</span></button>
+            <button onclick="pageLogout()" class="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center space-x-2"><span data-i18n="subLogout">Log Out</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
 <main class="mx-auto max-w-7xl px-4 py-7 sm:px-6 sm:py-10"><div class="mb-7 flex flex-wrap items-end justify-between gap-3"><div><p class="text-sm font-semibold uppercase tracking-wide brand" data-t="eyebrow">Activity workspace</p><h1 class="mt-2 text-3xl font-extrabold" data-t="title">Online Test</h1><p class="mt-2 max-w-3xl text-sm leading-6 text-gray-600" data-t="subtitle">Run a timed online test with live progress monitoring and score distribution.</p></div><a class="btn secondary" href="index.html" data-t="back">Back to Home</a></div>
 <div id="notice" class="hidden mb-5 rounded-xl p-4 text-sm" role="status"></div>
 <div id="denied" class="hidden panel" data-t="denied">Please sign in with a student, teacher or admin account.</div>
@@ -44,7 +73,7 @@ function renderActivities(){const box=$('activity-list');if(!activities.length){
 return '<article class="rounded-xl border border-gray-200 p-4"><div class="flex flex-wrap items-start justify-between gap-3"><div class="min-w-0"><div class="flex flex-wrap items-center gap-2"><h3 class="font-bold">'+esc(title)+'</h3><span class="rounded-full bg-gray-100 px-2 py-1 text-xs">'+esc(stateText(a.state))+'</span></div><p class="mt-2 text-sm text-gray-500">'+esc(a.question_count)+' '+(lang==='zh'?'題':'questions')+' · '+esc((a.target_class_codes||[]).join(', '))+'</p><p class="mt-1 text-xs text-gray-500">'+esc(a.deadline_at||a.due_at||'')+'</p>'+(a.best_points!=null?'<p class="mt-1 text-sm font-semibold brand">'+t('score')+': '+esc(a.best_points)+' / '+esc(a.best_max_points||'—')+'</p>':'')+'</div><div class="flex flex-wrap gap-2">'+actions+'</div></div></article>';}).join('');}
 async function refreshActivities(){const data=await rpc('mc_list_activities',{p_kind:KIND});activities=Array.isArray(data)?data:[];renderActivities();}
 $('refresh').addEventListener('click',()=>refreshActivities().catch(e=>msg(t('error')+e.message,true)));
-$('lang').addEventListener('click',()=>{lang=lang==='en'?'zh':'en';try{localStorage.setItem('mathcolate_language',lang);}catch(_){}applyLang();renderActivities();if(activeAttempt)renderAttemptQuestions();});
+$('lang').addEventListener('click',()=>{lang=lang==='en'?'zh':'en';try{localStorage.setItem('mathcolate_language',lang);}catch(_){}applyLang();renderActivities();if(activeAttempt)renderAttemptQuestions();refreshSharedHeader(profile,role);});
 $('create-form').addEventListener('submit',async e=>{e.preventDefault();if(!['teacher','admin'].includes(role)){msg(t('notTeacher'),true);return;}try{const ids=Array.from($('question-ids').selectedOptions).filter(o=>!o.disabled).map(o=>o.value);if(!ids.length)throw new Error(t('chooseQuestions'));const classes=$('classes').value.split(',').map(x=>x.trim()).filter(Boolean);if(!classes.length)throw new Error(t('noClasses'));let due=null,duration=null;if(KIND==='preview'){const d=new Date($('due').value);if(!Number.isFinite(d.getTime())||d<=new Date())throw new Error(t('badTime'));due=d.toISOString();}else duration=Number($('duration').value)*60;
 const id=await rpc('mc_create_activity',{p_kind:KIND,p_title:{en:$('title-en').value.trim(),zh:$('title-zh').value.trim()},p_instructions:{en:$('instructions-en').value.trim(),zh:''},p_target_class_codes:classes,p_due_at:due,p_duration_seconds:duration,p_question_ids:ids,p_randomize_questions:$('random-q').checked,p_randomize_choices:$('random-c').checked,p_feedback_mode:'after_activity'});$('create-form').reset();msg(t('created')+' '+id);await refreshActivities();}catch(err){msg(t('error')+(err.message||String(err)),true);}});
 document.addEventListener('click',async e=>{const b=e.target.closest('button');if(!b)return;try{
@@ -71,5 +100,44 @@ function exportRows(){if(!lastOverview?.students?.length){msg(t('noExport'),true
 $('export-csv').addEventListener('click',()=>{const rows=exportRows();if(!rows)return;const keys=Object.keys(rows[0]);const csv=[keys.join(','),...rows.map(r=>keys.map(k=>'"'+String(r[k]).replace(/"/g,'""')+'"').join(','))].join('\r\n');const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='activity-progress.csv';a.click();URL.revokeObjectURL(url);});
 $('export-xlsx').addEventListener('click',()=>{const rows=exportRows();if(!rows)return;if(!window.XLSX){msg(t('error')+'Excel export library unavailable',true);return;}const ws=XLSX.utils.json_to_sheet(rows);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Progress');XLSX.writeFile(wb,'activity-progress.xlsx');});
 async function init(){db=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);const {data:{session}}=await db.auth.getSession();if(!session){$('profile').textContent=t('denied');$('denied').classList.remove('hidden');return;}user=session.user;const {data:p,error}=await db.from('users_acc_info').select('id,username,eng_name,chi_name,role,school,class_codes').eq('id',user.id).maybeSingle();if(error||!p){$('profile').textContent=t('denied');$('denied').classList.remove('hidden');return;}profile=p;role=p.role;$('profile').textContent=lang==='zh'?(p.chi_name||p.eng_name||p.username):(p.eng_name||p.chi_name||p.username);applyLang();$('workspace').classList.remove('hidden');if(['teacher','admin'].includes(role)){$('teacher-panel').classList.remove('hidden');$('classes').value=p.class_codes||'';if(KIND==='preview')$('test-fields').classList.add('hidden');else $('preview-fields').classList.add('hidden');try{await loadQuestions();}catch(e){msg(t('error')+e.message,true);}}else{$('teacher-panel').classList.add('hidden');}await refreshActivities();}
-applyLang();init().catch(e=>msg(t('error')+e.message,true));
+applyLang();
+function togglePageUserMenu(){document.getElementById('user-dropdown')?.classList.toggle('hidden');}
+function goToHomeProfile(){location.href='index.html#profile';}
+function goToHomeManage(){location.href='index.html#manage';}
+function goToHomeSchool(){location.href='index.html#my-school';}
+async function pageLogout(){try{const c=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);await c.auth.signOut();}finally{location.href='index.html';}}
+function refreshSharedHeader(profileRow,roleValue){
+ const langValue=(()=>{try{return localStorage.getItem('mathcolate_language')||'en';}catch(_){return 'en';}})();
+ const row=profileRow||null;
+ const meta=window.__mathcolateHeaderMeta||{};
+ const name=row?(langValue==='zh'?(row.chi_name||row.eng_name||row.username):(row.eng_name||row.chi_name||row.username)):(langValue==='zh'?'登入':'Login');
+ const display=document.getElementById('user-display-name');
+ const guest=document.getElementById('user-avatar-guest');
+ const logged=document.getElementById('user-avatar-logged');
+ if(display){display.classList.remove('opacity-0');display.textContent=name||'Login';}
+ if(guest){guest.classList.remove('opacity-0');guest.classList.toggle('hidden',!!row);}
+ if(logged){logged.classList.remove('opacity-0');logged.classList.toggle('hidden',!row);logged.textContent=row?String(name||row.username||'').trim().charAt(0).toUpperCase():'';}
+ document.getElementById('btn-manage-site')?.classList.toggle('hidden',roleValue!=='admin');
+ document.getElementById('btn-my-school')?.classList.toggle('hidden',!['teacher','admin'].includes(roleValue));
+ const langBtn=document.getElementById('lang')||document.getElementById('language-toggle');
+ if(langBtn)langBtn.textContent=langValue==='zh'?'ENG/中文':'中文/ENG';
+}
+(async function initSharedHeader(){
+ try{
+  const c=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+  async function loadHeader(session){
+   if(!session){refreshSharedHeader(null,'');return;}
+   const {data:row}=await c.from('users_acc_info').select('username,eng_name,chi_name,role').eq('id',session.user.id).maybeSingle();
+   const m=session.user.user_metadata||{};
+   const p=row||{username:m.username||'',eng_name:m.eng_name||m.engName||'',chi_name:m.chi_name||m.chiName||''};
+   refreshSharedHeader(p,row?.role||'');
+  }
+  const {data:{session}}=await c.auth.getSession();
+  await loadHeader(session);
+  c.auth.onAuthStateChange((_event,next)=>{loadHeader(next).catch(console.error);});
+ }catch(e){console.error('Shared header initialization failed',e);}
+})();
+document.addEventListener('click',e=>{const c=document.getElementById('user-menu-container');if(c&&!c.contains(e.target))document.getElementById('user-dropdown')?.classList.add('hidden');});
+
+init().catch(e=>msg(t('error')+e.message,true));
 </script></body></html>
