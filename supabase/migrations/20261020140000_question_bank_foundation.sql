@@ -172,8 +172,20 @@ begin
   if p_answer_key->'answer_payload' is null or jsonb_typeof(p_answer_key->'answer_payload') <> 'object' or p_answer_key->'answer_payload' = '{}'::jsonb then
     raise exception 'A non-empty answer payload is required';
   end if;
+  if jsonb_typeof(coalesce(p_answer_key->'explanation','{}'::jsonb)) <> 'object' then raise exception 'Explanation must be a JSON object'; end if;
   if v_kind = 'MC' then
     if jsonb_array_length(v_choices) < 2 then raise exception 'MC questions need at least two choices'; end if;
+    if exists (
+      select 1 from jsonb_array_elements(v_choices) choice(value)
+      where nullif(trim(coalesce(choice.value->>'key','')), '') is null
+         or jsonb_typeof(choice.value->'text') <> 'object'
+         or nullif(trim(coalesce(choice.value->'text'->>'en','')), '') is null
+         or nullif(trim(coalesce(choice.value->'text'->>'zh','')), '') is null
+    ) then raise exception 'Every MC choice needs a key and bilingual text'; end if;
+    if (select count(*) from jsonb_array_elements(v_choices)) <>
+       (select count(distinct choice.value->>'key') from jsonb_array_elements(v_choices) choice(value)) then
+      raise exception 'MC choice keys must be unique';
+    end if;
     if jsonb_typeof(p_answer_key->'answer_payload'->'correct_options') <> 'array'
        or jsonb_array_length(p_answer_key->'answer_payload'->'correct_options') = 0 then
       raise exception 'MC answer payload must contain correct_options';
@@ -187,7 +199,21 @@ begin
       )
     ) then raise exception 'Correct option must match a choice key'; end if;
   end if;
-  if v_kind = 'SQ' and jsonb_array_length(v_subparts) = 0 then raise exception 'SQ questions need at least one subpart'; end if;
+  if v_kind = 'SQ' then
+    if jsonb_array_length(v_subparts) = 0 then raise exception 'SQ questions need at least one subpart'; end if;
+    if exists (
+      select 1 from jsonb_array_elements(v_subparts) part(value)
+      where nullif(trim(coalesce(part.value->>'key','')), '') is null
+         or jsonb_typeof(part.value->'prompt') <> 'object'
+         or nullif(trim(coalesce(part.value->'prompt'->>'en','')), '') is null
+         or nullif(trim(coalesce(part.value->'prompt'->>'zh','')), '') is null
+         or coalesce((part.value->>'points')::integer, 0) < 1
+         or jsonb_typeof(part.value->'unit_required') <> 'boolean'
+    ) then raise exception 'Every SQ subpart needs a key, bilingual prompt, positive integer points and unit_required boolean'; end if;
+    if jsonb_typeof(p_answer_key->'answer_payload'->'parts') <> 'object' then
+      raise exception 'SQ answer payload must contain a parts object';
+    end if;
+  end if;
   if coalesce(array_length(p_topic_ids, 1), 0) = 0 then raise exception 'Select at least one topic'; end if;
 
   insert into public.mc_question_bank(question_code, kind, stem, choices, subparts, shared_assets, points, state, submitted_by)
@@ -312,7 +338,7 @@ begin
   if v_uid is null then raise exception 'Authentication required' using errcode = '28000'; end if;
   select u.role into v_role from public.users_acc_info u where u.id = v_uid;
   if v_role is distinct from 'admin'::public.user_role then raise exception 'Admin role required' using errcode = '42501'; end if;
-  if p_decision not in ('rejected') then raise exception 'Invalid suggestion decision'; end if;
+  if p_decision is distinct from 'rejected' then raise exception 'Invalid suggestion decision'; end if;
   update public.mc_question_suggestions
   set status='rejected', reviewed_by=v_uid, reviewed_at=now(), review_reason=nullif(trim(p_reason),'')
   where id=p_suggestion_id and status='pending';
@@ -327,7 +353,7 @@ alter table public.mc_question_id_changes enable row level security;
 alter table public.mc_question_suggestions enable row level security;
 
 grant select on public.mc_question_bank, public.mc_question_topics, public.mc_question_suggestions to authenticated;
-grant insert on public.mc_question_suggestions to authenticated;
+-- Suggestion writes go through the ownership-checked RPC only.
 grant select on public.mc_question_answer_keys to authenticated;
 grant select on public.mc_question_id_changes to authenticated;
 revoke all on public.mc_question_answer_keys from anon, public;
@@ -345,7 +371,7 @@ for select to authenticated
 using (
   exists (select 1 from public.users_acc_info u where u.id=(select auth.uid()) and u.role='admin'::public.user_role)
   or exists (
-    select 1 from public.users_acc_info u join public.mc_question_bank q on q.id=question_id
+    select 1 from public.users_acc_info u join public.mc_question_bank q on q.id=public.mc_question_answer_keys.question_id
     where u.id=(select auth.uid()) and u.role='teacher'::public.user_role
       and (q.state='approved'::public.mc_question_state or q.submitted_by=(select auth.uid()))
   )
