@@ -200,9 +200,9 @@ async function startQuiz(){
  hideMessage();
  const {data:{session}}=await reviewClient.auth.getSession();
  if(!session){showMessage(rt('notLoggedIn'),'error');return;}
- if(!reviewSelected.size){showMessage(rt('chooseBeforeStart'),'error');return;}
  let pending=pendingReviewStart();
  if(pending && pending.userId!==session.user.id){savePendingReviewStart(null);pending=null;}
+ if(!pending && !reviewSelected.size){showMessage(rt('chooseBeforeStart'),'error');return;}
  if(!pending){
   pending={requestId:crypto.randomUUID(),userId:session.user.id,topics:Array.from(reviewSelected),level:reviewLevel,count:reviewQuestionCount};
   try{savePendingReviewStart(pending);}catch(e){showMessage(e.message,'error');return;}
