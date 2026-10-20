@@ -46,7 +46,7 @@ const activitySql=read('supabase/migrations/20261020160000_activity_workflows.sq
 for(const fn of ['mc_create_activity','mc_publish_activity','mc_start_online_test','mc_start_activity_attempt','mc_save_activity_answer','mc_submit_activity','mc_finalize_due_activity','mc_teacher_activity_overview'])
  assert.ok(activitySql.includes('function public.'+fn),'Missing activity RPC '+fn);
 assert.ok(activitySql.includes('mc_parse_exact_number'),'SQ grading must use exact numeric parsing');
-assert.ok(activitySql.includes('mc_attempt_answers from public,anon,authenticated'),'Attempt answers must not be directly exposed');
+assert.ok(activitySql.includes('revoke all on public.mc_activities,public.mc_activity_questions,public.mc_activity_attempts,public.mc_attempt_answers from public,anon,authenticated'),'Attempt answers must not be directly exposed');
 const validation=read('supabase/migrations/20261020170000_question_answer_validation.sql');
 assert.ok(validation.includes('sum of SQ subpart points'),'SQ point total validation is required');
 console.log('Static checks passed: four page scripts, Review safeguards, Question Bank role/locale checks, Preview/Online Test RPC wiring, deadline auto-submit and schema safeguards.');
