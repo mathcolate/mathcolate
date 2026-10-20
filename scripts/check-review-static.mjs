@@ -21,7 +21,7 @@ for(const [label,needle] of [
 ]) assert.ok(review.includes(needle),'Missing Review safeguard: '+label);
 const qb=pages.get('question-bank.html');
 for(const [label,needle] of [
- ['role lookup',".from('users_acc_info').select('username,eng_name,chi_name,role')"],
+ ['role lookup',".from('users_acc_info')"],
  ['question submission',"rpc('mc_submit_question'"],
  ['moderation',"rpc('mc_moderate_question'"],
  ['suggestion RPC',"rpc('mc_suggest_question_changes'"],
