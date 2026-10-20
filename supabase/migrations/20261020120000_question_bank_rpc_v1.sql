@@ -42,20 +42,20 @@ as $$
 declare k text:=p->>'kind'; topics jsonb:=p->'topics'; choices jsonb:=coalesce(p->'choices','[]'::jsonb); parts jsonb:=coalesce(p->'subparts','[]'::jsonb); n int; good int;
 begin
  if nullif(btrim(p->>'question_code'),'') is null or length(p->>'question_code')>120 then raise exception 'Question ID required (max 120 characters)'; end if;
- if k not in ('MC','SQ') then raise exception 'Unsupported question type'; end if;
- if jsonb_typeof(topics)<>'array' or jsonb_array_length(topics)=0 then raise exception 'At least one topic required'; end if;
+ if k is null or k not in ('MC','SQ') then raise exception 'Unsupported question type'; end if;
+ if jsonb_typeof(topics) is distinct from 'array' or jsonb_array_length(topics)=0 then raise exception 'At least one topic required'; end if;
  if nullif(btrim(p->'stem'->>'en'),'') is null or nullif(btrim(p->'stem'->>'zh'),'') is null then raise exception 'Both language versions are required'; end if;
  select count(distinct id) into n from public.review_topics where name in(select jsonb_array_elements_text(topics));
- if n<>(select count(distinct value) from jsonb_array_elements_text(topics) as x(value)) then raise exception 'Unknown topic'; end if;
+ if n is distinct from (select count(distinct value) from jsonb_array_elements_text(topics) as x(value)) then raise exception 'Unknown topic'; end if;
  if k='MC' then
-  if jsonb_typeof(choices)<>'array' then raise exception 'Choices must be an array'; end if;
+  if jsonb_typeof(choices) is distinct from 'array' then raise exception 'Choices must be an array'; end if;
   n:=jsonb_array_length(choices);
   if n<2 or n>6 then raise exception 'MC requires 2 to 6 choices'; end if;
   select count(*) into good from jsonb_array_elements(choices) c where coalesce((c->>'correct')::boolean,false);
   if good=0 then raise exception 'At least one correct choice required'; end if;
   if exists(select 1 from jsonb_array_elements(choices) c where nullif(btrim(c->>'en'),'') is null or nullif(btrim(c->>'zh'),'') is null) then raise exception 'Bilingual choices required'; end if;
  else
-  if jsonb_typeof(parts)<>'array' or jsonb_array_length(parts)=0 then raise exception 'SQ requires at least one part'; end if;
+  if jsonb_typeof(parts) is distinct from 'array' or jsonb_array_length(parts)=0 then raise exception 'SQ requires at least one part'; end if;
   if exists(select 1 from jsonb_array_elements(parts) p2 where nullif(btrim(p2->>'key'),'') is null or coalesce(p2->>'marks','') !~ '^[0-9]+$' or (p2->>'marks')::int<1 or nullif(btrim(p2->>'answer_en'),'') is null or nullif(btrim(p2->>'answer_zh'),'') is null) then raise exception 'Each SQ part requires key, positive integer marks and bilingual answers'; end if;
  end if;
 end $$;
