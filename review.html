@@ -208,7 +208,7 @@ async function startQuiz(){
   try{savePendingReviewStart(pending);}catch(e){showMessage(e.message,'error');return;}
  } else {
   // Once a request may have reached the server, retries must use the same request ID and settings.
-  reviewSelected=new Set(pending.topics);reviewLevel=pending.level;reviewQuestionCount=pending.count;
+  reviewSelected.clear();pending.topics.forEach(function(topic){reviewSelected.add(topic);});reviewLevel=pending.level;reviewQuestionCount=pending.count;
   document.querySelectorAll('input[name="review-level"]').forEach(el=>el.checked=Number(el.value)===reviewLevel);
   updateLevelCards();renderTopics();renderCounts();
  }
