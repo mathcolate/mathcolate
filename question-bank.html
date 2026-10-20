@@ -24,7 +24,7 @@
       <h1 class="text-2xl font-bold text-[#5c3a18] tracking-tight">Mathcolate</h1>
     </a>
     <div class="flex items-center space-x-2 sm:space-x-4">
-      <button onclick="togglePageLanguage()" class="text-sm font-semibold text-gray-500 hover:text-[#6f4822] transition-colors focus:outline-none px-2 py-1 rounded-md hover:bg-gray-100" data-i18n="langBtn">中文/ENG</button>
+      <button id="language-toggle" onclick="togglePageLanguage()" class="text-sm font-semibold text-gray-500 hover:text-[#6f4822] transition-colors focus:outline-none px-2 py-1 rounded-md hover:bg-gray-100" data-i18n="langBtn">中文/ENG</button>
       <div class="relative inline-block text-left" id="user-menu-container">
         <button id="user-btn" onclick="togglePageUserMenu()" class="flex items-center space-x-4 hover:bg-gray-100 p-2 -mr-2 rounded-xl transition-colors focus:outline-none cursor-pointer">
           <span id="user-display-name" class="text-sm font-medium text-gray-500 opacity-0">Login</span>
@@ -41,10 +41,11 @@
             <button onclick="pageLogout()" class="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center space-x-2"><span data-i18n="subLogout">Log Out</span></button>
           </div>
         </div>
-      <span id="profile-label" class="hidden"></span>
+      </div>
     </div>
   </div>
 </header>
+<span id="profile-label" class="hidden"></span>
 <main class="mx-auto max-w-7xl px-4 py-7 sm:px-6 sm:py-10">
  <div class="mb-7 flex flex-wrap items-end justify-between gap-4">
   <div><p class="text-sm font-semibold uppercase tracking-wide brand">Teacher workspace</p><h1 class="mt-2 text-3xl font-extrabold text-gray-900" data-i18n="title">Central Question Bank</h1><p class="mt-2 max-w-3xl text-sm leading-6 text-gray-600" data-i18n="subtitle">Submit bilingual MC/SQ questions, manage your submissions and suggest corrections to approved questions.</p></div>
