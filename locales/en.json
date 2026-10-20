@@ -8,6 +8,8 @@
   "reviewDesc": "Practice past topics to strengthen your foundation.",
   "testTitle": "Online Test",
   "testDesc": "Take an assessment to check your current knowledge.",
+  "questionBankTitle": "Question Bank",
+  "questionBankDesc": "Submit questions and manage moderation.",
   "modalTitleSignIn": "Sign In",
   "modalTitleRegister": "Create Account",
   "modalUser": "Username",
