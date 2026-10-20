@@ -4,14 +4,25 @@ on:
   pull_request:
     paths:
       - 'review.html'
+      - 'question-bank.html'
+      - 'index.html'
+      - 'locales/en.json'
+      - 'locales/zh.json'
+      - 'supabase/migrations/*question_bank*'
       - 'scripts/check-review-static.mjs'
       - '.github/workflows/review-static-checks.yml'
   push:
     branches:
       - main
       - fix/review-submit-retry
+      - feature/question-bank-preview-online-test
     paths:
       - 'review.html'
+      - 'question-bank.html'
+      - 'index.html'
+      - 'locales/en.json'
+      - 'locales/zh.json'
+      - 'supabase/migrations/*question_bank*'
       - 'scripts/check-review-static.mjs'
       - '.github/workflows/review-static-checks.yml'
 
