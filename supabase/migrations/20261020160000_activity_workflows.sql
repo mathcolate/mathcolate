@@ -257,13 +257,15 @@ begin
   if found then
    if v_att.state<>'active' then raise exception 'This Online Test has already been submitted'; end if;
    select jsonb_agg(jsonb_build_object('display_order',q.display_order,'question',q.question_snapshot) order by q.display_order) into v_q from public.mc_activity_questions q where q.activity_id=p_activity_id;
-   return jsonb_build_object('attempt_id',v_att.id,'deadline_at',v_a.deadline_at,'questions',coalesce(v_q,'[]'::jsonb));
+   return jsonb_build_object('attempt_id',v_att.id,'deadline_at',v_a.deadline_at,'questions',coalesce(v_q,'[]'::jsonb),
+    'saved_answers',coalesce((select jsonb_agg(jsonb_build_object('question_order',aa.question_order,'subpart_key',aa.subpart_key,'answer_payload',aa.answer_payload)) from public.mc_attempt_answers aa where aa.attempt_id=v_att.id),'[]'::jsonb));
   end if;
  end if;
  select * into v_att from public.mc_activity_attempts where activity_id=p_activity_id and student_id=v_uid and state='active' order by attempt_number desc limit 1 for update;
  if found then
   select jsonb_agg(jsonb_build_object('display_order',q.display_order,'question',q.question_snapshot) order by q.display_order) into v_q from public.mc_activity_questions q where q.activity_id=p_activity_id;
-  return jsonb_build_object('attempt_id',v_att.id,'deadline_at',coalesce(v_a.deadline_at,v_a.due_at),'questions',coalesce(v_q,'[]'::jsonb));
+  return jsonb_build_object('attempt_id',v_att.id,'deadline_at',coalesce(v_a.deadline_at,v_a.due_at),'questions',coalesce(v_q,'[]'::jsonb),
+   'saved_answers',coalesce((select jsonb_agg(jsonb_build_object('question_order',aa.question_order,'subpart_key',aa.subpart_key,'answer_payload',aa.answer_payload)) from public.mc_attempt_answers aa where aa.attempt_id=v_att.id),'[]'::jsonb));
  end if;
  insert into public.mc_activity_attempts(activity_id,student_id,attempt_number,max_points)
  values(p_activity_id,v_uid,coalesce((select max(attempt_number)+1 from public.mc_activity_attempts where activity_id=p_activity_id and student_id=v_uid),1),(select coalesce(sum(max_points),0) from public.mc_activity_questions where activity_id=p_activity_id))
@@ -315,7 +317,7 @@ begin
   raise exception 'Result not released yet';
  end if;
  return jsonb_build_object('attempt_id',v_att.id,'activity_id',v_a.id,'state',v_att.state,'correct_points',v_att.correct_points,'max_points',v_att.max_points,'submitted_at',v_att.submitted_at,'is_auto_submitted',v_att.is_auto_submitted,
-  'answers',coalesce((select jsonb_agg(jsonb_build_object('display_order',q.display_order,'question',q.question_snapshot,'answer',a.answer_payload,'is_correct',a.is_correct,'awarded_points',a.awarded_points) order by q.display_order,a.subpart_key) from public.mc_activity_questions q left join public.mc_attempt_answers a on a.attempt_id=v_att.id and a.question_order=q.display_order where q.activity_id=v_a.id),'[]'::jsonb));
+  'answers',coalesce((select jsonb_agg(jsonb_build_object('display_order',q.display_order,'question',q.question_snapshot,'answer',a.answer_payload,'is_correct',a.is_correct,'awarded_points',a.awarded_points,'correct_answer',q.answer_snapshot->'answer_payload','explanation',q.answer_snapshot->'explanation') order by q.display_order,a.subpart_key) from public.mc_activity_questions q left join public.mc_attempt_answers a on a.attempt_id=v_att.id and a.question_order=q.display_order where q.activity_id=v_a.id),'[]'::jsonb));
 end;
 $$;
 
