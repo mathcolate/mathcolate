@@ -13,6 +13,7 @@ on:
       - 'supabase/migrations/*question_bank*'
       - 'supabase/migrations/*activity_workflows*'
       - 'supabase/migrations/*question_answer_validation*'
+      - 'supabase/migrations/*exact_rational_sq_grading*'
       - 'scripts/check-review-static.mjs'
       - '.github/workflows/review-static-checks.yml'
   push:
@@ -21,6 +22,7 @@ on:
       - fix/review-submit-retry
       - feature/question-bank-preview-online-test
       - feature/preview-online-test-activities
+      - feature/exact-sq-grading
     paths:
       - 'review.html'
       - 'question-bank.html'
@@ -32,6 +34,7 @@ on:
       - 'supabase/migrations/*question_bank*'
       - 'supabase/migrations/*activity_workflows*'
       - 'supabase/migrations/*question_answer_validation*'
+      - 'supabase/migrations/*exact_rational_sq_grading*'
       - 'scripts/check-review-static.mjs'
       - '.github/workflows/review-static-checks.yml'
 
