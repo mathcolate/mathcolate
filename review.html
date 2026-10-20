@@ -186,18 +186,55 @@ function renderDetailList(result){
  const answers=result.answers||[];
  container.innerHTML=answers.map(function(a,i){const opts=Array.isArray(a.options)?a.options:[];const picked=opts.find(function(o,j){return optionKey(o,j)===a.selected_option;});const correct=opts.find(function(o,j){return optionKey(o,j)===a.correct_option;});return '<article class="rounded-2xl border '+(a.is_correct?'border-green-200':'border-red-200')+' bg-white p-5"><div class="flex flex-wrap items-center justify-between gap-2"><h3 class="font-bold text-gray-900">'+esc(rt('question'))+' '+(i+1)+'</h3><span class="rounded-full px-3 py-1 text-xs font-semibold '+(a.is_correct?'bg-green-50 text-green-700':'bg-red-50 text-red-700')+'">'+esc(a.is_correct?rt('correct'):rt('incorrect'))+'</span></div><p class="mt-3 whitespace-pre-wrap leading-7 text-gray-800">'+esc(a.question_text)+'</p><div class="mt-4 grid gap-3 sm:grid-cols-2"><div class="rounded-xl bg-gray-50 p-3"><p class="text-xs font-semibold uppercase tracking-wide text-gray-500">'+esc(rt('yourAnswer'))+'</p><p class="mt-1 font-medium">'+esc(a.selected_option?(a.selected_option+'. '+(picked?optionLabel(picked):'')):rt('unanswered'))+'</p></div><div class="rounded-xl bg-green-50 p-3"><p class="text-xs font-semibold uppercase tracking-wide text-green-700">'+esc(rt('correctAnswer'))+'</p><p class="mt-1 font-medium text-green-900">'+esc(a.correct_option+(correct?'. '+optionLabel(correct):''))+'</p></div></div><div class="mt-4 rounded-xl border border-[#f2e8e5] p-4"><h4 class="font-semibold brand-text">'+esc(rt('explanation'))+'</h4><p class="mt-2 whitespace-pre-wrap text-sm leading-6 text-gray-700">'+esc(a.explanation||rt('noExplanation'))+'</p></div></article>';}).join('');
 }
+function pendingReviewStart(){
+ try {
+  const raw=sessionStorage.getItem('mathcolate_review_start_request');
+  return raw?JSON.parse(raw):null;
+ } catch(e){return null;}
+}
+function savePendingReviewStart(value){
+ try { if(value)sessionStorage.setItem('mathcolate_review_start_request',JSON.stringify(value));else sessionStorage.removeItem('mathcolate_review_start_request'); }
+ catch(e){throw new Error('Session storage is unavailable; cannot safely retry Review start. Please enable session storage and try again.');}
+}
 async function startQuiz(){
- hideMessage();const {data:{session}}=await reviewClient.auth.getSession();if(!session){showMessage(rt('notLoggedIn'),'error');return;}
+ hideMessage();
+ const {data:{session}}=await reviewClient.auth.getSession();
+ if(!session){showMessage(rt('notLoggedIn'),'error');return;}
  if(!reviewSelected.size){showMessage(rt('chooseBeforeStart'),'error');return;}
+ let pending=pendingReviewStart();
+ if(pending && pending.userId!==session.user.id){savePendingReviewStart(null);pending=null;}
+ if(!pending){
+  pending={requestId:crypto.randomUUID(),userId:session.user.id,topics:Array.from(reviewSelected),level:reviewLevel,count:reviewQuestionCount};
+  try{savePendingReviewStart(pending);}catch(e){showMessage(e.message,'error');return;}
+ } else {
+  // Once a request may have reached the server, retries must use the same request ID and settings.
+  reviewSelected=new Set(pending.topics);reviewLevel=pending.level;reviewQuestionCount=pending.count;
+  document.querySelectorAll('input[name="review-level"]').forEach(el=>el.checked=Number(el.value)===reviewLevel);
+  updateLevelCards();renderTopics();renderCounts();
+ }
  reviewBusy=true;document.getElementById('start-quiz').disabled=true;document.getElementById('start-quiz').textContent=rt('loading');
- const {data,error}=await reviewClient.rpc('review_start_quiz',{p_topic_names:Array.from(reviewSelected),p_level:reviewLevel,p_question_count:reviewQuestionCount});
+ let response;
+ try {
+  response=await reviewClient.rpc('review_start_quiz',{
+   p_topic_names:pending.topics,p_level:pending.level,p_question_count:pending.count,p_request_id:pending.requestId
+  });
+ } catch(e){response={error:e};}
+ const {data,error}=response||{};
  reviewBusy=false;document.getElementById('start-quiz').textContent=rt('startQuiz');renderTopics();
- if(error){showMessage(rt('startFailed')+' '+error.message,'error');return;}
- if(!data||!data.ok){if(data&&data.code==='insufficient_questions'){showMessage(rt('insufficient')+data.available_count+rt('questionsSuffix'),'warn');}else showMessage(data&&data.message?data.message:rt('startFailed'),'error');return;}
+ if(error){showMessage(rt('startFailed')+' '+error.message+' Retry will reuse the same request.', 'error');return;}
+ if(!data||!data.ok){
+  if(data&&data.code==='insufficient_questions'){
+   // No attempt was created; a new attempt may be requested after settings change.
+   savePendingReviewStart(null);
+   showMessage(rt('insufficient')+data.available_count+rt('questionsSuffix'),'warn');
+  } else showMessage(data&&data.message?data.message:rt('startFailed'),'error');
+  return;
+ }
  currentAttempt={attempt_id:data.attempt_id};currentQuestions=data.questions||[];currentAnswers={};currentQuestionIndex=0;
  if(!currentQuestions.length){showMessage(rt('noQuestions'),'error');return;}
  document.querySelectorAll('#topic-menu input,#question-counts button,#clear-topics,#start-quiz').forEach(function(el){el.disabled=true;});
- renderQuiz();
+ // Keep the request key until the quiz is safely initialized in this page.
+ try{renderQuiz();savePendingReviewStart(null);}catch(e){showMessage(rt('startFailed'),'error');}
 }
 async function submitQuiz(){
  if(!currentAttempt||!currentAttempt.attempt_id)return;
