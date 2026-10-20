@@ -176,7 +176,7 @@ returns uuid
 language plpgsql
 security definer
 set search_path = ''
-as $
+as $$
 declare
   v_uid uuid := (select auth.uid());
   v_role public.user_role;
@@ -282,7 +282,7 @@ exception
   when unique_violation then
     raise exception 'Question ID already exists';
 end;
-$;
+$$;
 
 create or replace function public.mc_moderate_question(
   p_question_id uuid,
@@ -293,7 +293,7 @@ returns void
 language plpgsql
 security definer
 set search_path = ''
-as $
+as $$
 declare
   v_uid uuid := (select auth.uid());
   v_role public.user_role;
@@ -301,7 +301,7 @@ begin
   if v_uid is null then raise exception 'Authentication required' using errcode = '28000'; end if;
   select u.role into v_role from public.users_acc_info u where u.id = v_uid;
   if v_role is distinct from 'admin'::public.user_role then raise exception 'Admin role required' using errcode = '42501'; end if;
-  if p_decision not in ('approved'::public.mc_question_state, 'rejected'::public.mc_question_state, 'disabled'::public.mc_question_state) then
+  if p_decision not in ('approved'::public.mc_question_state, 'returned'::public.mc_question_state, 'rejected'::public.mc_question_state, 'disabled'::public.mc_question_state) then
     raise exception 'Invalid moderation decision';
   end if;
   update public.mc_question_bank
@@ -309,7 +309,7 @@ begin
   where id = p_question_id;
   if not found then raise exception 'Question not found'; end if;
 end;
-$;
+$$;
 
 create or replace function public.mc_suggest_question_changes(
   p_question_id uuid,
@@ -319,7 +319,7 @@ returns uuid
 language plpgsql
 security definer
 set search_path = ''
-as $
+as $$
 declare
   v_uid uuid := (select auth.uid());
   v_role public.user_role;
@@ -339,14 +339,14 @@ begin
   returning id into v_suggestion_id;
   return v_suggestion_id;
 end;
-$;
+$$;
 create or replace function public.mc_validate_question_record()
 returns trigger language plpgsql set search_path=''
-as $
+as $$
 declare v_count integer; v_sum integer;
 begin
  if new.kind='MC'::public.mc_question_kind then
-  if jsonb_typeof(new.choices)<>'array' or jsonb_array_length(new.choices)<2 or jsonb_array_length(new.choices)>6 then raise exception 'MC questions need at least two choices'; end if;
+  if jsonb_typeof(new.choices)<>'array' or jsonb_array_length(new.choices)<2 or jsonb_array_length(new.choices)>6 then raise exception 'MC questions need two to six choices'; end if;
   if exists(select 1 from jsonb_array_elements(new.choices) c(value)
     where nullif(trim(coalesce(c.value->>'key','')),'') is null
        or jsonb_typeof(c.value->'text') is distinct from 'object'
@@ -372,10 +372,10 @@ begin
  end if;
  return new;
 end;
-$;
+$$;
 create or replace function public.mc_validate_question_answer_key()
 returns trigger language plpgsql set search_path=''
-as $
+as $$
 declare v_q public.mc_question_bank%rowtype; v_correct jsonb; v_key text; v_part jsonb; v_num numeric;
 begin
  select * into v_q from public.mc_question_bank where id=new.question_id;
@@ -395,7 +395,7 @@ begin
    v_key:=v_part->>'key';
    if not (new.answer_payload->'parts' ? v_key) then raise exception 'Missing answer for SQ subpart %',v_key; end if;
    if jsonb_typeof(new.answer_payload->'parts'->v_key) is distinct from 'object' then raise exception 'SQ subpart answer must be an object'; end if;
-   if coalesce(new.answer_payload->'parts'->v_key->>'value','') !~ '^[+-]?[0-9]+([.][0-9]+)?%?$|^[+-]?[0-9]+/[0-9]+ then raise exception 'SQ answer must use a supported exact decimal or fraction'; end if;
+   if coalesce(new.answer_payload->'parts'->v_key->>'value','') !~ '^[+-]?[0-9]+([.][0-9]+)?%?$|^[+-]?[0-9]+/[0-9]+
    if position('/' in (new.answer_payload->'parts'->v_key->>'value'))>0 and split_part(new.answer_payload->'parts'->v_key->>'value','/',2)::numeric=0 then raise exception 'SQ fraction denominator cannot be zero'; end if;
   end loop;
  end if;
@@ -407,5 +407,18 @@ $; then raise exception 'SQ answer must use a supported exact decimal or fractio
  end if;
  return new;
 end;
-$;
+$$;
+commit; then raise exception 'SQ answer must use a supported exact decimal, percentage or fraction'; end if;
+   if position('/' in (new.answer_payload->'parts'->v_key->>'value'))>0 and split_part(new.answer_payload->'parts'->v_key->>'value','/',2)::numeric=0 then raise exception 'SQ fraction denominator cannot be zero'; end if;
+  end loop;
+ end if;
+ return new;
+end;
+$; then raise exception 'SQ answer must use a supported exact decimal or fraction'; end if;
+   if position('/' in (new.answer_payload->'parts'->v_key->>'value'))>0 and split_part(new.answer_payload->'parts'->v_key->>'value','/',2)::numeric=0 then raise exception 'SQ fraction denominator cannot be zero'; end if;
+  end loop;
+ end if;
+ return new;
+end;
+$$;
 commit;
