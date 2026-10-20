@@ -1,0 +1,32 @@
+name: Review static checks
+
+on:
+  pull_request:
+    paths:
+      - 'review.html'
+      - 'scripts/check-review-static.mjs'
+      - '.github/workflows/review-static-checks.yml'
+  push:
+    branches:
+      - main
+      - fix/review-submit-retry
+    paths:
+      - 'review.html'
+      - 'scripts/check-review-static.mjs'
+      - '.github/workflows/review-static-checks.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  review-static:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate Review JavaScript and safeguards
+        run: node scripts/check-review-static.mjs
