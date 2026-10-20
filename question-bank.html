@@ -171,7 +171,7 @@ async function init(){
  $('workspace').classList.remove('hidden');
  if(role==='admin'){$('moderation-tab').classList.remove('hidden');$('suggestion-tab').classList.remove('hidden');}
  try{await loadTopics();}catch(err){showStatus(t('error')+(err.message||String(err)),true);}
- $('topic-ids').size=Math.min(9,Math.max(4,topics.length));setTab('submit');
+ setTab('submit');
 }
 applyLanguage();
 function togglePageLanguage(){lang=lang==='en'?'zh':'en';try{localStorage.setItem('mathcolate_language',lang);}catch(_){}applyLanguage();refreshSharedHeader(profile,role);}
