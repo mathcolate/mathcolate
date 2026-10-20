@@ -228,7 +228,7 @@ begin
   into v_result from public.mc_activities x where x.owner_teacher_id=v_uid and x.kind=p_kind and x.state<>'cancelled';
  else
   for a in select x.id from public.mc_activities x where x.kind=p_kind and x.state in ('published','waiting','in_progress') and exists(select 1 from unnest(x.target_class_codes) c where public.mc_is_class_member(v_uid,x.school,c)) loop perform public.mc_finalize_due_activity(a.id); end loop;
-  select coalesce(jsonb_agg(jsonb_build_object('id',x.id,'kind',x.kind,'state',x.state,'title',x.title,'instructions',x.instructions,'due_at',x.due_at,'duration_seconds',x.duration_seconds,'started_at',x.started_at,'deadline_at',x.deadline_at,'created_at',x.created_at,'question_count',(select count(*) from public.mc_activity_questions q where q.activity_id=x.id),'my_attempt_state',att.state,'my_attempt_id',att.id,'best_points',(select max(t.correct_points) from public.mc_activity_attempts t where t.activity_id=x.id and t.student_id=v_uid)) order by x.created_at desc),'[]'::jsonb)
+  select coalesce(jsonb_agg(jsonb_build_object('id',x.id,'kind',x.kind,'state',x.state,'title',x.title,'instructions',x.instructions,'due_at',x.due_at,'duration_seconds',x.duration_seconds,'started_at',x.started_at,'deadline_at',x.deadline_at,'created_at',x.created_at,'question_count',(select count(*) from public.mc_activity_questions q where q.activity_id=x.id),'my_attempt_state',att.state,'my_attempt_id',att.id,'best_points',(select max(t.correct_points) from public.mc_activity_attempts t where t.activity_id=x.id and t.student_id=v_uid),'best_max_points',(select max(t.max_points) from public.mc_activity_attempts t where t.activity_id=x.id and t.student_id=v_uid)) order by x.created_at desc),'[]'::jsonb)
   into v_result from public.mc_activities x
   left join lateral(select y.id,y.state from public.mc_activity_attempts y where y.activity_id=x.id and y.student_id=v_uid order by y.attempt_number desc limit 1) att on true
   where x.kind=p_kind and x.state in ('published','waiting','in_progress','ended') and exists(select 1 from unnest(x.target_class_codes) c where public.mc_is_class_member(v_uid,x.school,c))
@@ -352,12 +352,20 @@ begin
  if not found then raise exception 'Activity not found' using errcode='42501'; end if;
  perform public.mc_finalize_due_activity(v_a.id);
  select * into v_a from public.mc_activities where id=p_activity_id;
- select coalesce(jsonb_agg(jsonb_build_object('student_id',u.id,'username',u.username,'name',coalesce(nullif(u.eng_name,''),u.username),'state',att.state,'started_at',att.started_at,'submitted_at',att.submitted_at,'last_saved_at',att.last_saved_at,'progress',case when att.id is null then 0 else least(100,(select count(distinct a.question_order) from public.mc_attempt_answers a where a.attempt_id=att.id)::numeric/greatest((select count(*) from public.mc_activity_questions q where q.activity_id=v_a.id),1)*100) end) order by u.username),'[]'::jsonb)
+ select coalesce(jsonb_agg(jsonb_build_object('student_id',u.id,'username',u.username,'name',coalesce(nullif(u.eng_name,''),u.username),'state',att.state,'started_at',att.started_at,'submitted_at',att.submitted_at,'last_saved_at',att.last_saved_at,'score',case when att.state in ('submitted'::public.mc_attempt_state,'auto_submitted'::public.mc_attempt_state) then att.correct_points else null end,'max_points',att.max_points,'progress',case when att.id is null then 0 else least(100,(select count(distinct a.question_order) from public.mc_attempt_answers a where a.attempt_id=att.id)::numeric/greatest((select count(*) from public.mc_activity_questions q where q.activity_id=v_a.id),1)*100) end) order by u.username),'[]'::jsonb)
  into v_students from public.users_acc_info u left join public.mc_activity_attempts att on att.activity_id=v_a.id and att.student_id=u.id
  where u.role='student'::public.user_role and u.school=v_a.school and exists(select 1 from unnest(v_a.target_class_codes) c where c=any(regexp_split_to_array(coalesce(u.class_codes,''),E'\\s*,\\s*')));
- if v_a.kind='online_test' and v_a.state='ended' then
+ if v_a.kind='online_test' then
   select coalesce(jsonb_agg(jsonb_build_object('score',bucket,'count',n) order by bucket),'[]'::jsonb) into v_hist
-  from (select coalesce(round((att.correct_points::numeric/greatest(att.max_points,1))*100)::integer,0) bucket,count(*) n from public.users_acc_info u left join public.mc_activity_attempts att on att.activity_id=v_a.id and att.student_id=u.id where u.role='student'::public.user_role and u.school=v_a.school and exists(select 1 from unnest(v_a.target_class_codes) c where c=any(regexp_split_to_array(coalesce(u.class_codes,''),E'\\s*,\\s*'))) group by 1) h;
+  from (
+   select coalesce(round((att.correct_points::numeric/greatest(att.max_points,1))*100)::integer,0) bucket,count(*) n
+   from public.users_acc_info u
+   left join public.mc_activity_attempts att on att.activity_id=v_a.id and att.student_id=u.id
+   where u.role='student'::public.user_role and u.school=v_a.school
+    and exists(select 1 from unnest(v_a.target_class_codes) c where c=any(regexp_split_to_array(coalesce(u.class_codes,''),E'\\s*,\\s*')))
+    and (v_a.state='ended' or att.state in ('submitted'::public.mc_attempt_state,'auto_submitted'::public.mc_attempt_state))
+   group by 1
+  ) h;
  else v_hist:='[]'::jsonb; end if;
  return jsonb_build_object('activity_id',v_a.id,'state',v_a.state,'started_at',v_a.started_at,'deadline_at',v_a.deadline_at,'students',v_students,'histogram',v_hist);
 end;
