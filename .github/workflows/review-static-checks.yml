@@ -5,10 +5,14 @@ on:
     paths:
       - 'review.html'
       - 'question-bank.html'
+      - 'preview.html'
+      - 'online-test.html'
       - 'index.html'
       - 'locales/en.json'
       - 'locales/zh.json'
       - 'supabase/migrations/*question_bank*'
+      - 'supabase/migrations/*activity_workflows*'
+      - 'supabase/migrations/*question_answer_validation*'
       - 'scripts/check-review-static.mjs'
       - '.github/workflows/review-static-checks.yml'
   push:
@@ -16,13 +20,18 @@ on:
       - main
       - fix/review-submit-retry
       - feature/question-bank-preview-online-test
+      - feature/preview-online-test-activities
     paths:
       - 'review.html'
       - 'question-bank.html'
+      - 'preview.html'
+      - 'online-test.html'
       - 'index.html'
       - 'locales/en.json'
       - 'locales/zh.json'
       - 'supabase/migrations/*question_bank*'
+      - 'supabase/migrations/*activity_workflows*'
+      - 'supabase/migrations/*question_answer_validation*'
       - 'scripts/check-review-static.mjs'
       - '.github/workflows/review-static-checks.yml'
 
