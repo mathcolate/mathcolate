@@ -38,7 +38,7 @@ for(const [label,needle] of [
  ['option image state survives language rerender','const previousImages=Array.from(document.querySelectorAll(\'[data-choice-image]\')).map(el=>el.files?.[0]||null);'],
  ['option image remove control','data-remove-choice-image'],
  ['option image preview rendering','function renderChoiceImagePreview(key,file)'],
- ['option image restored after render','input.files=dt.files;renderChoiceImagePreview(input.dataset.choiceImage,input.files?.[0]||null);'],
+ ['option image restored after render','input.files=dt.files;}renderChoiceImagePreview(input.dataset.choiceImage,input.files?.[0]||null);'],
  ['individual attachment removal updates FileList','input.files=dt.files;renderStemImagePreviews();'],
  ['attachment previews render selected files','Array.from(input.files||[]).forEach((file,index)=>'],
  ['synced option updates counterpart preview','target.dispatchEvent(new Event(\'input\',{bubbles:true}));'],
