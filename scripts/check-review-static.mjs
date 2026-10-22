@@ -22,12 +22,12 @@ for(const [label,needle] of [
 const qb=pages.get('question-bank.html');
 for(const [label,needle] of [
  ['role lookup',".from('users_acc_info')"],
- ['question submission',"rpc('mc_submit_question'"],
+ ['question submission',"rpc('mc_submit_question_with_level'"],
  ['moderation',"rpc('mc_moderate_question'"],
  ['suggestion RPC',"rpc('mc_suggest_question_changes'"],
  ['teacher/admin gate',"!['teacher','admin'].includes(role)"],
  ['bilingual stem','stem:{en:$('],
- ['teacher-owned edit RPC',"rpc('mc_update_pending_question'"],
+ ['teacher-owned edit RPC',"rpc('mc_update_pending_question_with_level'"],
  ['discard RPC',"rpc('mc_delete_pending_question'"],
  ['teacher-owned queue filter',"query=query.eq('submitted_by',user.id)"],
  ['approved-only browse',"query=query.eq('state','approved')"],
