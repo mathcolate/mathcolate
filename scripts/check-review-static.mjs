@@ -75,7 +75,7 @@ const reviewPage=pages.get('review.html');
 assert.ok(reviewPage.includes("function reviewLocalized(value)") && reviewPage.includes("reviewLocalized(q.question_text)"),'Review must render bilingual question snapshots in the selected language');
 assert.ok(reviewPage.includes('type="checkbox" name="current-answer"') && reviewPage.includes("function reviewAnswerPayload(value)"),'Review must support and normalize multi-select MC answers');
 const questionBankPage=pages.get('question-bank.html');
-assert.ok(questionBankPage.includes('id="review-level"') && questionBankPage.includes("mc_set_question_review_level"),'Question Bank must allow explicit Review level assignment');
+assert.ok(questionBankPage.includes('id="review-level"') && questionBankPage.includes("mc_submit_question_with_level") && questionBankPage.includes("mc_update_pending_question_with_level"),'Question Bank must save Review level atomically with question changes');
 const home=read('index.html');
 assert.ok(home.includes("const allowedViews = new Set(['main', 'register', 'manage', 'my-school', 'profile'])"),'Homepage routes must be explicitly allowlisted');
 assert.ok(home.includes("window.addEventListener('hashchange', () =>") && home.includes("this.setView(hashView, 'none')"),'Hash changes must restore views without pushing duplicate history');
