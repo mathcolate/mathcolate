@@ -19,6 +19,12 @@ for(const [label,needle] of [
  ['inputs locked while submit is pending','input.disabled=true'],
  ['retry state reset after success','submissionRetryPending=false;pendingSubmissionPayload=null;']
 ]) assert.ok(review.includes(needle),'Missing Review safeguard: '+label);
+const assist=read('supabase/functions/math-question-assist/index.ts');
+assert.ok(assist.includes('authData.user'),'AI assistance must verify the signed-in user');
+assert.ok(assist.includes('users_acc_info'),'AI assistance must check teacher/admin role');
+assert.ok(assist.includes('GEMINI_API_KEY'),'Gemini key must come from server-side secrets');
+assert.ok(assist.includes('do not infer the correct answer'),'OCR must not guess the correct answer');
+assert.ok(assist.includes('responseMimeType: "application/json"'),'Gemini responses must use JSON mode');
 const qb=pages.get('question-bank.html');
 for(const [label,needle] of [
  ['role lookup',".from('users_acc_info')"],
