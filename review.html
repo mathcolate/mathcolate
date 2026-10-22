@@ -376,7 +376,7 @@ document.addEventListener('click',function(e){
 window.addEventListener('beforeunload',function(e){if(currentQuestions.length&&currentAttempt&&currentAttempt.attempt_id&&!currentAttempt.submitted_at){e.preventDefault();e.returnValue='';}});
 function renderReview(){applyReviewTranslations();loadReviewTopics();}
 const oldTogglePageLanguage=togglePageLanguage;
-togglePageLanguage=function(){oldTogglePageLanguage();applyReviewTranslations();renderTopics();applyReviewTranslations();};
+togglePageLanguage=function(){oldTogglePageLanguage();applyReviewTranslations();};
 applyReviewTranslations();
 renderReview();
 
