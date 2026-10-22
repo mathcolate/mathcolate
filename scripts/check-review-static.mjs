@@ -65,6 +65,15 @@ for(const key of ['questionBankTitle','questionBankDesc']){
  assert.ok(JSON.parse(read('locales/en.json'))[key]&&JSON.parse(read('locales/zh.json'))[key],'Missing locale key '+key);
 }
 const home=read('index.html');
+assert.ok(home.includes("const allowedViews = new Set(['main', 'register', 'manage', 'my-school', 'profile'])"),'Homepage routes must be explicitly allowlisted');
+assert.ok(home.includes("window.addEventListener('hashchange', () =>") && home.includes("this.setView(hashView, 'none')"),'Hash changes must restore views without pushing duplicate history');
+assert.ok(home.includes("if (normalizedRoute || historyMode === 'replace')"),'Invalid/denied routes must replace the current history entry');
+assert.ok(home.includes("this.setView('main', 'replace')"),'Sign-out must replace the protected view history entry');
+for(const path of ['preview.html','review.html','online-test.html','question-bank.html']){
+ const html=pages.get(path);
+ assert.ok(html.includes("localStorage.getItem('mathcolate_language')"),path+' must restore the shared language preference');
+ assert.ok(html.includes("location.href='index.html#profile'") && html.includes("location.href='index.html#manage'"),path+' must preserve deep links back to profile/manage views');
+}
 assert.ok(!home.includes('id="question-bank-card"'),'Homepage must not show a standalone Question Bank card');
 assert.ok(home.includes('id="view-manage"')&&home.includes('data-i18n="btnUpdateQb"')&&home.includes("app.navigateToFeature('question-bank.html')"),'Admin Manage Website must link to Question Bank');
 assert.ok(home.includes('id="view-my-school"')&&home.includes('data-i18n="btnUpdateQb"')&&home.includes("app.navigateToFeature('question-bank.html')"),'Teacher My School must link to Question Bank');

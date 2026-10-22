@@ -742,7 +742,7 @@
                 window.addEventListener('hashchange', () => {
                     const hashView = window.location.hash.replace('#', '') || 'main';
                     if (this.view !== hashView) {
-                        this.setView(hashView, false);
+                        this.setView(hashView, 'none');
                     }
                 });
 
@@ -787,7 +787,7 @@
                             this.isLoggingOut = false;
                             this.refreshIdleTimer?.();
                             this.updateHeaderDisplay();
-                            this.setView('main');
+                            this.setView('main', 'replace');
                         } else if (event === 'SIGNED_IN' && session?.user && !this.currentUser) {
                             await this.hydrateFromSession(session.user);
                             this.ensureActivityRecord(session.user.id);
@@ -805,7 +805,7 @@
                 document.getElementById('user-avatar-logged')?.classList.remove('opacity-0');
                 this.updateHeaderDisplay();
                 const initialView = window.location.hash.replace('#', '') || 'main';
-                this.setView(initialView, false);
+                this.setView(initialView, 'none');
                 
                 this.initIdleTimer();
                 if (idleLogoutOnStartup) {
@@ -1036,25 +1036,33 @@
                 // refreshes the localized filters and table using the profiles in memory.
             },
 
-            setView(viewName, pushHistory = true) {
+            setView(viewName, historyMode = 'push') {
+                const allowedViews = new Set(['main', 'register', 'manage', 'my-school', 'profile']);
+                let normalizedRoute = false;
+                let routeError = null;
+
+                // Never let a stale, malformed, or unknown hash hide every application view.
+                if (!allowedViews.has(viewName)) {
+                    viewName = 'main';
+                    normalizedRoute = true;
+                }
                 if (viewName === 'manage' && !this.isAdmin()) {
                     viewName = 'main';
-                    if (this.currentUser) {
-                        this.showOutputMessage(this.t('errNotAdmin'), true);
-                    }
+                    normalizedRoute = true;
+                    if (this.currentUser) routeError = this.t('errNotAdmin');
                 }
                 if (viewName === 'my-school' && !this.isTeacher()) {
                     viewName = 'main';
-                    if (this.currentUser) {
-                        this.showOutputMessage(this.t('errNotTeacher') || 'You do not have permission to View my school.', true);
-                    }
+                    normalizedRoute = true;
+                    if (this.currentUser) routeError = this.t('errNotTeacher') || 'You do not have permission to View my school.';
                 }
 
                 this.view = viewName;
                 document.querySelectorAll('.app-view').forEach(el => el.classList.add('hidden'));
                 const targetView = document.getElementById(`view-${viewName}`);
-                if (targetView) targetView.classList.remove('hidden');
+                targetView?.classList.remove('hidden');
                 this.hideOutputMessage();
+                if (routeError) this.showOutputMessage(routeError, true);
                 window.scrollTo(0, 0);
 
                 if (viewName === 'manage') {
@@ -1065,7 +1073,14 @@
                     this.initMySchoolView();
                 }
 
-                if (pushHistory && window.location.hash !== '#' + viewName) {
+                // A denied/invalid route must replace the current entry, not create a
+                // broken history loop where Back repeatedly returns to the same view.
+                const nextHash = '#' + viewName;
+                if (normalizedRoute || historyMode === 'replace') {
+                    if (window.location.hash !== nextHash) {
+                        window.history.replaceState(window.history.state, '', window.location.pathname + window.location.search + nextHash);
+                    }
+                } else if (historyMode === 'push' && window.location.hash !== nextHash) {
                     window.location.hash = viewName;
                 }
             },
@@ -1442,7 +1457,7 @@
 
             async initManageView() {
                 if (!this.isAdmin()) {
-                    this.setView('main', false);
+                    this.setView('main', 'replace');
                     this.showOutputMessage(this.t('errNotAdmin'), true);
                     return;
                 }
@@ -1454,7 +1469,7 @@
 
             async initMySchoolView() {
                 if (!this.isTeacher()) {
-                    this.setView('main', false);
+                    this.setView('main', 'replace');
                     this.showOutputMessage(this.t('errNotTeacher') || 'You do not have permission.', true);
                     return;
                 }
