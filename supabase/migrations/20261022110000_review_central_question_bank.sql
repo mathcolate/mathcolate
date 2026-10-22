@@ -30,6 +30,19 @@ alter table public.review_attempt_questions
   add constraint review_attempt_questions_question_id_fkey
   foreign key (question_id) references public.mc_question_bank(id) on delete restrict;
 
+create or replace function public.mc_review_option_set(p_value text)
+returns text
+language sql
+immutable
+set search_path = ''
+as $function$
+  select case when p_value is null then null else (
+    select string_agg(trim(value), ',' order by trim(value))
+    from unnest(string_to_array(p_value, ',')) as items(value)
+    where trim(value) <> ''
+  ) end;
+$function$;
+
 create or replace function public.mc_set_question_review_level(
   p_question_id uuid,
   p_review_level smallint
@@ -52,7 +65,7 @@ begin
      and (v_question.submitted_by is distinct from v_uid or v_question.state not in ('pending'::public.mc_question_state,'returned'::public.mc_question_state)) then
     raise exception 'Only the owner may set the level of an unapproved question' using errcode = '42501';
   end if;
-  if v_role not in ('teacher'::public.user_role,'admin'::public.user_role) then
+  if v_role is null or v_role not in ('teacher'::public.user_role,'admin'::public.user_role) then
     raise exception 'Teacher or admin role required' using errcode = '42501';
   end if;
   update public.mc_question_bank set review_level = p_review_level, updated_at = now() where id = p_question_id;
@@ -162,18 +175,6 @@ begin
 end;
 $function$;
 
-create or replace function public.mc_review_option_set(p_value text)
-returns text
-language sql
-immutable
-set search_path = ''
-as $function$
-  select case when p_value is null then null else (
-    select string_agg(trim(value), ',' order by trim(value))
-    from unnest(string_to_array(p_value, ',')) as items(value)
-    where trim(value) <> ''
-  ) end;
-$function$;
 
 create or replace function public.review_save_answer(
   p_attempt_id uuid, p_question_id uuid, p_selected_option text
