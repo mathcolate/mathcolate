@@ -74,6 +74,12 @@ assert.ok(reviewBankSql.includes("function public.mc_set_question_review_level")
 const reviewPage=pages.get('review.html');
 assert.ok(reviewPage.includes("function reviewLocalized(value)") && reviewPage.includes("reviewLocalized(q.question_text)"),'Review must render bilingual question snapshots in the selected language');
 assert.ok(reviewPage.includes('type="checkbox" name="current-answer"') && reviewPage.includes("function reviewAnswerPayload(value)"),'Review must support and normalize multi-select MC answers');
+assert.ok(reviewPage.includes("selected_option:reviewAnswerPayload(currentAnswers[q.question_id])"),'Review submit must normalize multi-select answers to the same canonical option-key format as autosave');
+assert.ok(reviewPage.includes("body.review-quiz-mode > main > section { display: none !important; }"),'Review quiz must use a dedicated full-screen mode instead of staying in the setup page scroll');
+assert.ok(reviewPage.includes("class=\"review-question-nav\"") && reviewPage.includes("data-jump-question"),'Review must provide direct navigation to each question');
+assert.ok(reviewPage.includes("async function jumpQuiz(index)") && reviewPage.includes("await saveReviewAnswer(q.question_id,reviewAnswerPayload(currentAnswers[q.question_id]))"),'Review question jumps must save the current answer before navigating');
+assert.ok(reviewPage.includes("document.body.classList.remove('review-quiz-mode')"),'Returning from Review results must restore the setup page');
+
 const questionBankPage=pages.get('question-bank.html');
 assert.ok(questionBankPage.includes('id="review-level"') && questionBankPage.includes("mc_submit_question_with_level") && questionBankPage.includes("mc_update_pending_question_with_level"),'Question Bank must save Review level atomically with question changes');
 const home=read('index.html');
