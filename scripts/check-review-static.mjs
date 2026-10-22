@@ -33,7 +33,10 @@ for(const [label,needle] of [
  ['approved-only browse',"query=query.eq('state','approved')"],
  ['admin browse delete control','data-delete-context="bank"'],
  ['teacher browse read-only',"if(context==='bank'&&admin&&q.state==='approved')actions="],
- ['admin Question ID change refreshes bank','if(b.closest(\'#bank-list\')){if(activeBankTopic)await loadBank(activeBankTopic);else await loadBankTopics();}else await loadModeration();']
+ ['admin Question ID change refreshes bank','if(b.closest(\'#bank-list\')){if(activeBankTopic)await loadBank(activeBankTopic);else await loadBankTopics();}else await loadModeration();'],
+ ['question attachment clear control',"$('stem-images').value='';$('stem-image-preview').replaceChildren();"],
+ ['browse language refresh',"if(!$('tab-bank').classList.contains('hidden')){renderBankTopicMenu();if(activeBankTopic)loadBank(activeBankTopic);}"],
+ ['explicit math render after browse render','window.MathcolateMath.render(box)']
 ]) assert.ok(qb.includes(needle),'Missing Question Bank safeguard: '+label);
 const submissionSql=read('supabase/migrations/20261022100000_question_submission_edit_delete.sql');
 assert.ok(submissionSql.includes('function public.mc_update_pending_question'),'Missing secure question update RPC');
