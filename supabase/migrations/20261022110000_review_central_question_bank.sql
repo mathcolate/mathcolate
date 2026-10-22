@@ -74,6 +74,64 @@ $function$;
 revoke all on function public.mc_set_question_review_level(uuid,smallint) from public, anon;
 grant execute on function public.mc_set_question_review_level(uuid,smallint) to authenticated;
 
+create or replace function public.mc_submit_question_with_level(
+  p_question jsonb,
+  p_answer_key jsonb,
+  p_topic_ids uuid[],
+  p_review_level smallint
+) returns uuid
+language plpgsql
+security definer
+set search_path = ''
+as $function$
+declare
+  v_uid uuid := (select auth.uid());
+  v_role public.user_role;
+  v_question_id uuid;
+begin
+  if v_uid is null then raise exception 'Authentication required' using errcode = '28000'; end if;
+  select u.role into v_role from public.users_acc_info u where u.id = v_uid;
+  if v_role is null or v_role not in ('teacher'::public.user_role,'admin'::public.user_role) then
+    raise exception 'Teacher or admin role required' using errcode = '42501';
+  end if;
+  if p_review_level not in (1,2) then raise exception 'Review level must be 1 or 2'; end if;
+  v_question_id := public.mc_submit_question(p_question,p_answer_key,p_topic_ids);
+  update public.mc_question_bank set review_level=p_review_level,updated_at=now() where id=v_question_id;
+  return v_question_id;
+end;
+$function$;
+
+create or replace function public.mc_update_pending_question_with_level(
+  p_question_id uuid,
+  p_question jsonb,
+  p_answer_key jsonb,
+  p_topic_ids uuid[],
+  p_review_level smallint
+) returns void
+language plpgsql
+security definer
+set search_path = ''
+as $function$
+declare
+  v_uid uuid := (select auth.uid());
+  v_role public.user_role;
+begin
+  if v_uid is null then raise exception 'Authentication required' using errcode = '28000'; end if;
+  select u.role into v_role from public.users_acc_info u where u.id = v_uid;
+  if v_role is null or v_role not in ('teacher'::public.user_role,'admin'::public.user_role) then
+    raise exception 'Teacher or admin role required' using errcode = '42501';
+  end if;
+  if p_review_level not in (1,2) then raise exception 'Review level must be 1 or 2'; end if;
+  perform public.mc_update_pending_question(p_question_id,p_question,p_answer_key,p_topic_ids);
+  update public.mc_question_bank set review_level=p_review_level,updated_at=now() where id=p_question_id;
+end;
+$function$;
+
+revoke all on function public.mc_submit_question_with_level(jsonb,jsonb,uuid[],smallint) from public,anon;
+revoke all on function public.mc_update_pending_question_with_level(uuid,jsonb,jsonb,uuid[],smallint) from public,anon;
+grant execute on function public.mc_submit_question_with_level(jsonb,jsonb,uuid[],smallint) to authenticated;
+grant execute on function public.mc_update_pending_question_with_level(uuid,jsonb,jsonb,uuid[],smallint) to authenticated;
+
 create or replace function public.review_start_quiz(
   p_topic_names text[],
   p_level smallint,
