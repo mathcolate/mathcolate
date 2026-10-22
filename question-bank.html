@@ -176,7 +176,7 @@ function renderQuestionCard(q,admin=false,context='queue'){
  if(context==='queue'&&!admin&&['pending','returned'].includes(q.state))actions='<div class="flex flex-col gap-2"><button class="btn btn-primary" data-edit-question="'+q.id+'">'+(lang==='zh'?'更改':'Edit')+'</button><button class="btn btn-secondary" data-delete-question="'+q.id+'">'+(lang==='zh'?'棄稿':'Discard')+'</button></div>';
  if(context==='queue'&&admin&&['pending','returned'].includes(q.state))actions='<div class="flex flex-col gap-2"><button class="btn btn-primary" data-edit-question="'+q.id+'">'+(lang==='zh'?'修改題目':'Edit question')+'</button><button class="btn btn-primary" data-moderate="'+q.id+'" data-decision="approved">'+t('approve')+'</button><button class="btn btn-secondary" data-moderate="'+q.id+'" data-decision="returned">'+t('return')+'</button><button class="btn btn-secondary" data-moderate="'+q.id+'" data-decision="rejected">'+t('reject')+'</button><button class="btn btn-secondary" data-delete-question="'+q.id+'">'+(lang==='zh'?'刪除':'Delete')+'</button><button class="btn btn-secondary" data-change-id="'+q.id+'" data-code="'+esc(q.question_code)+'">'+t('changeId')+'</button></div>';
  if(context==='bank'&&admin&&q.state==='approved')actions='<div class="flex flex-col gap-2"><button class="btn btn-primary" data-edit-question="'+q.id+'">'+(lang==='zh'?'修改題目':'Edit question')+'</button><button class="btn btn-secondary" data-delete-question="'+q.id+'" data-delete-context="bank">'+(lang==='zh'?'刪除題目':'Delete question')+'</button><button class="btn btn-secondary" data-change-id="'+q.id+'" data-code="'+esc(q.question_code)+'">'+t('changeId')+'</button></div>';
- return '<article class="rounded-xl border border-gray-200 p-4"><div class="grid gap-4 md:grid-cols-[minmax(0,1fr)_12rem]"><div class="min-w-0"><div class="flex flex-wrap items-center gap-2"><strong>'+esc(q.question_code)+'</strong><span class="rounded-full bg-gray-100 px-2 py-1 text-xs">'+esc(q.kind)+'</span><span class="rounded-full bg-amber-50 px-2 py-1 text-xs text-amber-800">'+esc(statusLabel(q.state))+'</span><span class="text-xs text-gray-500">'+esc(t('pointsLabel'))+': '+esc(q.points)+'</span></div>'+detail+'</div><aside class="border-t border-gray-100 pt-3 md:border-l md:border-t-0 md:pl-4 md:pt-0">'+actions+'</aside></div></article>';
+ return '<article class="rounded-xl border border-gray-200 p-4"><div class="grid gap-4 md:grid-cols-[minmax(0,1fr)_12rem]"><div class="min-w-0"><div class="flex flex-wrap items-center gap-2"><strong>'+esc(q.question_code)+'</strong><span class="rounded-full bg-gray-100 px-2 py-1 text-xs">'+esc(q.kind)+'</span><span class="rounded-full bg-blue-50 px-2 py-1 text-xs text-blue-800">'+esc((lang==='zh'?'程度':'Level')+' '+(q.review_level||1))+'</span><span class="rounded-full bg-amber-50 px-2 py-1 text-xs text-amber-800">'+esc(statusLabel(q.state))+'</span><span class="text-xs text-gray-500">'+esc(t('pointsLabel'))+': '+esc(q.points)+'</span></div>'+detail+'</div><aside class="border-t border-gray-100 pt-3 md:border-l md:border-t-0 md:pl-4 md:pt-0">'+actions+'</aside></div></article>';
 }
 let activeBankTopic=null;
 let bankQuestionCache=[];
@@ -220,7 +220,7 @@ async function loadBank(topicIds=Array.from(selectedBankTopics),options={}){
   const {data:links,error:linkError}=await client.from('mc_question_topics').select('question_id').in('topic_id',topicIds);if(linkError)throw linkError;
   const ids=[...new Set((links||[]).map(x=>x.question_id))];
   if(!ids.length){renderBankQuestions();return;}
-  let query=client.from('mc_question_bank').select('id,question_code,kind,stem,choices,subparts,shared_assets,points,state,submitted_by,created_at').in('id',ids).order('question_code',{ascending:true});query=query.eq('state','approved');
+  let query=client.from('mc_question_bank').select('id,question_code,kind,stem,choices,subparts,shared_assets,points,review_level,state,submitted_by,created_at').in('id',ids).order('question_code',{ascending:true});query=query.eq('state','approved');
   const {data,error}=await query.limit(500);if(error)throw error;
   bankQuestionCache=data||[];renderBankQuestions();
  }catch(err){box.textContent=t('error')+(err.message||String(err));}
@@ -233,7 +233,7 @@ function renderModerationQuestions(){
 }
 async function loadModeration(){
  const box=$('moderation-list');box.innerHTML='<p class="text-sm text-gray-500">'+t('loading')+'</p>';
- let query=client.from('mc_question_bank').select('id,question_code,kind,stem,choices,subparts,shared_assets,points,state,submitted_by,created_at,review_reason').in('state',['pending','returned']).order('created_at',{ascending:false}).limit(200);
+ let query=client.from('mc_question_bank').select('id,question_code,kind,stem,choices,subparts,shared_assets,points,review_level,state,submitted_by,created_at,review_reason').in('state',['pending','returned']).order('created_at',{ascending:false}).limit(200);
  if(role!=='admin')query=query.eq('submitted_by',user.id);
  const {data,error}=await query;
  if(error){moderationQuestionCache=[];box.textContent=t('error')+error.message;return;}
