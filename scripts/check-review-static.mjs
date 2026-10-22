@@ -64,6 +64,18 @@ assert.ok(submissionSql.includes('v_question.submitted_by is distinct from v_uid
 for(const key of ['questionBankTitle','questionBankDesc']){
  assert.ok(JSON.parse(read('locales/en.json'))[key]&&JSON.parse(read('locales/zh.json'))[key],'Missing locale key '+key);
 }
+const reviewBankSql=read('supabase/migrations/20261022110000_review_central_question_bank.sql');
+assert.ok(reviewBankSql.includes("add column if not exists review_level smallint"),'Central question bank must classify Review level explicitly');
+assert.ok(reviewBankSql.includes("set review_level = 2") && reviewBankSql.includes("question_code ~* '(^|[-_])dse([-_]|$)'"),'Existing DSE question IDs must default to Review Level 2');
+assert.ok(reviewBankSql.includes("from public.mc_question_bank b") && reviewBankSql.includes("b.state = 'approved'::public.mc_question_state") && reviewBankSql.includes("b.review_level = p_level"),'Review must draw approved questions from the canonical Question Bank at the selected level');
+assert.ok(reviewBankSql.includes("mc_question_answer_keys") && reviewBankSql.includes("mc_question_topics"),'Review must require an answer key and use canonical question-topic links');
+assert.ok(reviewBankSql.includes("foreign key (question_id) references public.mc_question_bank(id)"),'Review attempt snapshots must reference canonical question IDs');
+assert.ok(reviewBankSql.includes("function public.mc_set_question_review_level"),'Question level updates must use a permission-checked RPC');
+const reviewPage=pages.get('review.html');
+assert.ok(reviewPage.includes("function reviewLocalized(value)") && reviewPage.includes("reviewLocalized(q.question_text)"),'Review must render bilingual question snapshots in the selected language');
+assert.ok(reviewPage.includes('type="checkbox" name="current-answer"') && reviewPage.includes("function reviewAnswerPayload(value)"),'Review must support and normalize multi-select MC answers');
+const questionBankPage=pages.get('question-bank.html');
+assert.ok(questionBankPage.includes('id="review-level"') && questionBankPage.includes("mc_set_question_review_level"),'Question Bank must allow explicit Review level assignment');
 const home=read('index.html');
 assert.ok(home.includes("const allowedViews = new Set(['main', 'register', 'manage', 'my-school', 'profile'])"),'Homepage routes must be explicitly allowlisted');
 assert.ok(home.includes("window.addEventListener('hashchange', () =>") && home.includes("this.setView(hashView, 'none')"),'Hash changes must restore views without pushing duplicate history');
