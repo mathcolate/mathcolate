@@ -38,7 +38,7 @@ for(const [label,needle] of [
  ['browse language refresh',"if(!$('tab-bank').classList.contains('hidden')){renderBankTopicMenu();if(activeBankTopic)loadBank(activeBankTopic);}"],
  ['explicit math render after browse render','window.MathcolateMath.render(box)'],
  ['remove image button is outside file input label','<div class="block text-sm font-semibold"><label for="stem-images"'],
- ['choice text is math-renderable','<span class="math-content">\'+esc((lang===\'zh\'?(c.text?.zh||c.text?.en):(c.text?.en||c.text?.zh))||\'\')+'</span>']
+ ['choice text is math-renderable',`<span class="math-content">'+esc((lang==='zh'?(c.text?.zh||c.text?.en):(c.text?.en||c.text?.zh))||'')+'</span>`]
 ]) assert.ok(qb.includes(needle),'Missing Question Bank safeguard: '+label);
 const submissionSql=read('supabase/migrations/20261022100000_question_submission_edit_delete.sql');
 assert.ok(submissionSql.includes('function public.mc_update_pending_question'),'Missing secure question update RPC');
