@@ -14,6 +14,8 @@
     body.review-quiz-mode > main > section { display: none !important; }
     body.review-quiz-mode #quiz-stage { display: block !important; margin: 0; min-height: calc(100vh - 76px); }
     body.review-quiz-mode #quiz-stage > section:first-child { min-height: calc(100vh - 76px); border: 0; border-radius: 0; box-shadow: none; padding: clamp(1rem, 3vw, 2.5rem); }
+    /* Results should size to their content; the full-screen height belongs to the active question view only. */
+    body.review-quiz-mode #quiz-stage > section.review-result-summary { min-height: 0; padding: clamp(1rem, 2vw, 1.5rem); }
     body.review-quiz-mode #result-detail-list { width: min(100% - 2rem, 64rem); margin: 1.5rem auto; }
     .review-question-nav { display: grid; grid-template-columns: repeat(auto-fit,minmax(2.5rem,1fr)); gap: .5rem; }
     .review-question-nav button { min-height: 2.5rem; border: 1px solid #e5e7eb; border-radius: .75rem; font-weight: 700; }
@@ -215,9 +217,10 @@ async function jumpQuiz(index){
 function renderResults(result){
  currentAttempt=result;const stage=document.getElementById('quiz-stage');stage.classList.remove('hidden');document.body.classList.add('review-quiz-mode');
  const pct=result.question_count?Math.round(result.correct_count/result.question_count*100):0;
- stage.innerHTML='<section class="rounded-3xl border brand-border bg-white p-5 shadow-sm sm:p-8"><div class="text-center"><p class="text-sm font-semibold uppercase tracking-widest text-gray-400">'+esc(rt('completed'))+'</p><h2 class="mt-2 text-3xl font-extrabold text-gray-900">'+esc(rt('score'))+'</h2><p class="mt-3 text-5xl font-extrabold brand-text">'+result.correct_count+'/'+result.question_count+'</p><p class="mt-2 text-gray-500">'+pct+'%</p></div><div class="mt-7 flex flex-wrap justify-center gap-3"><button id="show-result-details" class="brand-bg rounded-xl px-5 py-3 font-semibold text-white">'+esc(rt('details'))+'</button><button id="back-setup" class="rounded-xl border px-5 py-3 font-semibold">'+esc(rt('backSetup'))+'</button></div></section><div id="result-detail-list" class="mt-6 space-y-4"></div>';
+ stage.innerHTML='<section class="review-result-summary rounded-3xl border brand-border bg-white p-5 shadow-sm sm:p-6"><div class="text-center"><p class="text-sm font-semibold uppercase tracking-widest text-gray-400">'+esc(rt('completed'))+'</p><h2 class="mt-2 text-3xl font-extrabold text-gray-900">'+esc(rt('score'))+'</h2><p class="mt-3 text-5xl font-extrabold brand-text">'+result.correct_count+'/'+result.question_count+'</p><p class="mt-2 text-gray-500">'+pct+'%</p></div><div class="mt-7 flex flex-wrap justify-center gap-3"><button id="show-result-details" class="brand-bg rounded-xl px-5 py-3 font-semibold text-white">'+esc(rt('details'))+'</button><button id="back-setup" class="rounded-xl border px-5 py-3 font-semibold">'+esc(rt('backSetup'))+'</button></div></section><div id="result-detail-list" class="mt-6 space-y-4"></div>';
  renderDetailList(result);
- stage.scrollIntoView({behavior:'smooth',block:'start'});
+ // Keep the result summary directly below the sticky site header rather than scrolling to an inner stage offset.
+ window.scrollTo({top:0,behavior:'auto'});
 }
 function renderDetailList(result){
  const container=document.getElementById('result-detail-list');if(!container)return;
