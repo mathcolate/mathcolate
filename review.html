@@ -10,11 +10,10 @@
   
   <style>
     body.review-quiz-mode { min-height: 100vh; }
-    body.review-quiz-mode > header { display: none !important; }
     body.review-quiz-mode > main { max-width: none; margin: 0; padding: 0; }
     body.review-quiz-mode > main > section { display: none !important; }
-    body.review-quiz-mode #quiz-stage { display: block !important; margin: 0; min-height: 100vh; }
-    body.review-quiz-mode #quiz-stage > section:first-child { min-height: 100vh; border: 0; border-radius: 0; box-shadow: none; padding: clamp(1rem, 3vw, 2.5rem); }
+    body.review-quiz-mode #quiz-stage { display: block !important; margin: 0; min-height: calc(100vh - 76px); }
+    body.review-quiz-mode #quiz-stage > section:first-child { min-height: calc(100vh - 76px); border: 0; border-radius: 0; box-shadow: none; padding: clamp(1rem, 3vw, 2.5rem); }
     body.review-quiz-mode #result-detail-list { width: min(100% - 2rem, 64rem); margin: 1.5rem auto; }
     .review-question-nav { display: grid; grid-template-columns: repeat(auto-fit,minmax(2.5rem,1fr)); gap: .5rem; }
     .review-question-nav button { min-height: 2.5rem; border: 1px solid #e5e7eb; border-radius: .75rem; font-weight: 700; }
@@ -134,7 +133,17 @@ function applyPageLanguage(){
  Object.entries(zhText).forEach(([key,value])=>{const el=document.querySelector('[data-i18n="'+key+'"]');if(el){if(!el.dataset.enText)el.dataset.enText=el.textContent;el.textContent=pageLanguage==='zh'?value:el.dataset.enText;}});
  refreshHeader();
 }
-function togglePageLanguage(){pageLanguage=pageLanguage==='en'?'zh':'en';try{localStorage.setItem('mathcolate_language',pageLanguage);}catch(err){/* ignore unavailable storage */}applyPageLanguage();}
+function togglePageLanguage(){
+ pageLanguage=pageLanguage==='en'?'zh':'en';
+ try{localStorage.setItem('mathcolate_language',pageLanguage);}catch(err){/* ignore unavailable storage */}
+ applyPageLanguage();
+ applyReviewTranslations();
+ const inQuiz=!!document.getElementById('quiz-next');
+ const showingResults=!!(currentAttempt&&Array.isArray(currentAttempt.answers));
+ if(inQuiz){renderQuiz();}
+ else if(showingResults){renderResults(currentAttempt);}
+ else {if(reviewTopics.length)renderTopics();renderCounts();}
+}
 function togglePageUserMenu(){document.getElementById('user-dropdown').classList.toggle('hidden');}
 function goToHomeProfile(){location.href='index.html#profile';}
 function goToHomeManage(){location.href='index.html#manage';}
