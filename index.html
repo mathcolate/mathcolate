@@ -229,7 +229,7 @@
         <div class="bg-white rounded-2xl shadow-sm border border-[#f2e8e5] p-6 sm:p-8 w-full flex flex-col flex-grow">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-3xl font-bold text-gray-900" data-i18n="manageTitle">Manage Website</h2>
-                <button onclick="app.setView('main')" class="bg-[#f2e8e5] hover:bg-[#e6d5ce] text-[#5c3a18] font-semibold py-2 px-4 rounded-lg text-sm" data-i18n="manageBack">
+                <button onclick="app.setView('main', 'replace')" class="bg-[#f2e8e5] hover:bg-[#e6d5ce] text-[#5c3a18] font-semibold py-2 px-4 rounded-lg text-sm" data-i18n="manageBack">
                     Back to Dashboard
                 </button>
             </div>
@@ -296,7 +296,7 @@
         <div class="bg-white rounded-2xl shadow-sm border border-[#f2e8e5] p-6 sm:p-8 w-full flex flex-col flex-grow">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-3xl font-bold text-gray-900" data-i18n="manageTitle">View My School</h2>
-                <button onclick="app.setView('main')" class="bg-[#f2e8e5] hover:bg-[#e6d5ce] text-[#5c3a18] font-semibold py-2 px-4 rounded-lg text-sm" data-i18n="manageBack">
+                <button onclick="app.setView('main', 'replace')" class="bg-[#f2e8e5] hover:bg-[#e6d5ce] text-[#5c3a18] font-semibold py-2 px-4 rounded-lg text-sm" data-i18n="manageBack">
                     Back to Dashboard
                 </button>
             </div>
@@ -405,7 +405,7 @@
                     </div>
                 </div>
                 <div class="pt-4 flex flex-col sm:flex-row justify-end items-center space-y-4 sm:space-y-0 sm:space-x-4">
-                    <button type="button" onclick="app.setView('main')" class="w-full sm:w-auto bg-[#8b5a2b] hover:bg-[#e6d5ce] text-white font-semibold py-2.5 px-4 rounded-lg transition-colors" data-i18n="btnBackToMain">
+                    <button type="button" onclick="app.setView('main', 'replace')" class="w-full sm:w-auto bg-[#8b5a2b] hover:bg-[#e6d5ce] text-white font-semibold py-2.5 px-4 rounded-lg transition-colors" data-i18n="btnBackToMain">
                         Back to Dashboard
                     </button>
                     <button type="button" id="btn-prof-edit" onclick="app.enableProfileEdit()" class="w-full sm:w-auto bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors" data-i18n="btnEditProfile">

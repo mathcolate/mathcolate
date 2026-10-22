@@ -69,6 +69,8 @@ assert.ok(home.includes("const allowedViews = new Set(['main', 'register', 'mana
 assert.ok(home.includes("window.addEventListener('hashchange', () =>") && home.includes("this.setView(hashView, 'none')"),'Hash changes must restore views without pushing duplicate history');
 assert.ok(home.includes("if (normalizedRoute || historyMode === 'replace')"),'Invalid/denied routes must replace the current history entry');
 assert.ok(home.includes("this.setView('main', 'replace')"),'Sign-out must replace the protected view history entry');
+assert.equal(home.split(`onclick="app.setView('main', 'replace')" class="bg-[#f2e8e5] hover:bg-[#e6d5ce] text-[#5c3a18] font-semibold py-2 px-4 rounded-lg text-sm" data-i18n="manageBack"`).length-1,2,'Manage/My School Back buttons must not push the page they are leaving back into history');
+assert.ok(home.includes("onclick=\"app.setView('main', 'replace')\" class=\"w-full sm:w-auto bg-[#8b5a2b]") ,'Profile Back to Main must replace the current route entry');
 for(const path of ['preview.html','review.html','online-test.html','question-bank.html']){
  const html=pages.get(path);
  assert.ok(html.includes("localStorage.getItem('mathcolate_language')"),path+' must restore the shared language preference');
