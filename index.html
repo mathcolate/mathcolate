@@ -1039,6 +1039,7 @@
             setView(viewName, historyMode = 'push') {
                 const allowedViews = new Set(['main', 'register', 'manage', 'my-school', 'profile']);
                 let normalizedRoute = false;
+                let routeError = null;
 
                 // Never let a stale, malformed, or unknown hash hide every application view.
                 if (!allowedViews.has(viewName)) {
@@ -1048,12 +1049,12 @@
                 if (viewName === 'manage' && !this.isAdmin()) {
                     viewName = 'main';
                     normalizedRoute = true;
-                    if (this.currentUser) this.showOutputMessage(this.t('errNotAdmin'), true);
+                    if (this.currentUser) routeError = this.t('errNotAdmin');
                 }
                 if (viewName === 'my-school' && !this.isTeacher()) {
                     viewName = 'main';
                     normalizedRoute = true;
-                    if (this.currentUser) this.showOutputMessage(this.t('errNotTeacher') || 'You do not have permission to View my school.', true);
+                    if (this.currentUser) routeError = this.t('errNotTeacher') || 'You do not have permission to View my school.';
                 }
 
                 this.view = viewName;
@@ -1061,6 +1062,7 @@
                 const targetView = document.getElementById(`view-${viewName}`);
                 targetView?.classList.remove('hidden');
                 this.hideOutputMessage();
+                if (routeError) this.showOutputMessage(routeError, true);
                 window.scrollTo(0, 0);
 
                 if (viewName === 'manage') {
@@ -1455,7 +1457,7 @@
 
             async initManageView() {
                 if (!this.isAdmin()) {
-                    this.setView('main', false);
+                    this.setView('main', 'replace');
                     this.showOutputMessage(this.t('errNotAdmin'), true);
                     return;
                 }
@@ -1467,7 +1469,7 @@
 
             async initMySchoolView() {
                 if (!this.isTeacher()) {
-                    this.setView('main', false);
+                    this.setView('main', 'replace');
                     this.showOutputMessage(this.t('errNotTeacher') || 'You do not have permission.', true);
                     return;
                 }
