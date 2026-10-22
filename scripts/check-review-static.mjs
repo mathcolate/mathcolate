@@ -26,8 +26,19 @@ for(const [label,needle] of [
  ['moderation',"rpc('mc_moderate_question'"],
  ['suggestion RPC',"rpc('mc_suggest_question_changes'"],
  ['teacher/admin gate',"!['teacher','admin'].includes(role)"],
- ['bilingual stem','stem:{en:$(']
+ ['bilingual stem','stem:{en:$('],
+ ['teacher-owned edit RPC',"rpc('mc_update_pending_question'"],
+ ['discard RPC',"rpc('mc_delete_pending_question'"],
+ ['teacher-owned queue filter',"query=query.eq('submitted_by',user.id)"],
+ ['approved-only browse',"query=query.eq('state','approved')"],
+ ['admin browse delete control','data-delete-context="bank"'],
+ ['teacher browse read-only',"if(context==='bank'&&admin&&q.state==='approved')actions="]
 ]) assert.ok(qb.includes(needle),'Missing Question Bank safeguard: '+label);
+const submissionSql=read('supabase/migrations/20261022100000_question_submission_edit_delete.sql');
+assert.ok(submissionSql.includes('function public.mc_update_pending_question'),'Missing secure question update RPC');
+assert.ok(submissionSql.includes('function public.mc_delete_pending_question'),'Missing secure question delete RPC');
+assert.ok(submissionSql.includes('v_existing.submitted_by is distinct from v_uid'),'Teacher update must enforce ownership');
+assert.ok(submissionSql.includes('v_question.submitted_by is distinct from v_uid'),'Teacher delete must enforce ownership');
 for(const key of ['questionBankTitle','questionBankDesc']){
  assert.ok(JSON.parse(read('locales/en.json'))[key]&&JSON.parse(read('locales/zh.json'))[key],'Missing locale key '+key);
 }
