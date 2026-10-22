@@ -137,7 +137,7 @@ function setTab(name,historyMode='push'){
  const state={...history.state,questionBankPage:true,questionBankTab:name,questionBankView:name==='bank'?'topics':name};
  if(historyMode==='replace')history.replaceState(state,'',location.href);
  else if(historyMode==='push'&&(!history.state?.questionBankPage||history.state.questionBankTab!==name||history.state.questionBankView!==(name==='bank'?'topics':name)))history.pushState(state,'',location.href);
- if(name==='bank'){document.getElementById('bank-topic-actions')?.classList.remove('hidden');if(history.state?.questionBankView!=='questions')loadBankTopics();}
+ if(name==='bank'){document.getElementById('bank-topic-actions')?.classList.remove('hidden');if(historyMode!=='none'&&history.state?.questionBankView!=='questions')loadBankTopics();}
  if(name==='moderation')loadModeration();
 }
 function restoreQuestionBankState(state){
