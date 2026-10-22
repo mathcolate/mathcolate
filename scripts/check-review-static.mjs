@@ -42,7 +42,8 @@ for(const [label,needle] of [
  ['individual attachment removal updates FileList','input.files=dt.files;renderStemImagePreviews();'],
  ['attachment previews render selected files','Array.from(input.files||[]).forEach((file,index)=>'],
  ['synced option updates counterpart preview','target.dispatchEvent(new Event(\'input\',{bubbles:true}));'],
- ['browse language refresh',"if(!$('tab-bank').classList.contains('hidden')){renderBankTopicMenu();if(activeBankTopic)loadBank(activeBankTopic);}"],
+ ['browse language refresh uses cached data',"if(!$('tab-bank').classList.contains('hidden')){renderBankTopicMenu();if(activeBankTopic)renderBankQuestions();}"],
+ ['moderation language refresh uses cached data',"if(!$('tab-moderation').classList.contains('hidden'))renderModerationQuestions();"],
  ['explicit math render after browse render','window.MathcolateMath.render(box)'],
  ['remove image button is outside file input label','<div class="block text-sm font-semibold"><label for="stem-images"'],
  ['choice text is math-renderable',`<span class="math-content">'+esc((lang==='zh'?(c.text?.zh||c.text?.en):(c.text?.en||c.text?.zh))||'')+'</span>`]
