@@ -207,7 +207,7 @@ $('ocr-read').addEventListener('click',async()=>{
  const button=$('ocr-read');button.disabled=true;button.setAttribute('aria-busy','true');setAssistStatus(t('loading'));
  try{
   const result=await callQuestionAssist({action:'ocr',image:{mimeType:file.type,data:await fileAsBase64(file)}});
-  const q=result.question||{},language=q.detectedLanguage==='zh'?'zh':'en',rawStem=String(q.stem||'').trim();if(!rawStem)throw new Error(t('ocrNoText'));
+  const q=result.question||{},language=q.detectedLanguage==='zh'?'zh':'en',rawStem=String(q.stem||'').trim();if(!rawStem)throw new Error(t('ocrNoText'));$('translate-target').value=language==='en'?'zh':'en';
   $('question-kind').value=q.kind==='SQ'?'SQ':'MC';$('question-kind').dispatchEvent(new Event('change'));
   $('stem-en').value=language==='en'?rawStem:'';$('stem-zh').value=language==='zh'?rawStem:'';
   if(Number.isInteger(q.points)&&q.points>=1&&q.points<=100)$('question-points').value=String(q.points);
