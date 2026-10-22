@@ -169,7 +169,7 @@ function hideMessage(){document.getElementById('start-message').classList.add('h
 function reviewLocalized(value){
  if(value==null)return '';
  if(typeof value==='object')return String(value[pageLanguage]||value.en||value.zh||'');
- if(typeof value==='string'&&/^[{[]/.test(value.trim())){try{const parsed=JSON.parse(value);if(parsed&&typeof parsed==='object')return String(parsed[pageLanguage]||parsed.en||parsed.zh||value);}catch(_){}}
+ if(typeof value==='string'&&/^[\[{]/.test(value.trim())){try{const parsed=JSON.parse(value);if(parsed&&typeof parsed==='object')return String(parsed[pageLanguage]||parsed.en||parsed.zh||value);}catch(_){}}
  return String(value);
 }
 function reviewSelectedKeys(value){if(Array.isArray(value))return value.map(String);if(typeof value==='string'&&value)return value.split(',').map(x=>x.trim()).filter(Boolean);return [];}
