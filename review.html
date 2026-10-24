@@ -25,6 +25,48 @@
     .brand-text { color: #5c3a18; }
     .brand-bg { background: #8b5a2b; }
     .brand-border { border-color: #f2e8e5; }
+
+    /* Give quiz controls comfortable horizontal breathing room on narrow screens. */
+    body.review-quiz-mode #quiz-stage button {
+      box-sizing: border-box;
+      padding-inline: 1.25rem;
+      line-height: 1.35;
+      white-space: normal;
+    }
+    body.review-quiz-mode #quiz-stage #quiz-prev,
+    body.review-quiz-mode #quiz-stage #quiz-next {
+      min-height: 2.75rem;
+    }
+    /* Math fractions have tall glyphs, so leave extra space after the question navigator. */
+    body.review-quiz-mode #quiz-stage .review-question-nav + h2 {
+      margin-top: 2.25rem;
+      padding-top: .15rem;
+    }
+    @media (max-width: 640px) {
+      body.review-quiz-mode #quiz-stage > section:first-child {
+        padding: 1rem;
+      }
+      body.review-quiz-mode #quiz-stage .review-question-nav + h2 {
+        margin-top: 2rem;
+        line-height: 1.9;
+      }
+      body.review-quiz-mode #quiz-stage .review-question-nav {
+        gap: .4rem;
+      }
+      body.review-quiz-mode #quiz-stage .review-question-nav button {
+        min-width: 0;
+        padding-inline: .5rem;
+      }
+      body.review-quiz-mode #quiz-stage #quiz-prev,
+      body.review-quiz-mode #quiz-stage #quiz-next {
+        padding-inline: 1.25rem;
+      }
+      body.review-quiz-mode #quiz-stage #show-result-details,
+      body.review-quiz-mode #quiz-stage #back-setup {
+        padding-inline: 1.25rem;
+      }
+    }
+
     #recent-limit { appearance: none; -webkit-appearance: none; padding-right: 30px; background-image: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2712%27 height=%2712%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%236b7280%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath d=%27m6 9 6 6 6-6%27/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 8px center; background-size: 12px 12px; }
   </style>
 
