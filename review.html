@@ -29,9 +29,18 @@
     /* Give quiz controls comfortable horizontal breathing room on narrow screens. */
     body.review-quiz-mode #quiz-stage button {
       box-sizing: border-box;
+      max-width: 100%;
       padding-inline: 1.25rem;
       line-height: 1.35;
       white-space: normal;
+      overflow-wrap: anywhere;
+    }
+    body.review-quiz-mode #quiz-stage .review-question-nav button {
+      padding-inline: .5rem;
+    }
+    body.review-quiz-mode #quiz-stage .review-result-summary .flex button {
+      flex: 0 1 auto;
+      min-width: 0;
     }
     body.review-quiz-mode #quiz-stage #quiz-prev,
     body.review-quiz-mode #quiz-stage #quiz-next {
@@ -50,7 +59,7 @@
         margin-top: 2rem;
         line-height: 1.9;
       }
-      body.review-quiz-mode #quiz-stage .review-question-stem {
+      body.review-quiz-mode #quiz-stage .review-question-nav {
         gap: .4rem;
       }
       body.review-quiz-mode #quiz-stage .review-question-nav button {
